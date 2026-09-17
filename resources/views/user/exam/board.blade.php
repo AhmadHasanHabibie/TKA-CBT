@@ -32,8 +32,8 @@
     x-cloak>
 
     {{-- ── Top Floating Responsive Header ──────────────────────── --}}
-    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-15 sm:h-16 flex items-center justify-between gap-2">
+    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shadow-2xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-3 sm:gap-4">
             
             {{-- Title & Brand --}}
             <div class="flex items-center gap-2.5 min-w-0 flex-1">
@@ -87,12 +87,12 @@
     </header>
 
     {{-- ── Main Exam Board Container ───────────────────────────── --}}
-    <main class="flex-1 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full py-4 sm:py-6">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-7 pb-12 sm:pt-9 sm:pb-16">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
             
             {{-- Left: Main Question Area (col-span-3) --}}
-            <div class="lg:col-span-3 space-y-4 sm:space-y-5">
-                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-4 sm:p-8 transition-all">
+            <div class="lg:col-span-3 space-y-4 sm:space-y-6">
+                <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm sm:shadow-md p-5 sm:p-8 md:p-9 transition-all">
                     
                     {{-- Question Header: Number indicator & Badges --}}
                     <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 sm:mb-6 border-b border-slate-100">
@@ -286,7 +286,7 @@
                 </div>
 
                 {{-- Bottom Navigation Action Buttons (Clean Left & Right Only) --}}
-                <div class="flex items-center justify-between pt-2 gap-3">
+                <div class="flex items-center justify-between pt-4 sm:pt-6 gap-3">
                     <button type="button" @click="prevQuestion()" :disabled="currentIndex === 0"
                         class="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-2xs active:scale-95">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
