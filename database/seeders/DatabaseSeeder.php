@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@tka.test'],
             [
                 'name' => 'Administrator TKA',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('kingahmad123'),
                 'role' => 'admin',
                 'email_verified_at' => now(),
             ]

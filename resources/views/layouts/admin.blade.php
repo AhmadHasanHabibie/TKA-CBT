@@ -11,14 +11,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="h-full antialiased bg-slate-50" x-data="{ mobileMenuOpen: false }">
+<body class="min-h-full antialiased bg-slate-50" x-data="{ mobileMenuOpen: false }" :class="{ 'overflow-hidden': mobileMenuOpen }">
 
-<div class="flex h-full">
+<div class="flex min-h-screen">
 
-    {{-- ═══════════════ SIDEBAR ═══════════════ --}}
+    {{-- ═══════════════ SIDEBAR (DESKTOP & LAPTOP) ═══════════════ --}}
     <aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-40">
-        {{-- Sidebar inner with gradient bg --}}
-        <div class="flex flex-col flex-1 bg-slate-950 border-r border-slate-800/60 overflow-y-auto">
+        {{-- Sidebar inner: flex column taking full height, NO outer overflow so footer stays pinned --}}
+        <div class="flex flex-col h-full bg-slate-950 border-r border-slate-800/60 overflow-hidden">
 
             {{-- Brand Header --}}
             <div class="flex items-center gap-3 h-16 px-5 border-b border-slate-800/60 flex-shrink-0">
@@ -31,8 +31,8 @@
                 </div>
             </div>
 
-            {{-- Nav Section --}}
-            <nav class="flex-1 px-3 py-5 space-y-0.5">
+            {{-- Nav Section: Only this section scrolls when content overflows on small laptop heights --}}
+            <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto min-h-0">
                 <p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-600">Menu Utama</p>
 
                 <a href="{{ route('admin.dashboard') }}"
@@ -96,10 +96,10 @@
                 </a>
             </nav>
 
-            {{-- User Card + Logout --}}
-            <div class="p-3 border-t border-slate-800/60">
+            {{-- User Card + Logout (PINNED AT BOTTOM, flex-shrink-0, NEVER submerged) --}}
+            <div class="p-3 border-t border-slate-800/60 flex-shrink-0 bg-slate-950">
                 <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-900 mb-2 transition group" title="Buka Profil">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
                         {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
                     </div>
                     <div class="flex-1 min-w-0">
@@ -110,8 +110,8 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                            class="w-full flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 border border-slate-800/60 transition-all duration-150">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="w-full flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 hover:border-rose-500/40 transition-all duration-150 active:scale-[0.98]">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                         <span>Keluar</span>
@@ -122,41 +122,142 @@
     </aside>
 
     {{-- ═══════════════ MOBILE DRAWER ═══════════════ --}}
-    <div x-show="mobileMenuOpen" x-cloak class="fixed inset-0 z-50 flex md:hidden">
-        <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm" @click="mobileMenuOpen = false"></div>
-        <div class="relative flex flex-col w-72 bg-slate-950 border-r border-slate-800/60 slide-up"
+    <div x-show="mobileMenuOpen"
+         x-cloak
+         class="fixed inset-0 z-50 flex md:hidden"
+         role="dialog"
+         aria-modal="true">
+
+        {{-- Backdrop --}}
+        <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm"
+             x-show="mobileMenuOpen"
+             x-transition:enter="transition-opacity ease-out duration-250"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="mobileMenuOpen = false"></div>
+
+        {{-- Drawer Panel --}}
+        <div class="relative flex flex-col w-72 max-w-[85vw] h-full h-[100dvh] bg-slate-950 border-r border-slate-800/60 shadow-2xl z-10"
+             x-show="mobileMenuOpen"
+             x-transition:enter="transition ease-out duration-250 transform"
+             x-transition:enter-start="-translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="-translate-x-full"
              @click.away="mobileMenuOpen = false">
-            <div class="flex items-center justify-between h-16 px-5 border-b border-slate-800/60">
+
+            {{-- Drawer Header --}}
+            <div class="flex items-center justify-between h-16 px-5 border-b border-slate-800/60 flex-shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm">T</div>
-                    <span class="text-white font-black text-sm">TKA-CBT Admin</span>
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-indigo-600/30">
+                        T
+                    </div>
+                    <span class="text-white font-black text-sm tracking-wide">TKA-CBT Admin</span>
                 </div>
-                <button @click="mobileMenuOpen = false" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/5 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button type="button"
+                        @click="mobileMenuOpen = false"
+                        class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/5 transition"
+                        aria-label="Tutup Menu">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
                 </button>
             </div>
-            <nav class="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5' }} transition">
-                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
-                    Dashboard
+
+            {{-- Nav Section: scrollable if many items --}}
+            <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto min-h-0">
+                <p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-600">Menu Utama</p>
+
+                <a href="{{ route('admin.dashboard') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150
+                          {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                    <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+                    </svg>
+                    <span>Dashboard</span>
+                    @if(request()->routeIs('admin.dashboard'))
+                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
+                    @endif
                 </a>
-                <a href="{{ route('admin.subtests.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.subtests.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5' }} transition">
-                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Kelola Subtest
+
+                <a href="{{ route('admin.subtests.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150
+                          {{ request()->routeIs('admin.subtests.*') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                    <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Kelola Subtest</span>
+                    @if(request()->routeIs('admin.subtests.*'))
+                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
+                    @endif
                 </a>
-                <a href="{{ route('admin.question-banks.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.question-banks.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5' }} transition">
-                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    Bank Soal
+
+                <a href="{{ route('admin.question-banks.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150
+                          {{ request()->routeIs('admin.question-banks.*') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                    <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Bank Soal</span>
+                    @if(request()->routeIs('admin.question-banks.*'))
+                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
+                    @endif
                 </a>
-                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.users.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5' }} transition">
-                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    Kelola Peserta
+
+                <a href="{{ route('admin.users.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150
+                          {{ request()->routeIs('admin.users.*') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                    <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <span>Kelola Peserta</span>
+                    @if(request()->routeIs('admin.users.*'))
+                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
+                    @endif
                 </a>
-                <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.profile.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5' }} transition">
-                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    Profil Admin
+
+                <a href="{{ route('admin.profile.edit') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150
+                          {{ request()->routeIs('admin.profile.*') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                    <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span>Profil Admin</span>
+                    @if(request()->routeIs('admin.profile.*'))
+                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
+                    @endif
                 </a>
             </nav>
+
+            {{-- Mobile Drawer Footer (PINNED AT BOTTOM, ALWAYS VISIBLE) --}}
+            <div class="p-3 border-t border-slate-800/60 flex-shrink-0 bg-slate-950/95">
+                <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 mb-2 transition group" title="Buka Profil">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
+                        {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-bold text-white truncate group-hover:text-indigo-400 transition">{{ Auth::user()->name ?? 'Admin' }}</p>
+                        <p class="text-[10px] text-slate-500 truncate">{{ Auth::user()->email ?? '' }}</p>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit"
+                            class="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all duration-150 active:scale-[0.98]">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Keluar</span>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -164,11 +265,12 @@
     <div class="md:pl-64 flex flex-col flex-1 min-w-0 min-h-screen">
 
         {{-- Topbar --}}
-        <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-slate-200/80 flex items-center justify-between px-5 sm:px-8 sticky top-0 z-30">
+        <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-slate-200/80 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
             <div class="flex items-center gap-3">
                 {{-- Mobile hamburger --}}
                 <button type="button" @click="mobileMenuOpen = true"
-                        class="md:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition">
+                        class="md:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
+                        aria-label="Buka Menu Navigasi">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
@@ -180,16 +282,35 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3">
                 <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
                     <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
                     Superadmin
                 </span>
+
                 <a href="{{ route('admin.profile.edit') }}"
-                   class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center text-xs font-black shadow-xs hover:scale-105 transition"
+                   class="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-slate-100 transition group"
                    title="Profil Administrator">
-                    {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center text-xs font-black shadow-xs group-hover:scale-105 transition flex-shrink-0">
+                        {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                    </div>
+                    <span class="hidden lg:inline text-xs font-bold text-slate-700 group-hover:text-indigo-600 transition truncate max-w-[120px]">
+                        {{ Auth::user()->name ?? 'Admin' }}
+                    </span>
                 </a>
+
+                {{-- Direct Logout button in topbar - instantly accessible on both mobile and laptop without opening drawer --}}
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit"
+                            title="Keluar dari Admin"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 text-slate-600 hover:text-rose-600 text-xs font-bold transition-all duration-150 shadow-sm active:scale-95">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span class="hidden sm:inline">Keluar</span>
+                    </button>
+                </form>
             </div>
         </header>
 
