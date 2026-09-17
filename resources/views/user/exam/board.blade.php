@@ -172,10 +172,10 @@
                                 <template x-for="option in currentQuestion.options" :key="option.id">
                                     <div class="p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-2xs">
                                         <div class="flex items-start gap-3 flex-1 min-w-0">
-                                            <div class="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5"
+                                            <div class="w-8 h-8 min-w-[2rem] min-h-[2rem] rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 aspect-square mt-0.5 shadow-2xs"
                                                 x-text="option.label">
                                             </div>
-                                            <p class="text-sm font-medium text-slate-800 leading-relaxed break-words" x-text="option.text"></p>
+                                            <p class="text-sm font-medium text-slate-800 leading-relaxed break-words pt-1" x-text="option.text"></p>
                                         </div>
                                         <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0 pt-1 sm:pt-0">
                                             {{-- Sesuai Button --}}
@@ -260,7 +260,7 @@
 
                                         {{-- Multi-select Checkbox Square Indicator --}}
                                         <template x-if="currentQuestion.type === 'multiple'">
-                                            <div class="w-5 h-5 mt-1 rounded-md border flex items-center justify-center flex-shrink-0 transition"
+                                            <div class="w-5 h-5 min-w-[1.25rem] min-h-[1.25rem] mt-1.5 rounded-md border flex items-center justify-center shrink-0 aspect-square transition"
                                                 :class="isOptionSelected(option.id) ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 bg-white group-hover:border-slate-400'">
                                                 <svg x-show="isOptionSelected(option.id)" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -269,7 +269,7 @@
                                         </template>
                                         
                                         {{-- Option Label Pill (A, B, C, D, E) --}}
-                                        <div class="w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center flex-shrink-0 transition"
+                                        <div class="w-8 h-8 min-w-[2rem] min-h-[2rem] rounded-xl font-bold text-xs flex items-center justify-center shrink-0 aspect-square transition shadow-2xs"
                                             :class="isOptionSelected(option.id) ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200'"
                                             x-text="option.label">
                                         </div>

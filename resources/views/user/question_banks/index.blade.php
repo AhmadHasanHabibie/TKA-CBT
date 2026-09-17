@@ -40,20 +40,20 @@
             @endforeach
         </div>
 
-        <form method="GET" action="{{ route('user.question-banks.index') }}" class="flex items-center gap-2">
+        <form method="GET" action="{{ route('user.question-banks.index') }}" class="flex items-center gap-2 w-full sm:w-auto">
             @if (request('category'))
                 <input type="hidden" name="category" value="{{ request('category') }}">
             @endif
-            <div class="relative">
+            <div class="relative flex-1 sm:w-64">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama bank soal..."
-                       class="form-input pl-9 text-sm w-56 sm:w-64">
+                       class="form-input pl-9 text-sm w-full">
             </div>
-            <button type="submit" class="btn-primary btn-sm">Cari</button>
+            <button type="submit" class="btn-primary btn-sm flex-shrink-0">Cari</button>
             @if (request('search') || request('category'))
-                <a href="{{ route('user.question-banks.index') }}" class="text-xs text-slate-400 hover:text-rose-600 font-semibold transition">Reset</a>
+                <a href="{{ route('user.question-banks.index') }}" class="text-xs text-slate-400 hover:text-rose-600 font-semibold transition flex-shrink-0">Reset</a>
             @endif
         </form>
     </div>

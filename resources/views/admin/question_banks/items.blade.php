@@ -248,16 +248,16 @@
         @keydown.escape.window="lightboxOpen = false"
         @click.self="lightboxOpen = false">
         <div class="relative max-w-5xl w-full max-h-[92vh] bg-white rounded-3xl p-4 sm:p-6 shadow-2xl overflow-y-auto flex flex-col">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-                <h3 class="text-sm font-bold text-slate-900" x-text="lightboxTitle"></h3>
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 gap-3">
+                <h3 class="text-sm font-bold text-slate-900 truncate min-w-0" x-text="lightboxTitle"></h3>
                 <button type="button" @click="lightboxOpen = false"
-                    class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center font-bold text-sm">
+                    class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center font-bold text-sm flex-shrink-0 transition">
                     ✕
                 </button>
             </div>
 
-            <div class="flex-1 flex items-center justify-center bg-slate-50 rounded-2xl p-2 mb-3 min-h-[350px]">
-                <img :src="lightboxImage" :alt="lightboxTitle" class="max-h-[65vh] max-w-full rounded-xl object-contain shadow-xs">
+            <div class="flex-1 flex items-center justify-center bg-slate-950 rounded-2xl p-3 mb-3 min-h-[220px]">
+                <img :src="lightboxImage" :alt="lightboxTitle" class="max-h-[65vh] max-w-full rounded-xl object-contain shadow-md">
             </div>
 
             <template x-if="lightboxNotes">
