@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/tokobii1/cbt.tokobiie.my.id/
+    - /bin/cp -R * $DEPLOYPATH
