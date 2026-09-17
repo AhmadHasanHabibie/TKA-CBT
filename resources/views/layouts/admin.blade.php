@@ -82,19 +82,31 @@
                     <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
                     @endif
                 </a>
+
+                <a href="{{ route('admin.profile.edit') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 group
+                          {{ request()->routeIs('admin.profile.*') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                    <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>Profil Admin</span>
+                    @if(request()->routeIs('admin.profile.*'))
+                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
+                    @endif
+                </a>
             </nav>
 
             {{-- User Card + Logout --}}
             <div class="p-3 border-t border-slate-800/60">
-                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900/60 mb-2">
+                <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-900 mb-2 transition group" title="Buka Profil">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
                         {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-xs font-bold text-white truncate">{{ Auth::user()->name ?? 'Admin' }}</p>
+                        <p class="text-xs font-bold text-white truncate group-hover:text-indigo-400 transition">{{ Auth::user()->name ?? 'Admin' }}</p>
                         <p class="text-[10px] text-slate-500 truncate">{{ Auth::user()->email ?? '' }}</p>
                     </div>
-                </div>
+                </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
@@ -140,6 +152,10 @@
                     <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     Kelola Peserta
                 </a>
+                <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.profile.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5' }} transition">
+                    <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    Profil Admin
+                </a>
             </nav>
         </div>
     </div>
@@ -169,9 +185,11 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
                     Superadmin
                 </span>
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center text-xs font-black">
+                <a href="{{ route('admin.profile.edit') }}"
+                   class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center text-xs font-black shadow-xs hover:scale-105 transition"
+                   title="Profil Administrator">
                     {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
-                </div>
+                </a>
             </div>
         </header>
 

@@ -28,6 +28,21 @@ class EnsureUserIsAdmin
             return redirect()->route('user.dashboard')->with('error', 'Akses ditolak. Halaman ini khusus Administrator.');
         }
 
+        // Verify administrator security PIN session
+        if (!session('admin_pin_verified')) {
+            if ($request->routeIs('admin.pin.*') || $request->is('admin/verify-pin*')) {
+                return $next($request);
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'PIN Keamanan Administrator belum diverifikasi.'], 403);
+            }
+
+            return redirect()->route('login');
+        }
+
+
         return $next($request);
+
     }
 }

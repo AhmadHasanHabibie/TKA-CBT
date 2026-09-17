@@ -112,4 +112,16 @@ return [
 
     'password_timeout' => 10800,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Administrator Security PIN
+    |--------------------------------------------------------------------------
+    |
+    | Two-factor step-up authentication PIN required for administrator access.
+    |
+    */
+
+    'admin_pin' => env('ADMIN_PIN', '252009'),
+
 ];
+

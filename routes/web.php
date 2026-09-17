@@ -2,12 +2,15 @@
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PdfUploadController as AdminPdfUploadController;
+use App\Http\Controllers\Admin\PinVerificationController as AdminPinVerificationController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\QuestionBankController as AdminQuestionBankController;
 use App\Http\Controllers\Admin\SubtestController as AdminSubtestController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\ExamEngineController as UserExamEngineController;
+use App\Http\Controllers\User\ProfileController as UserProfileController;
 use App\Http\Controllers\User\QuestionBankController as UserQuestionBankController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,8 +32,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Admin Route Group (Protected by 'admin' middleware)
 // ==========================================
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Administrator Security PIN Verification
+    Route::get('/verify-pin', [AdminPinVerificationController::class, 'show'])->name('pin.show');
+    Route::post('/verify-pin', [AdminPinVerificationController::class, 'verify'])->name('pin.verify');
+
     // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
 
     // User Management
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
@@ -62,6 +70,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/question-banks/{questionBank}/items/upload', [AdminQuestionBankController::class, 'uploadItems'])->name('question-banks.items.upload');
     Route::put('/question-banks/{questionBank}/items/{item}', [AdminQuestionBankController::class, 'updateItem'])->name('question-banks.items.update');
     Route::delete('/question-banks/{questionBank}/items/{item}', [AdminQuestionBankController::class, 'destroyItem'])->name('question-banks.items.destroy');
+
+    // Admin Profile Management
+    Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [AdminProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.update-password');
 });
 
 // ==========================================
@@ -70,6 +83,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 Route::middleware(['auth', 'user'])->prefix('user')->name('user.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+
+    // User Profile Management (Ganti Username & Password Baru langsung tanpa password lama)
+    Route::get('/profile', [UserProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [UserProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [UserProfileController::class, 'updatePassword'])->name('profile.update-password');
 
     // CBT Exam Engine
     Route::get('/exam/{subtest:slug}/start', [UserExamEngineController::class, 'start'])->name('exam.start');

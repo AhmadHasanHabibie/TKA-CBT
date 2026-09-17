@@ -34,12 +34,20 @@ class CbtEndToEndTest extends TestCase
         $response = $this->get('/user/dashboard');
         $response->assertRedirect('/login');
 
-        // Admin login
+        // Admin login (detected as admin -> redirected to login PIN step)
         $response = $this->post('/login', [
             'email' => 'admin@tka.test',
             'password' => 'password',
         ]);
+        $response->assertRedirect(route('login'));
+
+        // Submit Administrator PIN 252009
+        $response = $this->post(route('login.post'), [
+            'pin' => '252009',
+        ]);
         $response->assertRedirect('/admin/dashboard');
+
+
 
         // Admin accessing user dashboard gets redirected to admin dashboard
         $admin = User::where('email', 'admin@tka.test')->first();
@@ -227,6 +235,10 @@ class CbtEndToEndTest extends TestCase
         $response = $this->actingAs($user)->get(route('user.exam.board', $subtest));
         $response->assertStatus(200);
         $response->assertSee('Semua mamalia');
+        $response->assertSee('mobileNavOpen');
+        $response->assertSee('Navigasi');
+        $response->assertDontSee('ring-offset-2');
+        $response->assertDontSee('border-slate-900');
 
         // 4. Auto-save answer for Question 1 (Single choice: select option B which is correct)
         $q1 = $subtest->questions()->where('number', 1)->first();
