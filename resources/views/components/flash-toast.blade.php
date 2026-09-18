@@ -36,17 +36,17 @@
     }
 }"
 @toast.window="add($event.detail.message, $event.detail.type || 'info', $event.detail.duration || 5000)"
-class="fixed top-5 right-5 z-[110] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0">
+class="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-[110] flex flex-col items-center gap-2.5 w-full max-w-md pointer-events-none px-4">
 
     <template x-for="t in toasts" :key="t.id">
         <div x-show="t.visible"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 translate-x-8 scale-95"
-             x-transition:enter-end="opacity-100 translate-x-0 scale-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100 translate-x-0 scale-100"
-             x-transition:leave-end="opacity-0 translate-x-8 scale-95"
-             class="pointer-events-auto flex items-start gap-3 p-4 rounded-2xl bg-white border shadow-xl shadow-slate-900/10 text-slate-800"
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 -translate-y-4 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+             x-transition:leave-end="opacity-0 -translate-y-4 scale-95"
+             class="pointer-events-auto flex items-start gap-3.5 p-4 rounded-2xl bg-white/95 backdrop-blur-md border shadow-2xl shadow-slate-900/15 text-slate-800 w-full"
              :class="t.type === 'danger' || t.type === 'error'
                 ? 'border-rose-200 ring-1 ring-rose-500/10'
                 : t.type === 'warning'

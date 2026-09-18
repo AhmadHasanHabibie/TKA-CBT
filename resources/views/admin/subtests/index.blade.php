@@ -41,18 +41,18 @@
             <table class="table-base">
                 <thead class="table-head">
                     <tr>
-                        <th class="table-th">Nama Subtest</th>
-                        <th class="table-th text-center">Jumlah Soal</th>
-                        <th class="table-th text-center">Durasi</th>
-                        <th class="table-th text-center">Status</th>
-                        <th class="table-th text-center">Sesi</th>
-                        <th class="table-th text-right">Aksi</th>
+                        <th class="table-th whitespace-nowrap">Nama Subtest</th>
+                        <th class="table-th text-center whitespace-nowrap">Jumlah Soal</th>
+                        <th class="table-th text-center whitespace-nowrap">Durasi</th>
+                        <th class="table-th text-center whitespace-nowrap">Status</th>
+                        <th class="table-th text-center whitespace-nowrap">Sesi</th>
+                        <th class="table-th text-right whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($subtests as $subtest)
                         <tr class="table-row group">
-                            <td class="table-td">
+                            <td class="table-td whitespace-nowrap">
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 font-black text-xs flex items-center justify-center flex-shrink-0 border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-200">
                                         {{ strtoupper(substr($subtest->name, 0, 2)) }}
@@ -64,13 +64,16 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="table-td text-center">
+                            <td class="table-td text-center whitespace-nowrap">
                                 <span class="badge {{ $subtest->total_questions > 0 ? 'badge-indigo' : 'badge-rose' }}">
                                     {{ $subtest->total_questions }} Soal
                                 </span>
                             </td>
-                            <td class="table-td text-center font-mono text-sm text-slate-600 font-semibold">
-                                {{ $subtest->duration_minutes }}'
+                            <td class="table-td text-center whitespace-nowrap">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-mono text-xs font-bold border border-slate-200/60">
+                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    {{ $subtest->duration_minutes }} Menit
+                                </span>
                             </td>
                             <td class="table-td text-center">
                                 <form method="POST" action="{{ route('admin.subtests.toggle', $subtest) }}" class="inline-block">

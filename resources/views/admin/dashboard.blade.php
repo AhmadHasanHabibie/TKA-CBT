@@ -99,17 +99,17 @@
             <table class="table-base">
                 <thead class="table-head">
                     <tr>
-                        <th class="table-th">Nama Peserta</th>
-                        <th class="table-th">Subtest</th>
-                        <th class="table-th text-center">Benar / Total</th>
-                        <th class="table-th text-center">Skor Akhir</th>
-                        <th class="table-th text-right">Waktu Selesai</th>
+                        <th class="table-th whitespace-nowrap">Nama Peserta</th>
+                        <th class="table-th whitespace-nowrap">Subtest</th>
+                        <th class="table-th text-center whitespace-nowrap">Benar / Total</th>
+                        <th class="table-th text-center whitespace-nowrap">Skor Akhir</th>
+                        <th class="table-th text-right whitespace-nowrap">Waktu Selesai</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($recentAttempts as $attempt)
                         <tr class="table-row">
-                            <td class="table-td">
+                            <td class="table-td whitespace-nowrap">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-700 font-black text-xs flex items-center justify-center flex-shrink-0">
                                         {{ strtoupper(substr($attempt->user->name ?? 'U', 0, 1)) }}
@@ -120,22 +120,25 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="table-td font-semibold text-slate-700">
+                            <td class="table-td font-semibold text-slate-700 whitespace-nowrap">
                                 {{ $attempt->subtest->name ?? 'Subtest Dihapus' }}
                             </td>
-                            <td class="table-td text-center">
+                            <td class="table-td text-center whitespace-nowrap">
                                 <span class="badge badge-indigo text-xs">
                                     {{ $attempt->correct_count ?? 0 }} / {{ $attempt->subtest->total_questions ?? '-' }}
                                 </span>
                             </td>
-                            <td class="table-td text-center">
+                            <td class="table-td text-center whitespace-nowrap">
                                 <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-black
                                     {{ $attempt->score >= 70 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }}">
                                     {{ number_format($attempt->score, 1) }}
                                 </span>
                             </td>
-                            <td class="table-td text-right text-xs text-slate-400 font-mono">
-                                {{ $attempt->finished_at ? $attempt->finished_at->format('d M Y, H:i') : '—' }}
+                            <td class="table-td text-right whitespace-nowrap">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80 text-xs text-slate-600 font-mono font-medium">
+                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    {{ $attempt->finished_at ? $attempt->finished_at->format('d M Y, H:i') : '—' }}
+                                </span>
                             </td>
                         </tr>
                     @empty
