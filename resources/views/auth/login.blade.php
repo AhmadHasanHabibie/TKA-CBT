@@ -1,3 +1,37 @@
+@php
+    $showcaseSlides = [
+        [
+            'title' => 'Momen Pelepasan & Wisuda Siswa Angkatan',
+            'category' => 'Wisuda & Kelulusan Angkatan',
+            'category_icon' => '🎓',
+            'location' => 'Lapangan Utama Sekolah',
+            'photos_count' => '148 Foto',
+            'date' => 'Angkatan 2026',
+            'description' => 'Dokumentasi penuh kebanggaan dan haru perayaan kelulusan siswa bersama guru pembimbing dan sahabat.',
+            'image' => asset('images/documentation/student_event_1.jpg'),
+        ],
+        [
+            'title' => 'Proyek Sains & Kolaborasi Robotika Siswa',
+            'category' => 'Pembelajaran Kreatif & STEM',
+            'category_icon' => '🔬',
+            'location' => 'Laboratorium Sains & Inovasi',
+            'photos_count' => '92 Foto',
+            'date' => 'Semester Genap',
+            'description' => 'Antusiasme para siswa dalam riset teknologi ramah lingkungan, eksperimen ilmiah, dan kreasi robotika.',
+            'image' => asset('images/documentation/student_event_2.jpg'),
+        ],
+        [
+            'title' => 'Keseruan Pekan Olahraga & Pentas Seni Siswa',
+            'category' => 'Classmeeting & Olahraga',
+            'category_icon' => '🏆',
+            'location' => 'Gelanggang Olahraga Siswa',
+            'photos_count' => '210 Foto',
+            'date' => 'Pekan Olahraga Tahunan',
+            'description' => 'Semarak kebersamaan pertandingan persahabatan antar kelas, selebrasi juara umum, dan pertunjukan seni musik.',
+            'image' => asset('images/documentation/student_event_3.jpg'),
+        ],
+    ];
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -14,10 +48,10 @@
 
 <div class="flex min-h-screen">
 
-    {{-- ── Left Panel: Brand / Visual ──────────────────── --}}
-    <div class="hidden lg:flex lg:w-[52%] relative flex-col bg-slate-950 overflow-hidden">
+    {{-- ── Left Panel: Brand & Interactive Auto-Sliding Photo Showcase ── --}}
+    <div class="hidden lg:flex lg:w-[52%] relative flex-col bg-slate-950 overflow-hidden select-none">
 
-        {{-- Gradient orbs --}}
+        {{-- Gradient orbs background --}}
         <div class="absolute top-[-80px] left-[-80px] w-[420px] h-[420px] rounded-full bg-indigo-600/25 blur-[100px] pointer-events-none"></div>
         <div class="absolute bottom-[-60px] right-[-60px] w-[360px] h-[360px] rounded-full bg-violet-600/20 blur-[80px] pointer-events-none"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-indigo-900/20 blur-[120px] pointer-events-none"></div>
@@ -27,64 +61,156 @@
              style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;">
         </div>
 
-        <div class="relative z-10 flex flex-col h-full p-10">
-            {{-- Logo / Brand --}}
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-600/40">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="text-white font-black text-sm tracking-wide">GALERI SISWA</div>
-                    <div class="text-indigo-400 text-[11px] font-medium">Portal Dokumentasi Foto Siswa</div>
-                </div>
-            </div>
+        <div class="relative z-10 flex flex-col justify-between h-full p-8 lg:p-10 space-y-6"
+             x-data="{
+                activeSlide: 0,
+                totalSlides: {{ count($showcaseSlides) }},
+                slides: {{ Js::from($showcaseSlides) }},
+                autoPlayTimer: null,
+                startSlider() {
+                    this.autoPlayTimer = setInterval(() => {
+                        this.nextSlide();
+                    }, 4200);
+                },
+                pauseSlider() {
+                    if (this.autoPlayTimer) clearInterval(this.autoPlayTimer);
+                },
+                nextSlide() {
+                    this.activeSlide = (this.activeSlide + 1) % this.totalSlides;
+                },
+                prevSlide() {
+                    this.activeSlide = (this.activeSlide - 1 + this.totalSlides) % this.totalSlides;
+                },
+                goTo(idx) {
+                    this.activeSlide = idx;
+                }
+             }"
+             x-init="startSlider()"
+             @mouseenter="pauseSlider()"
+             @mouseleave="startSlider()">
 
-            {{-- Center content --}}
-            <div class="flex-1 flex flex-col justify-center max-w-md">
-                <div class="mb-8">
-                    <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 mb-6">
-                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-                        Galeri Dokumentasi Aktif
-                    </span>
-                    <h1 class="text-4xl font-black text-white leading-tight tracking-tight mb-4">
-                        Dokumentasi Foto<br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">&amp; Memori Siswa</span>
-                    </h1>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Portal galeri digital resmi untuk mengarsipkan, melihat, dan mengunduh dokumentasi kegiatan belajar, acara sekolah, ekstrakurikuler, serta momen kebersamaan siswa.
-                    </p>
-                </div>
-
-                {{-- Feature list --}}
-                <div class="space-y-4">
-                    @foreach ([
-                        ['icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'text' => 'Album Dokumentasi Kegiatan & Acara Sekolah'],
-                        ['icon' => 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z', 'text' => 'Penampil Foto Layar Penuh & Kualitas HD'],
-                        ['icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', 'text' => 'Arsip Digital Aman Khusus Siswa & Sekolah'],
-                    ] as $f)
-                    <div class="flex items-center gap-3.5">
-                        <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $f['icon'] }}" />
-                            </svg>
-                        </div>
-                        <span class="text-slate-300 text-sm font-medium">{{ $f['text'] }}</span>
+            {{-- Top Header / Brand & Live Status --}}
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-600/40 border border-white/10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
                     </div>
-                    @endforeach
+                    <div>
+                        <div class="text-white font-black text-sm tracking-wide">GALERI SISWA</div>
+                        <div class="text-indigo-400 text-[11px] font-medium">Portal Dokumentasi Foto Siswa</div>
+                    </div>
+                </div>
+
+                {{-- Live Indicator Badge --}}
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-400/25">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Slide Dokumentasi AI</span>
                 </div>
             </div>
 
-            {{-- Bottom stats --}}
-            <div class="grid grid-cols-3 gap-4 pt-8 border-t border-white/8">
-                @foreach ([['label' => 'Kualitas Foto', 'val' => 'HD'], ['label' => 'Album Kegiatan', 'val' => '∞'], ['label' => 'Akses Galeri', 'val' => '24/7']] as $s)
-                <div>
-                    <div class="text-2xl font-black text-white">{{ $s['val'] }}</div>
-                    <div class="text-xs text-slate-500 font-medium mt-0.5">{{ $s['label'] }}</div>
+            {{-- Middle: Sliding Photo Showcase Card (Slide ke Samping) --}}
+            <div class="relative rounded-3xl overflow-hidden border border-white/10 bg-slate-900/80 shadow-2xl backdrop-blur-md group">
+                
+                {{-- Slide Frame Container --}}
+                <div class="relative aspect-16/10 w-full overflow-hidden">
+                    <div class="flex h-full w-full transition-transform duration-700 ease-out"
+                         :style="'transform: translateX(-' + (activeSlide * 100) + '%)'">
+                        @foreach ($showcaseSlides as $idx => $slide)
+                            <div class="relative w-full h-full flex-shrink-0">
+                                <img src="{{ $slide['image'] }}"
+                                     alt="{{ $slide['title'] }}"
+                                     class="w-full h-full object-cover">
+                                
+                                {{-- Cinematic dark vignette gradients --}}
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/60 via-transparent to-transparent"></div>
+
+                                {{-- Top Badges on Photo --}}
+                                <div class="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 z-10">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/75 backdrop-blur-md text-white text-xs font-bold border border-white/15 shadow-lg">
+                                        <span>{{ $slide['category_icon'] }}</span>
+                                        <span>{{ $slide['category'] }}</span>
+                                    </span>
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600/90 backdrop-blur-md text-white text-xs font-black border border-indigo-400/30 shadow-lg">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        <span>{{ $slide['photos_count'] }}</span>
+                                    </span>
+                                </div>
+
+                                {{-- Bottom Overlay Information on Photo --}}
+                                <div class="absolute bottom-4 left-4 right-4 z-10 space-y-1.5">
+                                    <div class="flex items-center gap-2 text-xs font-bold text-indigo-300">
+                                        <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                        <span>{{ $slide['location'] }}</span>
+                                        <span class="text-white/40">·</span>
+                                        <span>{{ $slide['date'] }}</span>
+                                    </div>
+                                    <h3 class="text-lg font-black text-white leading-snug drop-shadow-sm">
+                                        {{ $slide['title'] }}
+                                    </h3>
+                                    <p class="text-xs text-slate-300 line-clamp-2 leading-relaxed max-w-lg">
+                                        {{ $slide['description'] }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Next & Prev Interactive Arrows --}}
+                    <button type="button"
+                            @click="prevSlide()"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-slate-950/70 hover:bg-indigo-600 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 shadow-xl"
+                            title="Foto Sebelumnya">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button type="button"
+                            @click="nextSlide()"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-slate-950/70 hover:bg-indigo-600 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 shadow-xl"
+                            title="Foto Selanjutnya">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
                 </div>
-                @endforeach
+
+                {{-- Bottom Slider Bar: Dots & Counter --}}
+                <div class="px-5 py-3 bg-slate-950/95 border-t border-white/10 flex items-center justify-between text-xs">
+                    {{-- Animated Dots Indicators --}}
+                    <div class="flex items-center gap-2">
+                        @foreach ($showcaseSlides as $idx => $slide)
+                            <button type="button"
+                                    @click="goTo({{ $idx }})"
+                                    class="h-2 rounded-full transition-all duration-300 cursor-pointer"
+                                    :class="activeSlide === {{ $idx }} ? 'w-8 bg-indigo-500' : 'w-2 bg-white/25 hover:bg-white/50'"
+                                    title="Lihat Slide {{ $idx + 1 }}">
+                            </button>
+                        @endforeach
+                    </div>
+
+                    {{-- Numerical Slide Counter --}}
+                    <div class="text-[11px] font-mono font-bold text-slate-400">
+                        <span class="text-white" x-text="'0' + (activeSlide + 1)"></span>
+                        <span class="text-slate-600">/</span>
+                        <span>0{{ count($showcaseSlides) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bottom Highlights Bar --}}
+            <div class="grid grid-cols-3 gap-3 pt-3 border-t border-white/8 text-left">
+                <div>
+                    <div class="text-base font-black text-white">Resolusi HD</div>
+                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">Kualitas Foto Jernih</div>
+                </div>
+                <div>
+                    <div class="text-base font-black text-indigo-400">Mode Slide</div>
+                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">Layar Penuh &amp; Unduh</div>
+                </div>
+                <div>
+                    <div class="text-base font-black text-white">Privat &amp; Aman</div>
+                    <div class="text-[11px] text-slate-400 font-medium mt-0.5">Akses Resmi Siswa</div>
+                </div>
             </div>
         </div>
     </div>
@@ -93,9 +219,9 @@
     <div class="flex-1 flex flex-col justify-center py-12 px-6 sm:px-12 lg:px-16 bg-white">
         <div class="w-full max-w-md mx-auto slide-up">
 
-            {{-- Mobile logo --}}
-            <div class="flex items-center gap-3 mb-10 lg:hidden">
-                <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg">
+            {{-- Mobile Logo --}}
+            <div class="flex items-center gap-3 mb-6 lg:hidden">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-black text-lg shadow-sm shadow-indigo-600/30">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -104,6 +230,51 @@
                 <div>
                     <div class="text-slate-900 font-black text-sm">GALERI SISWA</div>
                     <div class="text-slate-400 text-[11px]">Portal Dokumentasi Foto Siswa</div>
+                </div>
+            </div>
+
+            {{-- Mobile Sliding Photo Card (Slide ke Samping untuk HP) --}}
+            <div class="lg:hidden mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-slate-950"
+                 x-data="{
+                    activeMobSlide: 0,
+                    totalMobSlides: {{ count($showcaseSlides) }},
+                    mobTimer: null,
+                    init() {
+                        this.mobTimer = setInterval(() => {
+                            this.activeMobSlide = (this.activeMobSlide + 1) % this.totalMobSlides;
+                        }, 4000);
+                    }
+                 }">
+                <div class="relative aspect-16/10 w-full overflow-hidden">
+                    <div class="flex h-full w-full transition-transform duration-700 ease-out"
+                         :style="'transform: translateX(-' + (activeMobSlide * 100) + '%)'">
+                        @foreach ($showcaseSlides as $idx => $slide)
+                            <div class="relative w-full h-full flex-shrink-0">
+                                <img src="{{ $slide['image'] }}"
+                                     alt="{{ $slide['title'] }}"
+                                     class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                                <div class="absolute top-2.5 left-2.5">
+                                    <span class="px-2 py-1 rounded-lg bg-slate-950/80 backdrop-blur-xs text-white text-[10px] font-bold">
+                                        {{ $slide['category_icon'] }} {{ $slide['category'] }}
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-2.5 left-2.5 right-2.5 text-white">
+                                    <p class="text-[11px] font-bold truncate">{{ $slide['title'] }}</p>
+                                    <p class="text-[10px] text-slate-300 truncate">📍 {{ $slide['location'] }} · {{ $slide['photos_count'] }}</p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="px-3 py-2 bg-slate-950 flex items-center justify-between border-t border-white/10">
+                    <div class="flex items-center gap-1.5">
+                        @foreach ($showcaseSlides as $idx => $slide)
+                            <div class="h-1.5 rounded-full transition-all duration-300"
+                                 :class="activeMobSlide === {{ $idx }} ? 'w-5 bg-indigo-500' : 'w-1.5 bg-white/30'"></div>
+                        @endforeach
+                    </div>
+                    <span class="text-[10px] text-indigo-300 font-bold">Dokumentasi Foto Siswa</span>
                 </div>
             </div>
 
@@ -244,10 +415,6 @@
                     Masuk ke Galeri
                 </button>
             </form>
-
-            <p class="mt-8 text-center text-[11px] text-slate-400">
-                © {{ date('Y') }} Portal Dokumentasi Foto Siswa · Seluruh Hak Dilindungi
-            </p>
         </div>
     </div>
 
