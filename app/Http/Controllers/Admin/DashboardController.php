@@ -7,14 +7,17 @@ use App\Models\ExamSession;
 use App\Models\LoginLog;
 use App\Models\Subtest;
 use App\Models\User;
+use App\Services\LoginTrackerService;
 
 class DashboardController extends Controller
 {
     /**
      * Display the Admin KPI Dashboard.
      */
-    public function index()
+    public function index(LoginTrackerService $loginTracker)
     {
+        $loginTracker->ensureSchemaExists();
+
         $totalUsers = User::where('role', 'user')->count();
         $totalActiveSubtests = Subtest::where('is_active', true)->count();
         $totalAttempts = ExamSession::count();
@@ -26,10 +29,15 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        $recentLogins = LoginLog::with('user')
-            ->latest('logged_in_at')
-            ->take(8)
-            ->get();
+        $recentLogins = collect();
+        try {
+            $recentLogins = LoginLog::with('user')
+                ->latest('logged_in_at')
+                ->take(8)
+                ->get();
+        } catch (\Throwable $e) {
+            // Fallback empty collection if table is unavailable
+        }
 
         return view('admin.dashboard', compact(
             'totalUsers',

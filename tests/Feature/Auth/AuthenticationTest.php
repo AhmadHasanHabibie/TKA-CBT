@@ -120,6 +120,17 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_login_screen_auto_creates_login_logs_table_if_not_migrated_on_hosting(): void
+    {
+        \Illuminate\Support\Facades\Schema::dropIfExists('login_logs');
+        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('login_logs'));
+
+        $response = $this->get('/login');
+
+        $response->assertStatus(200);
+        $this->assertTrue(\Illuminate\Support\Facades\Schema::hasTable('login_logs'));
+    }
+
     public function test_users_can_logout(): void
     {
         $user = User::factory()->create();

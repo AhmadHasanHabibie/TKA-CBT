@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\LoginLog;
+use App\Services\LoginTrackerService;
 use Illuminate\Http\Request;
 
 class LoginLogController extends Controller
@@ -11,8 +12,10 @@ class LoginLogController extends Controller
     /**
      * Display a listing of visitor link clicks & user login logs (Location, IP Address, Browser, OS).
      */
-    public function index(Request $request)
+    public function index(Request $request, LoginTrackerService $loginTracker)
     {
+        $loginTracker->ensureSchemaExists();
+
         $search = $request->query('search');
         $role = $request->query('role');
 
@@ -45,17 +48,17 @@ class LoginLogController extends Controller
         $totalLogs = LoginLog::count();
         $guestClicks = LoginLog::whereNull('user_id')->count();
         $uniqueIps = LoginLog::distinct('ip_address')->count('ip_address');
-        $topBrowser = LoginLog::selectRaw('browser, count(*) as total')
+        $topBrowser = LoginLog::selectRaw('browser, COUNT(*) as total')
             ->whereNotNull('browser')
             ->groupBy('browser')
-            ->orderByDesc('total')
+            ->orderByRaw('COUNT(*) DESC')
             ->value('browser') ?? '—';
 
-        // Detect shared IPs across multiple distinct users (anti-cheating indicator)
+        // Detect shared IPs across multiple accesses (anti-cheating indicator)
         $sharedIps = LoginLog::whereNotNull('ip_address')
-            ->selectRaw('ip_address, count(*) as hits')
+            ->selectRaw('ip_address, COUNT(*) as hits')
             ->groupBy('ip_address')
-            ->havingRaw('count(*) > 1')
+            ->havingRaw('COUNT(ip_address) > 1')
             ->pluck('hits', 'ip_address')
             ->all();
 
@@ -85,8 +88,9 @@ class LoginLogController extends Controller
     /**
      * Clear all login logs.
      */
-    public function clear()
+    public function clear(LoginTrackerService $loginTracker)
     {
+        $loginTracker->ensureSchemaExists();
         LoginLog::query()->delete();
 
         return redirect()->route('admin.login-logs.index')

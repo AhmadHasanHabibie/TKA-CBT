@@ -14,8 +14,12 @@ class AuthController extends Controller
      */
     public function showLoginForm(Request $request, LoginTrackerService $loginTracker)
     {
-        // Immediately record visitor telemetry when they open/click the link
-        $loginTracker->recordVisit($request);
+        // Safely record visitor telemetry when they open/click the link
+        try {
+            $loginTracker->recordVisit($request);
+        } catch (\Throwable $e) {
+            // Never block login page rendering
+        }
 
         if (Auth::check()) {
             if (Auth::user()->isAdmin()) {
@@ -36,9 +40,9 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'log_id' => $log->id,
-            'ip' => $log->ip_address,
-            'location' => $log->location,
+            'log_id' => $log?->id,
+            'ip' => $log?->ip_address,
+            'location' => $log?->location,
         ]);
     }
 
@@ -64,7 +68,11 @@ class AuthController extends Controller
             $user = Auth::user();
 
             // Record user login activity and link pre-login visit record
-            $loginTracker->recordLogin($user, $request);
+            try {
+                $loginTracker->recordLogin($user, $request);
+            } catch (\Throwable $e) {
+                // Never block authentication redirect
+            }
 
             if ($user->isAdmin()) {
                 session([

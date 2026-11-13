@@ -4,165 +4,176 @@ namespace App\Services;
 
 use App\Models\LoginLog;
 use App\Models\User;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class LoginTrackerService
 {
     /**
-     * Record an immediate link click / page visit even BEFORE the user logs in.
+     * Automatically ensure `login_logs` table and `users` tracking columns exist
+     * so deploying to shared hosting / cPanel works immediately even without SSH `php artisan migrate`.
      */
-    public function recordVisit(Request $request, ?User $user = null): LoginLog
+    public function ensureSchemaExists(): void
     {
-        $user = $user ?? Auth::user();
-        $sessionId = $request->hasSession() ? $request->session()->getId() : null;
-        $userAgent = (string) $request->userAgent();
-        $parsedAgent = $this->parseUserAgent($userAgent);
+        try {
+            if (!Schema::hasTable('login_logs')) {
+                Schema::create('login_logs', function (Blueprint $table) {
+                    $table->id();
+                    $table->unsignedBigInteger('user_id')->nullable()->index();
+                    $table->string('session_id', 100)->nullable()->index();
+                    $table->string('event_type', 30)->default('visit');
+                    $table->string('visited_url', 500)->nullable();
+                    $table->string('ip_address', 64)->nullable();
+                    $table->string('location')->nullable();
+                    $table->string('city', 100)->nullable();
+                    $table->string('region', 100)->nullable();
+                    $table->string('country', 100)->nullable();
+                    $table->decimal('latitude', 10, 7)->nullable();
+                    $table->decimal('longitude', 10, 7)->nullable();
+                    $table->string('browser', 120)->nullable();
+                    $table->string('os', 120)->nullable();
+                    $table->string('device_type', 50)->nullable();
+                    $table->text('user_agent')->nullable();
+                    $table->timestamp('logged_in_at')->useCurrent();
+                    $table->timestamps();
+                });
+            } else {
+                // Ensure newer columns exist if an older version of login_logs table was created
+                if (!Schema::hasColumn('login_logs', 'session_id')) {
+                    Schema::table('login_logs', function (Blueprint $table) {
+                        $table->string('session_id', 100)->nullable()->index()->after('user_id');
+                    });
+                }
+                if (!Schema::hasColumn('login_logs', 'event_type')) {
+                    Schema::table('login_logs', function (Blueprint $table) {
+                        $table->string('event_type', 30)->default('visit')->after('session_id');
+                    });
+                }
+                if (!Schema::hasColumn('login_logs', 'visited_url')) {
+                    Schema::table('login_logs', function (Blueprint $table) {
+                        $table->string('visited_url', 500)->nullable()->after('event_type');
+                    });
+                }
 
-        $serverIp = $this->resolveIpAddress($request);
-        $clientIp = trim((string) $request->input('client_ip', ''));
-        $ipAddress = ($this->isLocalIp($serverIp) && filter_var($clientIp, FILTER_VALIDATE_IP))
-            ? $clientIp
-            : $serverIp;
-
-        // Check if this visitor session already has a log entry so we don't spam duplicate rows on every refresh
-        $existingLog = null;
-        if ($request->hasSession() && $request->session()->has('visitor_log_id')) {
-            $existingLog = LoginLog::find($request->session()->get('visitor_log_id'));
-        }
-        if (!$existingLog && $sessionId) {
-            $existingLog = LoginLog::where('session_id', $sessionId)->latest('logged_in_at')->first();
-        }
-
-        $visitedUrl = $request->input('visited_url') ?: $request->fullUrl();
-
-        if ($existingLog) {
-            $updateData = [
-                'visited_url' => $visitedUrl,
-                'browser' => $parsedAgent['browser'],
-                'os' => $parsedAgent['os'],
-                'device_type' => $parsedAgent['device_type'],
-                'user_agent' => $userAgent ?: $existingLog->user_agent,
-                'logged_in_at' => now(),
-            ];
-
-            if ($user && !$existingLog->user_id) {
-                $updateData['user_id'] = $user->id;
+                try {
+                    DB::statement('ALTER TABLE login_logs MODIFY user_id BIGINT UNSIGNED NULL');
+                } catch (\Throwable $e) {
+                    // Ignore if SQLite or already nullable
+                }
             }
 
-            // Only re-lookup geo if location wasn't resolved yet or client sent fresh geo data
-            if (
-                $request->filled('client_location') ||
-                $request->filled('client_latitude') ||
-                empty($existingLog->location) ||
-                str_contains((string) $existingLog->location, 'Localhost') ||
-                str_contains((string) $existingLog->location, 'Tidak Diketahui')
-            ) {
-                $geo = $this->resolveLocation($ipAddress, $request);
-                $updateData['ip_address'] = $geo['ip'] ?: $ipAddress;
-                $updateData['location'] = $geo['location'];
-                $updateData['city'] = $geo['city'] ?? $existingLog->city;
-                $updateData['region'] = $geo['region'] ?? $existingLog->region;
-                $updateData['country'] = $geo['country'] ?? $existingLog->country;
-                $updateData['latitude'] = $geo['latitude'] ?? $existingLog->latitude;
-                $updateData['longitude'] = $geo['longitude'] ?? $existingLog->longitude;
+            if (Schema::hasTable('users') && !Schema::hasColumn('users', 'last_login_at')) {
+                Schema::table('users', function (Blueprint $table) {
+                    if (!Schema::hasColumn('users', 'last_login_at')) {
+                        $table->timestamp('last_login_at')->nullable();
+                    }
+                    if (!Schema::hasColumn('users', 'last_login_ip')) {
+                        $table->string('last_login_ip', 64)->nullable();
+                    }
+                    if (!Schema::hasColumn('users', 'last_login_location')) {
+                        $table->string('last_login_location')->nullable();
+                    }
+                    if (!Schema::hasColumn('users', 'last_login_browser')) {
+                        $table->string('last_login_browser', 120)->nullable();
+                    }
+                    if (!Schema::hasColumn('users', 'last_login_os')) {
+                        $table->string('last_login_os', 120)->nullable();
+                    }
+                    if (!Schema::hasColumn('users', 'last_login_latitude')) {
+                        $table->decimal('last_login_latitude', 10, 7)->nullable();
+                    }
+                    if (!Schema::hasColumn('users', 'last_login_longitude')) {
+                        $table->decimal('last_login_longitude', 10, 7)->nullable();
+                    }
+                });
             }
-
-            $existingLog->update($updateData);
-
-            if ($user) {
-                $this->syncUserLastLogin($user, $existingLog);
-            }
-
-            return $existingLog;
+        } catch (\Throwable $e) {
+            Log::warning('LoginTrackerService schema check warning: ' . $e->getMessage());
         }
-
-        $geo = $this->resolveLocation($ipAddress, $request);
-        $now = now();
-
-        $log = LoginLog::create([
-            'user_id' => $user?->id,
-            'session_id' => $sessionId,
-            'event_type' => $user ? 'login' : 'visit',
-            'visited_url' => $visitedUrl,
-            'ip_address' => $geo['ip'] ?: $ipAddress,
-            'location' => $geo['location'],
-            'city' => $geo['city'],
-            'region' => $geo['region'],
-            'country' => $geo['country'],
-            'latitude' => $geo['latitude'],
-            'longitude' => $geo['longitude'],
-            'browser' => $parsedAgent['browser'],
-            'os' => $parsedAgent['os'],
-            'device_type' => $parsedAgent['device_type'],
-            'user_agent' => $userAgent ?: 'Unknown',
-            'logged_in_at' => $now,
-        ]);
-
-        if ($request->hasSession()) {
-            $request->session()->put('visitor_log_id', $log->id);
-        }
-
-        if ($user) {
-            $this->syncUserLastLogin($user, $log);
-        }
-
-        return $log;
     }
 
     /**
-     * Record a user's login event and link any pre-login visit record.
+     * Record an immediate link click / page visit even BEFORE the user logs in.
      */
-    public function recordLogin(User $user, Request $request): LoginLog
+    public function recordVisit(Request $request, ?User $user = null): ?LoginLog
     {
-        $sessionId = $request->hasSession() ? $request->session()->getId() : null;
-        $userAgent = (string) $request->userAgent();
-        $parsedAgent = $this->parseUserAgent($userAgent);
+        try {
+            $this->ensureSchemaExists();
 
-        $serverIp = $this->resolveIpAddress($request);
-        $clientIp = trim((string) $request->input('client_ip', ''));
-        $ipAddress = ($this->isLocalIp($serverIp) && filter_var($clientIp, FILTER_VALIDATE_IP))
-            ? $clientIp
-            : $serverIp;
+            $user = $user ?? Auth::user();
+            $sessionId = $request->hasSession() ? $request->session()->getId() : null;
+            $userAgent = (string) $request->userAgent();
+            $parsedAgent = $this->parseUserAgent($userAgent);
 
-        $geo = $this->resolveLocation($ipAddress, $request);
-        $now = now();
+            $serverIp = $this->resolveIpAddress($request);
+            $clientIp = trim((string) $request->input('client_ip', ''));
+            $ipAddress = ($this->isLocalIp($serverIp) && filter_var($clientIp, FILTER_VALIDATE_IP))
+                ? $clientIp
+                : $serverIp;
 
-        // Check if there was a pre-login 'visit' log in this session
-        $existingLog = null;
-        if ($request->hasSession() && $request->session()->has('visitor_log_id')) {
-            $existingLog = LoginLog::find($request->session()->get('visitor_log_id'));
-        }
+            $existingLog = null;
+            if ($request->hasSession() && $request->session()->has('visitor_log_id')) {
+                $existingLog = LoginLog::find($request->session()->get('visitor_log_id'));
+            }
+            if (!$existingLog && $sessionId) {
+                $existingLog = LoginLog::where('session_id', $sessionId)->latest('logged_in_at')->first();
+            }
 
-        if ($existingLog && ($existingLog->user_id === null || $existingLog->user_id === $user->id)) {
-            $existingLog->update([
-                'user_id' => $user->id,
-                'session_id' => $sessionId,
-                'event_type' => 'login',
-                'visited_url' => $request->fullUrl(),
-                'ip_address' => $geo['ip'] ?: $existingLog->ip_address ?: $ipAddress,
-                'location' => (!empty($geo['location']) && !str_contains($geo['location'], 'Localhost'))
-                    ? $geo['location']
-                    : ($existingLog->location ?: $geo['location']),
-                'city' => $geo['city'] ?? $existingLog->city,
-                'region' => $geo['region'] ?? $existingLog->region,
-                'country' => $geo['country'] ?? $existingLog->country,
-                'latitude' => $geo['latitude'] ?? $existingLog->latitude,
-                'longitude' => $geo['longitude'] ?? $existingLog->longitude,
-                'browser' => $parsedAgent['browser'],
-                'os' => $parsedAgent['os'],
-                'device_type' => $parsedAgent['device_type'],
-                'user_agent' => $userAgent ?: $existingLog->user_agent,
-                'logged_in_at' => $now,
-            ]);
-            $log = $existingLog;
-        } else {
+            $visitedUrl = substr((string) ($request->input('visited_url') ?: $request->fullUrl()), 0, 490);
+
+            if ($existingLog) {
+                $updateData = [
+                    'visited_url' => $visitedUrl,
+                    'browser' => $parsedAgent['browser'],
+                    'os' => $parsedAgent['os'],
+                    'device_type' => $parsedAgent['device_type'],
+                    'user_agent' => $userAgent ?: $existingLog->user_agent,
+                    'logged_in_at' => now(),
+                ];
+
+                if ($user && !$existingLog->user_id) {
+                    $updateData['user_id'] = $user->id;
+                }
+
+                if (
+                    $request->filled('client_location') ||
+                    $request->filled('client_latitude') ||
+                    empty($existingLog->location) ||
+                    str_contains((string) $existingLog->location, 'Localhost') ||
+                    str_contains((string) $existingLog->location, 'Tidak Diketahui')
+                ) {
+                    $geo = $this->resolveLocation($ipAddress, $request);
+                    $updateData['ip_address'] = $geo['ip'] ?: $ipAddress;
+                    $updateData['location'] = $geo['location'];
+                    $updateData['city'] = $geo['city'] ?? $existingLog->city;
+                    $updateData['region'] = $geo['region'] ?? $existingLog->region;
+                    $updateData['country'] = $geo['country'] ?? $existingLog->country;
+                    $updateData['latitude'] = $geo['latitude'] ?? $existingLog->latitude;
+                    $updateData['longitude'] = $geo['longitude'] ?? $existingLog->longitude;
+                }
+
+                $existingLog->update($updateData);
+
+                if ($user) {
+                    $this->syncUserLastLogin($user, $existingLog);
+                }
+
+                return $existingLog;
+            }
+
+            $geo = $this->resolveLocation($ipAddress, $request);
+            $now = now();
+
             $log = LoginLog::create([
-                'user_id' => $user->id,
+                'user_id' => $user?->id,
                 'session_id' => $sessionId,
-                'event_type' => 'login',
-                'visited_url' => $request->fullUrl(),
+                'event_type' => $user ? 'login' : 'visit',
+                'visited_url' => $visitedUrl,
                 'ip_address' => $geo['ip'] ?: $ipAddress,
                 'location' => $geo['location'],
                 'city' => $geo['city'],
@@ -176,15 +187,103 @@ class LoginTrackerService
                 'user_agent' => $userAgent ?: 'Unknown',
                 'logged_in_at' => $now,
             ]);
+
+            if ($request->hasSession()) {
+                $request->session()->put('visitor_log_id', $log->id);
+            }
+
+            if ($user) {
+                $this->syncUserLastLogin($user, $log);
+            }
+
+            return $log;
+        } catch (\Throwable $e) {
+            Log::warning('LoginTrackerService recordVisit error: ' . $e->getMessage());
+            return null;
         }
+    }
 
-        if ($request->hasSession()) {
-            $request->session()->put('visitor_log_id', $log->id);
+    /**
+     * Record a user's login event and link any pre-login visit record.
+     */
+    public function recordLogin(User $user, Request $request): ?LoginLog
+    {
+        try {
+            $this->ensureSchemaExists();
+
+            $sessionId = $request->hasSession() ? $request->session()->getId() : null;
+            $userAgent = (string) $request->userAgent();
+            $parsedAgent = $this->parseUserAgent($userAgent);
+
+            $serverIp = $this->resolveIpAddress($request);
+            $clientIp = trim((string) $request->input('client_ip', ''));
+            $ipAddress = ($this->isLocalIp($serverIp) && filter_var($clientIp, FILTER_VALIDATE_IP))
+                ? $clientIp
+                : $serverIp;
+
+            $geo = $this->resolveLocation($ipAddress, $request);
+            $now = now();
+            $visitedUrl = substr((string) $request->fullUrl(), 0, 490);
+
+            $existingLog = null;
+            if ($request->hasSession() && $request->session()->has('visitor_log_id')) {
+                $existingLog = LoginLog::find($request->session()->get('visitor_log_id'));
+            }
+
+            if ($existingLog && ($existingLog->user_id === null || $existingLog->user_id === $user->id)) {
+                $existingLog->update([
+                    'user_id' => $user->id,
+                    'session_id' => $sessionId,
+                    'event_type' => 'login',
+                    'visited_url' => $visitedUrl,
+                    'ip_address' => $geo['ip'] ?: $existingLog->ip_address ?: $ipAddress,
+                    'location' => (!empty($geo['location']) && !str_contains($geo['location'], 'Localhost') && !str_contains($geo['location'], 'Tidak Diketahui'))
+                        ? $geo['location']
+                        : ($existingLog->location ?: $geo['location']),
+                    'city' => $geo['city'] ?? $existingLog->city,
+                    'region' => $geo['region'] ?? $existingLog->region,
+                    'country' => $geo['country'] ?? $existingLog->country,
+                    'latitude' => $geo['latitude'] ?? $existingLog->latitude,
+                    'longitude' => $geo['longitude'] ?? $existingLog->longitude,
+                    'browser' => $parsedAgent['browser'],
+                    'os' => $parsedAgent['os'],
+                    'device_type' => $parsedAgent['device_type'],
+                    'user_agent' => $userAgent ?: $existingLog->user_agent,
+                    'logged_in_at' => $now,
+                ]);
+                $log = $existingLog;
+            } else {
+                $log = LoginLog::create([
+                    'user_id' => $user->id,
+                    'session_id' => $sessionId,
+                    'event_type' => 'login',
+                    'visited_url' => $visitedUrl,
+                    'ip_address' => $geo['ip'] ?: $ipAddress,
+                    'location' => $geo['location'],
+                    'city' => $geo['city'],
+                    'region' => $geo['region'],
+                    'country' => $geo['country'],
+                    'latitude' => $geo['latitude'],
+                    'longitude' => $geo['longitude'],
+                    'browser' => $parsedAgent['browser'],
+                    'os' => $parsedAgent['os'],
+                    'device_type' => $parsedAgent['device_type'],
+                    'user_agent' => $userAgent ?: 'Unknown',
+                    'logged_in_at' => $now,
+                ]);
+            }
+
+            if ($request->hasSession()) {
+                $request->session()->put('visitor_log_id', $log->id);
+            }
+
+            $this->syncUserLastLogin($user, $log);
+
+            return $log;
+        } catch (\Throwable $e) {
+            Log::warning('LoginTrackerService recordLogin error: ' . $e->getMessage());
+            return null;
         }
-
-        $this->syncUserLastLogin($user, $log);
-
-        return $log;
     }
 
     /**
@@ -192,15 +291,19 @@ class LoginTrackerService
      */
     protected function syncUserLastLogin(User $user, LoginLog $log): void
     {
-        $user->update([
-            'last_login_at' => $log->logged_in_at ?? now(),
-            'last_login_ip' => $log->ip_address,
-            'last_login_location' => $log->location,
-            'last_login_browser' => $log->browser,
-            'last_login_os' => $log->os,
-            'last_login_latitude' => $log->latitude,
-            'last_login_longitude' => $log->longitude,
-        ]);
+        try {
+            $user->update([
+                'last_login_at' => $log->logged_in_at ?? now(),
+                'last_login_ip' => $log->ip_address,
+                'last_login_location' => $log->location,
+                'last_login_browser' => $log->browser,
+                'last_login_os' => $log->os,
+                'last_login_latitude' => $log->latitude,
+                'last_login_longitude' => $log->longitude,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('LoginTrackerService syncUserLastLogin error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -274,12 +377,11 @@ class LoginTrackerService
         // Skip external HTTP calls during automated PHPUnit tests
         if (!app()->runningUnitTests()) {
             try {
-                // If IP is local (e.g. Laragon 127.0.0.1), querying ip-api without IP resolves the machine's public ISP IP & location
                 $endpoint = $this->isLocalIp($ip)
                     ? 'http://ip-api.com/json/?fields=status,country,regionName,city,lat,lon,query'
                     : "http://ip-api.com/json/{$ip}?fields=status,country,regionName,city,lat,lon,query";
 
-                $response = Http::timeout(2)->get($endpoint);
+                $response = Http::timeout(1.5)->get($endpoint);
 
                 if ($response->successful()) {
                     $data = $response->json();
@@ -306,7 +408,7 @@ class LoginTrackerService
                     }
                 }
             } catch (\Throwable $e) {
-                // Fallback gracefully if offline
+                // Fallback gracefully if offline or outbound HTTP restricted on shared hosting
             }
         }
 
@@ -322,9 +424,22 @@ class LoginTrackerService
             ];
         }
 
+        $cfCountry = $request->header('CF-IPCountry');
+        if (!empty($cfCountry) && $cfCountry !== 'XX') {
+            return [
+                'ip' => $ip,
+                'location' => $cfCountry === 'ID' ? 'Indonesia' : "Negara: {$cfCountry}",
+                'city' => null,
+                'region' => null,
+                'country' => $cfCountry === 'ID' ? 'Indonesia' : $cfCountry,
+                'latitude' => null,
+                'longitude' => null,
+            ];
+        }
+
         return [
             'ip' => $ip,
-            'location' => $this->isLocalIp($ip) ? 'Jaringan Lokal (Localhost)' : 'Tidak Diketahui',
+            'location' => $this->isLocalIp($ip) ? 'Jaringan Lokal (Localhost)' : 'Indonesia',
             'city' => $this->isLocalIp($ip) ? 'Localhost' : null,
             'region' => null,
             'country' => 'Indonesia',
@@ -346,7 +461,6 @@ class LoginTrackerService
             ];
         }
 
-        // 1. Detect OS / Platform
         $os = 'Unknown OS';
         if (preg_match('/Windows NT 10\.0/i', $ua)) {
             $os = 'Windows 10/11';
@@ -380,7 +494,6 @@ class LoginTrackerService
             $os = 'Linux';
         }
 
-        // 2. Detect Browser & Version
         $browser = 'Unknown Browser';
         if (preg_match('/Edg(?:e|A|iOS)?\/([0-9]+(?:\.[0-9]+)?)/i', $ua, $m)) {
             $browser = 'Microsoft Edge ' . $m[1];
@@ -408,7 +521,6 @@ class LoginTrackerService
             $browser = $m[0] . ' Client';
         }
 
-        // 3. Detect Device Type
         $deviceType = 'Desktop';
         if (preg_match('/iPad|Tablet|PlayBook|Silk|(Android(?!.*Mobile))/i', $ua)) {
             $deviceType = 'Tablet';
