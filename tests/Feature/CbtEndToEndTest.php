@@ -34,16 +34,10 @@ class CbtEndToEndTest extends TestCase
         $response = $this->get('/user/dashboard');
         $response->assertRedirect('/login');
 
-        // Admin login (detected as admin -> redirected to login PIN step)
+        // Admin login (directly to admin dashboard without 2-step PIN)
         $response = $this->post('/login', [
             'email' => 'admin@tka.test',
-            'password' => 'password',
-        ]);
-        $response->assertRedirect(route('login'));
-
-        // Submit Administrator PIN 252009
-        $response = $this->post(route('login.post'), [
-            'pin' => '252009',
+            'password' => 'kingahmad123',
         ]);
         $response->assertRedirect('/admin/dashboard');
 

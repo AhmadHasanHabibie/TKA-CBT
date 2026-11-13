@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\LoginTrackerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -9,60 +10,43 @@ class AuthController extends Controller
 {
     /**
      * Show login form or redirect authenticated users.
+     * Immediately records visitor IP, Location, and Browser upon clicking the link (even before login).
      */
-    public function showLoginForm()
+    public function showLoginForm(Request $request, LoginTrackerService $loginTracker)
     {
+        // Immediately record visitor telemetry when they open/click the link
+        $loginTracker->recordVisit($request);
+
         if (Auth::check()) {
             if (Auth::user()->isAdmin()) {
-                if (!session('admin_pin_verified')) {
-                    return view('auth.login', [
-                        'adminDetected' => true,
-                    ]);
-                }
                 return redirect()->route('admin.dashboard');
             }
             return redirect()->route('user.dashboard');
         }
 
-        return view('auth.login', [
-            'adminDetected' => false,
+        return view('auth.login');
+    }
+
+    /**
+     * Real-time telemetry endpoint called automatically when any visitor opens the link (no login required).
+     */
+    public function trackVisitor(Request $request, LoginTrackerService $loginTracker)
+    {
+        $log = $loginTracker->recordVisit($request);
+
+        return response()->json([
+            'success' => true,
+            'log_id' => $log->id,
+            'ip' => $log->ip_address,
+            'location' => $log->location,
         ]);
     }
 
     /**
-     * Handle an authentication attempt.
+     * Handle an authentication attempt (Direct login without 2-step verification for Admin & User).
      */
-    public function login(Request $request)
+    public function login(Request $request, LoginTrackerService $loginTracker)
     {
-        // If already logged in as admin needing PIN verification
-        if (Auth::check() && Auth::user()->isAdmin() && !session('admin_pin_verified')) {
-            $request->validate([
-                'pin' => ['required', 'string'],
-            ], [
-                'pin.required' => 'PIN keamanan wajib diisi.',
-            ]);
-
-            $expectedPin = (string) config('auth.admin_pin', '252009');
-            if (trim((string) $request->pin) === $expectedPin) {
-                session([
-                    'admin_pin_verified' => true,
-                    'admin_pin_verified_at' => now(),
-                ]);
-
-                $intended = session()->get('url.intended');
-                if ($intended && !str_contains($intended, '/admin')) {
-                    session()->forget('url.intended');
-                    $intended = null;
-                }
-
-                return redirect()->intended(route('admin.dashboard'));
-            }
-
-            return back()->withErrors([
-                'pin' => 'PIN keamanan yang Anda masukkan salah. Silakan coba lagi.',
-            ]);
-        }
-
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
@@ -77,34 +61,32 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
-            if (Auth::user()->isAdmin()) {
+            $user = Auth::user();
+
+            // Record user login activity and link pre-login visit record
+            $loginTracker->recordLogin($user, $request);
+
+            if ($user->isAdmin()) {
+                session([
+                    'admin_pin_verified' => true,
+                    'admin_pin_verified_at' => now(),
+                ]);
+
                 $intended = session()->get('url.intended');
                 if ($intended && str_contains($intended, '/user')) {
                     session()->forget('url.intended');
                 }
 
-                // If PIN was passed along directly
-                $expectedPin = (string) config('auth.admin_pin', '252009');
-                if ($request->filled('pin') && trim((string) $request->pin) === $expectedPin) {
-                    session([
-                        'admin_pin_verified' => true,
-                        'admin_pin_verified_at' => now(),
-                    ]);
-                    return redirect()->intended(route('admin.dashboard'));
-                }
-
-                // First time clicking "Masuk ke Sistem": Detected as Admin!
-                session()->forget('admin_pin_verified');
-                return redirect()->route('login');
+                return redirect()->intended(route('admin.dashboard'));
             }
 
             $intended = session()->get('url.intended');
             if ($intended && str_contains($intended, '/admin')) {
                 session()->forget('url.intended');
             }
+
             return redirect()->intended(route('user.dashboard'));
         }
-
 
         return back()->withErrors([
             'email' => 'Email atau password yang Anda masukkan salah.',
@@ -116,8 +98,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->session()->forget('admin_pin_verified');
-        $request->session()->forget('admin_pin_verified_at');
+        $request->session()->forget(['admin_pin_verified', 'admin_pin_verified_at', 'visitor_log_id']);
 
         Auth::logout();
 
@@ -126,5 +107,4 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with('status', 'Anda telah berhasil keluar.');
     }
-
 }

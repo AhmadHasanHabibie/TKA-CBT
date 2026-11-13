@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\LoginLogController as AdminLoginLogController;
 use App\Http\Controllers\Admin\PdfUploadController as AdminPdfUploadController;
 use App\Http\Controllers\Admin\PinVerificationController as AdminPinVerificationController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
@@ -27,6 +28,7 @@ Route::get('/', [AuthController::class, 'showLoginForm'])->name('home');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/telemetry/track', [AuthController::class, 'trackVisitor'])->name('telemetry.track');
 
 // ==========================================
 // Admin Route Group (Protected by 'admin' middleware)
@@ -45,6 +47,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
     Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+    // User Login Monitoring (Location, IP Address, Browser)
+    Route::get('/login-logs', [AdminLoginLogController::class, 'index'])->name('login-logs.index');
+    Route::delete('/login-logs/clear', [AdminLoginLogController::class, 'clear'])->name('login-logs.clear');
+    Route::delete('/login-logs/{loginLog}', [AdminLoginLogController::class, 'destroy'])->name('login-logs.destroy');
 
     // Subtest Management
     Route::get('/subtests', [AdminSubtestController::class, 'index'])->name('subtests.index');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ExamSession;
+use App\Models\LoginLog;
 use App\Models\Subtest;
 use App\Models\User;
 
@@ -25,12 +26,18 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        $recentLogins = LoginLog::with('user')
+            ->latest('logged_in_at')
+            ->take(8)
+            ->get();
+
         return view('admin.dashboard', compact(
             'totalUsers',
             'totalActiveSubtests',
             'totalAttempts',
             'globalAverageScore',
-            'recentAttempts'
+            'recentAttempts',
+            'recentLogins'
         ));
     }
 }

@@ -134,6 +134,51 @@
     <x-flash-toast />
 <x-confirm-modal />
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        var payload = { visited_url: window.location.href };
+
+        function pushTelemetry() {
+            fetch('{{ route("telemetry.track") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify(payload)
+            }).catch(function () {});
+        }
+
+        fetch('https://ipwho.is/')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data && data.success) {
+                    payload.client_ip = data.ip || '';
+                    payload.client_location = [data.city, data.region, data.country].filter(Boolean).join(', ');
+                    payload.client_city = data.city || '';
+                    payload.client_region = data.region || '';
+                    payload.client_country = data.country || '';
+                    if (!payload.client_latitude && data.latitude) {
+                        payload.client_latitude = data.latitude;
+                        payload.client_longitude = data.longitude;
+                    }
+                    pushTelemetry();
+                }
+            })
+            .catch(function () {});
+
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(function (pos) {
+                payload.client_latitude = pos.coords.latitude;
+                payload.client_longitude = pos.coords.longitude;
+                pushTelemetry();
+            }, function () {}, { timeout: 6000, maximumAge: 60000 });
+        }
+    });
+    </script>
+
     @stack('scripts')
 </body>
 </html>

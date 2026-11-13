@@ -83,6 +83,123 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
             Kelola Bank Soal
         </a>
+        <a href="{{ route('admin.login-logs.index') }}"
+           class="btn-secondary btn-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Monitoring Lokasi & IP Login
+        </a>
+    </div>
+
+    {{-- ── Recent User Login & Visitor Monitoring (Lokasi, IP, Browser) ── --}}
+    <div class="table-wrapper bg-white">
+        <div class="p-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="text-base font-extrabold text-slate-900">Monitoring Lokasi, IP & Browser (Klik Link & Login)</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Otomatis mendeteksi lokasi dan IP saat peserta mengklik link (tanpa harus login) untuk mencegah kecurangan</p>
+            </div>
+            <a href="{{ route('admin.login-logs.index') }}" class="btn-secondary btn-xs">
+                Lihat Semua Log
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="table-base">
+                <thead class="table-head">
+                    <tr>
+                        <th class="table-th whitespace-nowrap">Pengunjung / Pengguna</th>
+                        <th class="table-th whitespace-nowrap">Lokasi Langsung</th>
+                        <th class="table-th whitespace-nowrap">IP Address</th>
+                        <th class="table-th whitespace-nowrap">Browser & Perangkat</th>
+                        <th class="table-th text-right whitespace-nowrap">Waktu Akses</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse ($recentLogins ?? [] as $log)
+                        <tr class="table-row">
+                            <td class="table-td whitespace-nowrap">
+                                @if ($log->user)
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0
+                                            {{ $log->user->role === 'admin' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white' : 'bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-700' }}">
+                                            {{ strtoupper(substr($log->user->name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-1.5">
+                                                <p class="font-bold text-slate-900 text-sm">{{ $log->user->name }}</p>
+                                                @if ($log->user->role === 'admin')
+                                                    <span class="badge badge-purple text-[10px] py-0 px-1.5">Admin</span>
+                                                @else
+                                                    <span class="badge badge-indigo text-[10px] py-0 px-1.5">Peserta (Login)</span>
+                                                @endif
+                                            </div>
+                                            <p class="text-[11px] text-slate-400 font-mono">{{ $log->user->email }}</p>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center font-black text-xs flex-shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-1.5">
+                                                <p class="font-bold text-slate-900 text-sm">Pengunjung (Klik Link)</p>
+                                                <span class="inline-flex items-center px-1.5 py-0 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                    Tanpa Login
+                                                </span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-400 font-mono truncate max-w-[180px]">{{ $log->visited_url ?: url('/login') }}</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="table-td">
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-rose-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <div>
+                                        <span class="text-xs font-bold text-slate-800">{{ $log->location ?: 'Tidak Diketahui' }}</span>
+                                        @if ($log->map_url)
+                                            <a href="{{ $log->map_url }}" target="_blank" rel="noopener noreferrer"
+                                               class="ml-1 text-[10px] font-bold text-indigo-600 hover:underline">
+                                                (Peta)
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="table-td whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-mono font-bold text-slate-700">
+                                    {{ $log->ip_address ?: '—' }}
+                                </span>
+                            </td>
+                            <td class="table-td whitespace-nowrap">
+                                <div class="text-xs font-bold text-slate-800">{{ $log->browser ?: 'Unknown Browser' }}</div>
+                                <div class="text-[11px] text-slate-400">{{ $log->os ?: 'Unknown OS' }} ({{ $log->device_type ?: 'Desktop' }})</div>
+                            </td>
+                            <td class="table-td text-right whitespace-nowrap">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80 text-xs text-slate-600 font-mono font-medium">
+                                    {{ $log->logged_in_at ? $log->logged_in_at->format('d M Y, H:i') : '—' }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="py-10 text-center text-slate-400 text-xs">
+                                Belum ada catatan aktivitas login pengguna.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     {{-- ── Recent Activity ─────────────────────────── --}}

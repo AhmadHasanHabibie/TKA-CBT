@@ -49,27 +49,31 @@
             <table class="table-base">
                 <thead class="table-head">
                     <tr>
-                        <th class="table-th">Nama Pengguna</th>
-                        <th class="table-th">Email</th>
-                        <th class="table-th text-center">Peran</th>
-                        <th class="table-th">Terdaftar</th>
-                        <th class="table-th text-right">Aksi</th>
+                        <th class="table-th whitespace-nowrap">Nama Pengguna</th>
+                        <th class="table-th text-center whitespace-nowrap">Peran</th>
+                        <th class="table-th whitespace-nowrap">Lokasi Login</th>
+                        <th class="table-th whitespace-nowrap">IP Address</th>
+                        <th class="table-th whitespace-nowrap">Browser & OS</th>
+                        <th class="table-th whitespace-nowrap">Login Terakhir</th>
+                        <th class="table-th text-right whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($users as $user)
                         <tr class="table-row">
-                            <td class="table-td">
+                            <td class="table-td whitespace-nowrap">
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0
                                         {{ $user->role === 'admin' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white' : 'bg-gradient-to-br from-indigo-100 to-slate-200 text-indigo-700' }}">
                                         {{ strtoupper(substr($user->name, 0, 1)) }}
                                     </div>
-                                    <span class="font-bold text-sm text-slate-900">{{ $user->name }}</span>
+                                    <div>
+                                        <p class="font-bold text-sm text-slate-900">{{ $user->name }}</p>
+                                        <p class="font-mono text-[11px] text-slate-400">{{ $user->email }}</p>
+                                    </div>
                                 </div>
                             </td>
-                            <td class="table-td font-mono text-xs text-slate-500">{{ $user->email }}</td>
-                            <td class="table-td text-center">
+                            <td class="table-td text-center whitespace-nowrap">
                                 @if ($user->role === 'admin')
                                     <span class="badge badge-purple">
                                         <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 1l2.928 5.93 6.544.95-4.736 4.615 1.117 6.51L10 15.966l-5.853 3.079 1.117-6.51L.528 7.88l6.544-.95L10 1z" clip-rule="evenodd"/></svg>
@@ -82,8 +86,54 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="table-td text-xs text-slate-400 font-mono">
-                                {{ $user->created_at->format('d M Y') }}
+                            <td class="table-td">
+                                @if ($user->last_login_location)
+                                    <div class="flex items-start gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-rose-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <div>
+                                            <span class="text-xs font-bold text-slate-800">{{ $user->last_login_location }}</span>
+                                            @if ($user->last_login_latitude !== null && $user->last_login_longitude !== null)
+                                                <div>
+                                                    <a href="https://www.google.com/maps?q={{ $user->last_login_latitude }},{{ $user->last_login_longitude }}"
+                                                       target="_blank" rel="noopener noreferrer"
+                                                       class="text-[10px] font-bold text-indigo-600 hover:underline">
+                                                        Lihat Peta ({{ number_format($user->last_login_latitude, 3) }}, {{ number_format($user->last_login_longitude, 3) }})
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="text-xs text-slate-400 italic">Belum pernah login</span>
+                                @endif
+                            </td>
+                            <td class="table-td whitespace-nowrap">
+                                @if ($user->last_login_ip)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 font-mono text-xs font-bold text-slate-700">
+                                        {{ $user->last_login_ip }}
+                                    </span>
+                                @else
+                                    <span class="text-xs text-slate-400">—</span>
+                                @endif
+                            </td>
+                            <td class="table-td whitespace-nowrap">
+                                @if ($user->last_login_browser)
+                                    <div class="text-xs font-bold text-slate-800">{{ $user->last_login_browser }}</div>
+                                    <div class="text-[11px] text-slate-400">{{ $user->last_login_os ?: '—' }}</div>
+                                @else
+                                    <span class="text-xs text-slate-400">—</span>
+                                @endif
+                            </td>
+                            <td class="table-td text-xs text-slate-500 font-mono whitespace-nowrap">
+                                @if ($user->last_login_at)
+                                    <div class="font-semibold text-slate-700">{{ $user->last_login_at->format('d M Y, H:i') }}</div>
+                                    <div class="text-[10px] text-slate-400 font-sans">{{ $user->last_login_at->diffForHumans() }}</div>
+                                @else
+                                    <span class="text-slate-400 font-sans">Terdaftar {{ $user->created_at->format('d M Y') }}</span>
+                                @endif
                             </td>
                             <td class="table-td text-right">
                                 <div class="flex items-center justify-end gap-2">
@@ -110,7 +160,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-16 text-center">
+                            <td colspan="7" class="py-16 text-center">
                                 <div class="flex flex-col items-center gap-2 text-slate-400">
                                     <svg class="w-10 h-10 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                                     <p class="font-bold text-sm text-slate-500">Tidak ada pengguna ditemukan</p>

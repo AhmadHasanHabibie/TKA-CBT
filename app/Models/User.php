@@ -23,6 +23,13 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'last_login_at',
+        'last_login_ip',
+        'last_login_location',
+        'last_login_browser',
+        'last_login_os',
+        'last_login_latitude',
+        'last_login_longitude',
     ];
 
     /**
@@ -43,6 +50,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'last_login_at' => 'datetime',
+        'last_login_latitude' => 'float',
+        'last_login_longitude' => 'float',
     ];
 
     /**
@@ -51,6 +61,14 @@ class User extends Authenticatable
     public function examSessions(): HasMany
     {
         return $this->hasMany(ExamSession::class);
+    }
+
+    /**
+     * User's login logs.
+     */
+    public function loginLogs(): HasMany
+    {
+        return $this->hasMany(LoginLog::class);
     }
 
     /**
