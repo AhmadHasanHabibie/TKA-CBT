@@ -1,6 +1,6 @@
 @extends('layouts.user')
 
-@section('title', 'Profil Saya')
+@section('title', 'Profil Saya — Dokumentasi Foto Siswa')
 
 @section('content')
 <div class="space-y-6 max-w-5xl mx-auto">
@@ -14,12 +14,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                 </svg>
             </div>
-            <span>Kembali ke Dashboard</span>
+            <span>Kembali ke Beranda Galeri</span>
         </a>
 
         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            Akun Terverifikasi
+            Akun Siswa Terverifikasi
         </span>
     </div>
 
@@ -49,22 +49,22 @@
                         {{ $user->email }}
                     </p>
                     <div class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                        <span>Peserta Ujian CBT</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg>
+                        <span>Siswa — Anggota Galeri</span>
                     </div>
                 </div>
 
-                {{-- Activity Counters --}}
+                {{-- Gallery Counters --}}
                 <div class="grid grid-cols-2 gap-2 pt-4 border-t border-slate-100 text-left">
                     <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                        <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Subtest Selesai</span>
-                        <span class="text-xl font-black text-slate-900 mt-0.5 block">{{ $completedSessions }}</span>
-                        <span class="text-[10px] text-slate-400">Mata Uji</span>
+                        <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Album Aktif</span>
+                        <span class="text-xl font-black text-slate-900 mt-0.5 block">{{ $totalAlbums }}</span>
+                        <span class="text-[10px] text-slate-400">Koleksi</span>
                     </div>
                     <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                        <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Rata-rata Skor</span>
-                        <span class="text-xl font-black text-indigo-600 mt-0.5 block">{{ number_format($avgScore, 1) }}</span>
-                        <span class="text-[10px] text-slate-400">Skala 100</span>
+                        <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Foto</span>
+                        <span class="text-xl font-black text-indigo-600 mt-0.5 block">{{ $totalPhotos }}</span>
+                        <span class="text-[10px] text-slate-400">Dokumentasi</span>
                     </div>
                 </div>
 
@@ -77,10 +77,10 @@
             <div class="p-5 rounded-2xl bg-gradient-to-br from-indigo-50/90 to-violet-50/70 border border-indigo-100/80 text-indigo-950 text-xs space-y-2">
                 <div class="flex items-center gap-2 font-extrabold text-indigo-900">
                     <svg class="w-4 h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span>Privasi & Fleksibilitas</span>
+                    <span>Privasi &amp; Fleksibilitas Akun</span>
                 </div>
                 <p class="text-slate-600 leading-relaxed">
-                    Anda bebas mengganti username dan password kapan pun. Sistem tidak meminta password lama agar Anda tetap mudah mengakses akun saat lupa sandi lama.
+                    Anda bebas mengganti nama lengkap dan password kapan pun untuk mengakses Portal Dokumentasi Foto Siswa dengan aman.
                 </p>
             </div>
 
@@ -99,8 +99,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-base font-extrabold text-slate-900">Informasi Username</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Ubah nama pengguna yang ditampilkan di sistem ujian</p>
+                            <h3 class="text-base font-extrabold text-slate-900">Informasi Nama Siswa</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Ubah nama lengkap yang ditampilkan di portal dokumentasi siswa</p>
                         </div>
                     </div>
                 </div>
@@ -129,7 +129,7 @@
                         @error('name')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
-                        <p class="form-hint">Nama ini akan digunakan pada seluruh lembar pengerjaan dan hasil nilai.</p>
+                        <p class="form-hint">Nama ini akan ditampilkan sebagai identitas Anda di Portal Dokumentasi Foto Siswa.</p>
                     </div>
 
                     {{-- Email (Read-only Info) --}}
@@ -161,7 +161,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
-                            <span>Simpan Username</span>
+                            <span>Simpan Nama</span>
                         </button>
                     </div>
                 </form>

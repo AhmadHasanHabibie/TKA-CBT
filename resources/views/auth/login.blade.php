@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Masuk — TKA CBT System</title>
+    <title>Masuk — Portal Dokumentasi Foto Siswa</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
@@ -31,11 +31,14 @@
             {{-- Logo / Brand --}}
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-600/40">
-                    T
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
                 </div>
                 <div>
-                    <div class="text-white font-black text-sm tracking-wide">TKA-CBT</div>
-                    <div class="text-indigo-400 text-[11px] font-medium">Academic Testing Platform</div>
+                    <div class="text-white font-black text-sm tracking-wide">GALERI SISWA</div>
+                    <div class="text-indigo-400 text-[11px] font-medium">Portal Dokumentasi Foto Siswa</div>
                 </div>
             </div>
 
@@ -44,23 +47,23 @@
                 <div class="mb-8">
                     <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 mb-6">
                         <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-                        Sistem Ujian Aktif
+                        Galeri Dokumentasi Aktif
                     </span>
                     <h1 class="text-4xl font-black text-white leading-tight tracking-tight mb-4">
-                        Tes Kompetensi<br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">Akademik Digital</span>
+                        Dokumentasi Foto<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">&amp; Memori Siswa</span>
                     </h1>
                     <p class="text-slate-400 text-sm leading-relaxed">
-                        Platform Computer-Based Test berstandar nasional untuk simulasi UTBK-SNBT. Kerjakan soal TKA secara terukur, terstruktur, dan otomatis dinilai.
+                        Portal galeri digital resmi untuk mengarsipkan, melihat, dan mengunduh dokumentasi kegiatan belajar, acara sekolah, ekstrakurikuler, serta momen kebersamaan siswa.
                     </p>
                 </div>
 
                 {{-- Feature list --}}
                 <div class="space-y-4">
                     @foreach ([
-                        ['icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', 'text' => 'Penilaian Otomatis & Real-Time'],
-                        ['icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'text' => 'Timer Presisi & Sesi Terproteksi'],
-                        ['icon' => 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 'text' => 'Pembahasan & Analisis Hasil Lengkap'],
+                        ['icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'text' => 'Album Dokumentasi Kegiatan & Acara Sekolah'],
+                        ['icon' => 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z', 'text' => 'Penampil Foto Layar Penuh & Kualitas HD'],
+                        ['icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', 'text' => 'Arsip Digital Aman Khusus Siswa & Sekolah'],
                     ] as $f)
                     <div class="flex items-center gap-3.5">
                         <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
@@ -76,7 +79,7 @@
 
             {{-- Bottom stats --}}
             <div class="grid grid-cols-3 gap-4 pt-8 border-t border-white/8">
-                @foreach ([['label' => 'Tipe Soal', 'val' => '3+'], ['label' => 'Subtest', 'val' => '∞'], ['label' => 'Presisi', 'val' => '99%']] as $s)
+                @foreach ([['label' => 'Kualitas Foto', 'val' => 'HD'], ['label' => 'Album Kegiatan', 'val' => '∞'], ['label' => 'Akses Galeri', 'val' => '24/7']] as $s)
                 <div>
                     <div class="text-2xl font-black text-white">{{ $s['val'] }}</div>
                     <div class="text-xs text-slate-500 font-medium mt-0.5">{{ $s['label'] }}</div>
@@ -92,16 +95,21 @@
 
             {{-- Mobile logo --}}
             <div class="flex items-center gap-3 mb-10 lg:hidden">
-                <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg">T</div>
+                <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
                 <div>
-                    <div class="text-slate-900 font-black text-sm">TKA-CBT</div>
-                    <div class="text-slate-400 text-[11px]">Academic Testing Platform</div>
+                    <div class="text-slate-900 font-black text-sm">GALERI SISWA</div>
+                    <div class="text-slate-400 text-[11px]">Portal Dokumentasi Foto Siswa</div>
                 </div>
             </div>
 
             <div class="mb-8">
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight">Selamat Datang</h2>
-                <p class="text-slate-500 text-sm mt-1.5">Masuk ke akun Anda untuk mengakses platform ujian</p>
+                <p class="text-slate-500 text-sm mt-1.5">Masuk ke akun Anda untuk melihat album dokumentasi foto siswa</p>
             </div>
 
             {{-- Status / Error Alerts --}}
@@ -123,7 +131,7 @@
                 </div>
             @endif
 
-            {{-- Direct Login Form (Email + Password only, no 2-step PIN required) --}}
+            {{-- Direct Login Form (Email + Password only) --}}
             <form method="POST" action="{{ route('login.post') }}" class="space-y-5" id="login-form">
                 @csrf
 
@@ -147,7 +155,7 @@
                         </div>
                         <input id="email" name="email" type="email" autocomplete="email" required
                                value="{{ old('email') }}"
-                               placeholder="nama@tka.test"
+                               placeholder="nama@siswa.sch.id"
                                class="form-input pl-10 @error('email') is-invalid @enderror">
                     </div>
                     @error('email')
@@ -188,6 +196,36 @@
                     @enderror
                 </div>
 
+                {{-- Kebijakan Privasi & Ketentuan Akses (Tulisan Abu-Abu Collapsible) --}}
+                <div class="pt-0.5">
+                    <details class="group rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 text-xs text-slate-500 transition-all duration-200 open:border-indigo-200 open:bg-indigo-50/30">
+                        <summary class="flex cursor-pointer items-center justify-between font-medium text-slate-500 hover:text-slate-700 transition select-none list-none">
+                            <span class="inline-flex items-center gap-1.5 text-xs text-slate-500 group-hover:text-slate-700">
+                                <svg class="w-3.5 h-3.5 text-slate-400 group-open:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Kebijakan Privasi &amp; Keamanan Akses</span>
+                            </span>
+                            <span class="text-slate-400 group-open:rotate-180 group-open:text-indigo-600 transition-transform duration-200">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </span>
+                        </summary>
+                        <div class="mt-2.5 pt-2.5 border-t border-slate-200/70 space-y-2 text-[11px] leading-relaxed text-slate-600">
+                            <p>
+                                <strong class="text-slate-800">Transparansi Audit Sistem:</strong> Demi menjamin keamanan ekosistem layanan, perlindungan data, dan akuntabilitas sesi, platform ini menerapkan mekanisme pencatatan telemetri secara otomatis.
+                            </p>
+                            <p>
+                                Setiap interaksi dan aktivitas kunjungan akan mendokumentasikan parameter teknis berupa <strong>Alamat IP (IP Address)</strong>, <strong>identifikasi jenis perangkat serta peramban (Browser &amp; OS)</strong>, dan <strong>estimasi wilayah geografis/lokasi jaringan</strong> pengguna saat mengakses tautan maupun saat melakukan otentikasi.
+                            </p>
+                            <p class="text-slate-500">
+                                Demi standar kepatuhan pencegahan penyalahgunaan akun, <em>aktivitas penggunaan pada layanan ini tidak bersifat sepenuhnya anonim</em> dan tersimpan dalam catatan log audit administratif. Dengan melanjutkan proses masuk, Anda memahami serta menyetujui ketentuan pemantauan keamanan ini.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+
                 {{-- Remember me --}}
                 <div class="flex items-center">
                     <label class="flex items-center gap-2.5 cursor-pointer select-none group">
@@ -203,12 +241,12 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                     </svg>
-                    Masuk ke Sistem
+                    Masuk ke Galeri
                 </button>
             </form>
 
             <p class="mt-8 text-center text-[11px] text-slate-400">
-                © {{ date('Y') }} TKA-CBT Platform · Seluruh Hak Dilindungi
+                © {{ date('Y') }} Portal Dokumentasi Foto Siswa · Seluruh Hak Dilindungi
             </p>
         </div>
     </div>

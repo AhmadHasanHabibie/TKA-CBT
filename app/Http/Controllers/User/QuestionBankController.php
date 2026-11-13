@@ -9,12 +9,15 @@ use Illuminate\Http\Request;
 class QuestionBankController extends Controller
 {
     /**
-     * Display question banks accessible to students.
+     * Display photo documentation albums accessible to students.
      */
     public function index(Request $request)
     {
         $query = QuestionBank::active()
             ->withCount('items')
+            ->with(['items' => function ($q) {
+                $q->orderBy('order')->orderBy('id');
+            }])
             ->orderByDesc('id');
 
         if ($request->filled('search')) {
@@ -42,20 +45,18 @@ class QuestionBankController extends Controller
     }
 
     /**
-     * Display interactive photo gallery of a question bank for students.
+     * Display interactive photo gallery of an album for students.
      */
     public function show(QuestionBank $questionBank)
     {
-        // Guard: ensure bank is active
         if (!$questionBank->is_active) {
-            abort(404, 'Bank soal tidak ditemukan atau belum dipublikasikan.');
+            abort(404, 'Album dokumentasi tidak ditemukan atau belum dipublikasikan.');
         }
 
         $questionBank->load(['items' => function ($query) {
             $query->orderBy('order')->orderBy('id');
         }]);
 
-        // Other recommended question banks
         $otherBanks = QuestionBank::active()
             ->where('id', '!=', $questionBank->id)
             ->withCount('items')

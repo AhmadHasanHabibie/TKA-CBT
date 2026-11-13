@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\QuestionBank;
+use App\Models\QuestionBankItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +21,14 @@ class ProfileController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        $totalAlbums = 0;
+        $totalPhotos = 0;
+        try {
+            $totalAlbums = QuestionBank::where('is_active', true)->count();
+            $totalPhotos = QuestionBankItem::whereHas('questionBank', fn($q) => $q->where('is_active', true))->count();
+        } catch (\Throwable $e) {
+        }
+
         $completedSessions = $user->examSessions()
             ->where('status', 'finished')
             ->count();
@@ -33,6 +43,8 @@ class ProfileController extends Controller
 
         return view('user.profile.edit', [
             'user' => $user,
+            'totalAlbums' => $totalAlbums,
+            'totalPhotos' => $totalPhotos,
             'completedSessions' => $completedSessions,
             'ongoingSessions' => $ongoingSessions,
             'avgScore' => (float) $avgScore,

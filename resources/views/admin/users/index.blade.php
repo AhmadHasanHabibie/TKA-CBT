@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('header-title', 'Kelola Peserta & Pengguna')
+@section('header-title', 'Kelola Data Siswa & Pengguna')
 
 @section('content')
 <div class="space-y-6" x-data="{
@@ -14,8 +14,8 @@
     confirmDelete(id, name, email) {
         window.showConfirm({
             type: 'danger',
-            title: 'Hapus Pengguna',
-            message: 'Akun &ldquo;' + name + '&rdquo; (' + email + ') akan dihapus permanen dari sistem.',
+            title: 'Hapus Akun Siswa / Pengguna',
+            message: 'Akun &ldquo;' + name + '&rdquo; (' + email + ') akan dihapus permanen dari sistem galeri.',
             confirmText: 'Ya, Hapus Akun',
             action: () => this.$refs['deleteUser' + id].submit()
         });
@@ -25,20 +25,20 @@
     {{-- ── Page Header ──────────────────────────────── --}}
     <div class="page-header">
         <div>
-            <h2 class="page-title">Daftar Pengguna</h2>
-            <p class="page-subtitle">Kelola akun administrator dan peserta ujian yang memiliki akses ke sistem</p>
+            <h2 class="page-title">Daftar Siswa &amp; Pengelola</h2>
+            <p class="page-subtitle">Kelola akun siswa dan administrator yang memiliki akses ke Portal Dokumentasi Foto Siswa</p>
         </div>
         <div class="flex items-center gap-3">
             <form method="GET" action="{{ route('admin.users.index') }}" class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama atau email..."
+                <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama atau email siswa..."
                        class="form-input pl-9 text-sm w-56 sm:w-64">
             </form>
             <button type="button" @click="createModalOpen = true" class="btn-primary btn-sm flex-shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Tambah Pengguna
+                Tambah Akun Siswa
             </button>
         </div>
     </div>
@@ -49,11 +49,11 @@
             <table class="table-base">
                 <thead class="table-head">
                     <tr>
-                        <th class="table-th whitespace-nowrap">Nama Pengguna</th>
+                        <th class="table-th whitespace-nowrap">Nama Siswa / Pengguna</th>
                         <th class="table-th text-center whitespace-nowrap">Peran</th>
                         <th class="table-th whitespace-nowrap">Lokasi Login</th>
                         <th class="table-th whitespace-nowrap">IP Address</th>
-                        <th class="table-th whitespace-nowrap">Browser & OS</th>
+                        <th class="table-th whitespace-nowrap">Browser &amp; OS</th>
                         <th class="table-th whitespace-nowrap">Login Terakhir</th>
                         <th class="table-th text-right whitespace-nowrap">Aksi</th>
                     </tr>
@@ -82,7 +82,7 @@
                                 @else
                                     <span class="badge badge-indigo">
                                         <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
-                                        Peserta
+                                        Siswa
                                     </span>
                                 @endif
                             </td>
@@ -188,7 +188,7 @@
                     <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                     </div>
-                    <h3 class="text-base font-extrabold text-slate-900">Tambah Pengguna Baru</h3>
+                    <h3 class="text-base font-extrabold text-slate-900">Tambah Akun Siswa / Pengguna</h3>
                 </div>
                 <button type="button" @click="createModalOpen = false"
                         class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
@@ -199,12 +199,12 @@
             <form method="POST" action="{{ route('admin.users.store') }}" id="create-user-form" class="modal-body space-y-4">
                 @csrf
                 <div>
-                    <label class="form-label">Nama Lengkap <span class="text-rose-500">*</span></label>
+                    <label class="form-label">Nama Lengkap Siswa <span class="text-rose-500">*</span></label>
                     <input type="text" name="name" required placeholder="Contoh: Budi Santoso" class="form-input">
                 </div>
                 <div>
                     <label class="form-label">Email <span class="text-rose-500">*</span></label>
-                    <input type="email" name="email" required placeholder="budi@tka.test" class="form-input">
+                    <input type="email" name="email" required placeholder="budi@siswa.sch.id" class="form-input">
                 </div>
                 <div>
                     <label class="form-label">Password <span class="text-rose-500">*</span></label>
@@ -213,14 +213,14 @@
                 <div>
                     <label class="form-label">Peran (Role) <span class="text-rose-500">*</span></label>
                     <select name="role" required class="form-input bg-white">
-                        <option value="user" selected>Peserta Ujian</option>
+                        <option value="user" selected>Siswa</option>
                         <option value="admin">Administrator</option>
                     </select>
                 </div>
             </form>
             <div class="modal-footer">
                 <button type="button" @click="createModalOpen = false" class="btn-secondary btn-sm">Batal</button>
-                <button type="submit" form="create-user-form" class="btn-primary btn-sm">Simpan Pengguna</button>
+                <button type="submit" form="create-user-form" class="btn-primary btn-sm">Simpan Akun</button>
             </div>
         </div>
     </div>
@@ -233,7 +233,7 @@
                     <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                     </div>
-                    <h3 class="text-base font-extrabold text-slate-900">Edit Data Pengguna</h3>
+                    <h3 class="text-base font-extrabold text-slate-900">Edit Data Akun</h3>
                 </div>
                 <button type="button" @click="editModalOpen = false"
                         class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
@@ -262,14 +262,14 @@
                 <div>
                     <label class="form-label">Peran (Role) <span class="text-rose-500">*</span></label>
                     <select name="role" x-model="editUser.role" required class="form-input bg-white">
-                        <option value="user">Peserta Ujian</option>
+                        <option value="user">Siswa</option>
                         <option value="admin">Administrator</option>
                     </select>
                 </div>
             </form>
             <div class="modal-footer">
                 <button type="button" @click="editModalOpen = false" class="btn-secondary btn-sm">Batal</button>
-                <button type="submit" form="edit-user-form" class="btn-primary btn-sm">Perbarui Pengguna</button>
+                <button type="submit" form="edit-user-form" class="btn-primary btn-sm">Perbarui Akun</button>
             </div>
         </div>
     </div>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Admin Dashboard' }} — TKA CBT</title>
+    <title>{{ $title ?? 'Admin Dokumentasi Foto Siswa' }} — Galeri Siswa</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,21 +17,23 @@
 
     {{-- ═══════════════ SIDEBAR (DESKTOP & LAPTOP) ═══════════════ --}}
     <aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-40">
-        {{-- Sidebar inner: flex column taking full height, NO outer overflow so footer stays pinned --}}
         <div class="flex flex-col h-full bg-slate-950 border-r border-slate-800/60 overflow-hidden">
 
             {{-- Brand Header --}}
             <div class="flex items-center gap-3 h-16 px-5 border-b border-slate-800/60 flex-shrink-0">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center font-black text-base shadow-md shadow-indigo-600/40">
-                    T
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
                 </div>
                 <div class="leading-tight">
-                    <div class="text-white font-black text-[13px] tracking-wide">TKA-CBT</div>
-                    <div class="text-indigo-400 text-[10px] font-semibold uppercase tracking-widest">Admin Panel</div>
+                    <div class="text-white font-black text-[13px] tracking-wide">GALERI SISWA</div>
+                    <div class="text-indigo-400 text-[10px] font-semibold uppercase tracking-widest">Admin Dokumentasi</div>
                 </div>
             </div>
 
-            {{-- Nav Section: Only this section scrolls when content overflows on small laptop heights --}}
+            {{-- Nav Section --}}
             <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto min-h-0">
                 <p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-600">Menu Utama</p>
 
@@ -47,25 +49,13 @@
                     @endif
                 </a>
 
-                <a href="{{ route('admin.subtests.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 group
-                          {{ request()->routeIs('admin.subtests.*') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                    <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span>Kelola Subtest</span>
-                    @if(request()->routeIs('admin.subtests.*'))
-                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
-                    @endif
-                </a>
-
                 <a href="{{ route('admin.question-banks.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 group
                           {{ request()->routeIs('admin.question-banks.*') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
                     <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span>Bank Soal</span>
+                    <span>Album Dokumentasi</span>
                     @if(request()->routeIs('admin.question-banks.*'))
                     <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
                     @endif
@@ -77,7 +67,7 @@
                     <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
-                    <span>Kelola Peserta</span>
+                    <span>Data Siswa &amp; User</span>
                     @if(request()->routeIs('admin.users.*'))
                     <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
                     @endif
@@ -90,7 +80,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <span>Monitoring Login</span>
+                    <span>Log Aktivitas &amp; Lokasi</span>
                     @if(request()->routeIs('admin.login-logs.*'))
                     <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
                     @endif
@@ -109,7 +99,7 @@
                 </a>
             </nav>
 
-            {{-- User Card + Logout (PINNED AT BOTTOM, flex-shrink-0, NEVER submerged) --}}
+            {{-- User Card + Logout --}}
             <div class="p-3 border-t border-slate-800/60 flex-shrink-0 bg-slate-950">
                 <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-900 mb-2 transition group" title="Buka Profil">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
@@ -167,9 +157,12 @@
             <div class="flex items-center justify-between h-16 px-5 border-b border-slate-800/60 flex-shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-indigo-600/30">
-                        T
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
                     </div>
-                    <span class="text-white font-black text-sm tracking-wide">TKA-CBT Admin</span>
+                    <span class="text-white font-black text-sm tracking-wide">Galeri Siswa Admin</span>
                 </div>
                 <button type="button"
                         @click="mobileMenuOpen = false"
@@ -181,7 +174,7 @@
                 </button>
             </div>
 
-            {{-- Nav Section: scrollable if many items --}}
+            {{-- Nav Section --}}
             <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto min-h-0">
                 <p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-600">Menu Utama</p>
 
@@ -192,21 +185,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
                     </svg>
                     <span>Dashboard</span>
-                    @if(request()->routeIs('admin.dashboard'))
-                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
-                    @endif
-                </a>
-
-                <a href="{{ route('admin.subtests.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150
-                          {{ request()->routeIs('admin.subtests.*') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                    <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    <span>Kelola Subtest</span>
-                    @if(request()->routeIs('admin.subtests.*'))
-                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
-                    @endif
                 </a>
 
                 <a href="{{ route('admin.question-banks.index') }}"
@@ -215,10 +193,7 @@
                     <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
-                    <span>Bank Soal</span>
-                    @if(request()->routeIs('admin.question-banks.*'))
-                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
-                    @endif
+                    <span>Album Dokumentasi</span>
                 </a>
 
                 <a href="{{ route('admin.users.index') }}"
@@ -227,10 +202,7 @@
                     <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
-                    <span>Kelola Peserta</span>
-                    @if(request()->routeIs('admin.users.*'))
-                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
-                    @endif
+                    <span>Data Siswa &amp; User</span>
                 </a>
 
                 <a href="{{ route('admin.login-logs.index') }}"
@@ -240,10 +212,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
-                    <span>Monitoring Login</span>
-                    @if(request()->routeIs('admin.login-logs.*'))
-                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
-                    @endif
+                    <span>Log Aktivitas &amp; Lokasi</span>
                 </a>
 
                 <a href="{{ route('admin.profile.edit') }}"
@@ -253,13 +222,10 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
                     <span>Profil Admin</span>
-                    @if(request()->routeIs('admin.profile.*'))
-                    <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
-                    @endif
                 </a>
             </nav>
 
-            {{-- Mobile Drawer Footer (PINNED AT BOTTOM, ALWAYS VISIBLE) --}}
+            {{-- Mobile Drawer Footer --}}
             <div class="p-3 border-t border-slate-800/60 flex-shrink-0 bg-slate-950/95">
                 <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 mb-2 transition group" title="Buka Profil">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
@@ -269,9 +235,6 @@
                         <p class="text-xs font-bold text-white truncate group-hover:text-indigo-400 transition">{{ Auth::user()->name ?? 'Admin' }}</p>
                         <p class="text-[10px] text-slate-500 truncate">{{ Auth::user()->email ?? '' }}</p>
                     </div>
-                    <svg class="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -293,7 +256,6 @@
         {{-- Topbar --}}
         <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-slate-200/80 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
             <div class="flex items-center gap-3">
-                {{-- Mobile hamburger --}}
                 <button type="button" @click="mobileMenuOpen = true"
                         class="md:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
                         aria-label="Buka Menu Navigasi">
@@ -301,17 +263,16 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-                {{-- Page title --}}
                 <div>
                     <h1 class="text-base font-extrabold text-slate-900 leading-none">@yield('header-title', 'Administrator Panel')</h1>
-                    <p class="text-[11px] text-slate-400 mt-0.5 hidden sm:block">TKA-CBT Management System</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5 hidden sm:block">Portal Dokumentasi Foto Siswa</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3">
                 <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
                     <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                    Superadmin
+                    Admin Dokumentasi
                 </span>
 
                 <a href="{{ route('admin.profile.edit') }}"
@@ -325,7 +286,6 @@
                     </span>
                 </a>
 
-                {{-- Direct Logout button in topbar - instantly accessible on both mobile and laptop without opening drawer --}}
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
                     <button type="submit"
@@ -339,7 +299,6 @@
                 </form>
             </div>
         </header>
-
 
         {{-- Page Body --}}
         <main class="flex-1 px-5 sm:px-8 py-6 pb-12 slide-up">

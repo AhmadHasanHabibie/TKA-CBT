@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('header-title', 'Monitoring Lokasi, IP & Browser (Anti-Kecurangan)')
+@section('header-title', 'Log Aktivitas, Lokasi & IP Pengunjung')
 
 @section('content')
 <div class="space-y-6 slide-up" x-data="{
@@ -23,7 +23,7 @@
     confirmClearAll() {
         window.showConfirm({
             type: 'danger',
-            title: 'Bersihkan Seluruh Log Akses',
+            title: 'Bersihkan Seluruh Log Aktivitas',
             message: 'Seluruh catatan riwayat klik link, lokasi, IP address, dan browser akan dihapus permanen.',
             confirmText: 'Ya, Bersihkan Semua',
             action: () => this.$refs['clearAllLogsForm'].submit()
@@ -31,7 +31,7 @@
     }
 }">
 
-    {{-- ── Anti-Cheating Instant Link Tracker Banner ── --}}
+    {{-- ── Instant Link Tracker Banner ── --}}
     <div class="card p-5 bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 text-white border-0 shadow-lg">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="space-y-1">
@@ -39,9 +39,9 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     Deteksi Otomatis Aktif (Tanpa Perlu Login)
                 </div>
-                <h3 class="text-base font-black text-white">Link Pantau Lokasi & IP Peserta CBT</h3>
+                <h3 class="text-base font-black text-white">Link Galeri Dokumentasi Foto Siswa</h3>
                 <p class="text-xs text-slate-300">
-                    Begitu peserta membuka atau mengklik link di bawah ini (bahkan <strong>sebelum login</strong>), sistem otomatis mencatat <strong>IP Address</strong>, <strong>Lokasi Geografis / GPS</strong>, dan <strong>Browser</strong> mereka untuk mencegah joki & kecurangan CBT.
+                    Begitu siswa atau pengunjung mengklik link galeri di bawah ini (bahkan <strong>sebelum login</strong>), sistem otomatis mencatat <strong>IP Address</strong>, <strong>Lokasi Geografis / GPS</strong>, dan <strong>Browser</strong> yang dipakai.
                 </p>
             </div>
             <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
@@ -52,7 +52,7 @@
                         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-md cursor-pointer">
                     <svg x-show="!copied" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                     <svg x-show="copied" x-cloak class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    <span x-text="copied ? 'Link Tersalin!' : 'Salin Link CBT'">Salin Link CBT</span>
+                    <span x-text="copied ? 'Link Tersalin!' : 'Salin Link Galeri'">Salin Link Galeri</span>
                 </button>
                 <a href="{{ route('admin.login-logs.index') }}"
                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition">
@@ -67,7 +67,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         <div class="card p-5 flex items-center justify-between gap-4">
             <div>
-                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Akses & Klik Link</p>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Log Aktivitas</p>
                 <h3 class="text-2xl font-black text-slate-900">{{ number_format($totalLogs) }}</h3>
                 <span class="text-[11px] text-slate-400 font-medium">Klik link + sesi login</span>
             </div>
@@ -122,7 +122,7 @@
     <div class="page-header">
         <div>
             <h2 class="page-title">Log Lokasi, IP Address & Browser User</h2>
-            <p class="page-subtitle">Menampilkan seluruh aktivitas pengunjung saat klik link (tanpa login) maupun setelah login</p>
+            <p class="page-subtitle">Menampilkan seluruh aktivitas pengunjung saat klik link (tanpa login) maupun setelah siswa login</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5">
@@ -130,7 +130,7 @@
                 <select name="role" onchange="this.form.submit()" class="form-input text-xs py-2 bg-white w-48">
                     <option value="">Semua Aktivitas</option>
                     <option value="guest" {{ $role === 'guest' ? 'selected' : '' }}>Klik Link (Belum Login)</option>
-                    <option value="user" {{ $role === 'user' ? 'selected' : '' }}>Peserta Ujian (Login)</option>
+                    <option value="user" {{ $role === 'user' ? 'selected' : '' }}>Siswa (Sudah Login)</option>
                     <option value="admin" {{ $role === 'admin' ? 'selected' : '' }}>Administrator</option>
                 </select>
 
@@ -163,10 +163,10 @@
             <table class="table-base">
                 <thead class="table-head">
                     <tr>
-                        <th class="table-th whitespace-nowrap">Pengunjung / Pengguna</th>
+                        <th class="table-th whitespace-nowrap">Pengunjung / Siswa</th>
                         <th class="table-th whitespace-nowrap">Lokasi Langsung</th>
                         <th class="table-th whitespace-nowrap">IP Address</th>
-                        <th class="table-th whitespace-nowrap">Browser & Perangkat</th>
+                        <th class="table-th whitespace-nowrap">Browser &amp; Perangkat</th>
                         <th class="table-th whitespace-nowrap">Waktu Akses</th>
                         <th class="table-th text-right whitespace-nowrap">Aksi</th>
                     </tr>
@@ -188,7 +188,7 @@
                                                 @if ($log->user->role === 'admin')
                                                     <span class="badge badge-purple text-[10px] py-0.5 px-2">Admin</span>
                                                 @else
-                                                    <span class="badge badge-indigo text-[10px] py-0.5 px-2">Peserta (Login)</span>
+                                                    <span class="badge badge-indigo text-[10px] py-0.5 px-2">Siswa (Login)</span>
                                                 @endif
                                             </div>
                                             <p class="text-[11px] font-mono text-slate-400">{{ $log->user->email }}</p>
@@ -306,7 +306,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
                                     <p class="font-bold text-sm text-slate-500">Belum ada riwayat akses tercatat</p>
-                                    <p class="text-xs">Begitu seseorang mengklik link CBT (meskipun belum login), IP address, lokasi, dan browser mereka langsung muncul di sini.</p>
+                                    <p class="text-xs">Begitu seseorang mengklik link galeri (meskipun belum login), IP address, lokasi, dan browser mereka langsung muncul di sini.</p>
                                 </div>
                             </td>
                         </tr>

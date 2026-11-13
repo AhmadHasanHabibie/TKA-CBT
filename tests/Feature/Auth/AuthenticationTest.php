@@ -19,7 +19,7 @@ class AuthenticationTest extends TestCase
         ])->get('/login');
 
         $response->assertStatus(200);
-        $response->assertSee('Masuk ke Sistem');
+        $response->assertSee('Masuk ke Galeri');
         $response->assertDontSee('Verifikasi PIN Admin');
 
         // Visitor IP and Browser are recorded immediately upon clicking the link (without logging in)

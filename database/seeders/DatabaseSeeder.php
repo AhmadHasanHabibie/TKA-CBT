@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Option;
 use App\Models\Question;
+use App\Models\QuestionBank;
 use App\Models\Subtest;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -17,10 +18,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Admin Account
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@tka.test'],
             [
-                'name' => 'Administrator TKA',
+                'name' => 'Administrator Dokumentasi',
                 'password' => Hash::make('kingahmad123'),
                 'role' => 'admin',
                 'email_verified_at' => now(),
@@ -146,5 +147,42 @@ class DatabaseSeeder extends Seeder
         }
 
         $subtest->updateQuestionCount();
+
+        // 4. Sample Photo Documentation Albums
+        if (QuestionBank::count() === 0) {
+            $sampleAlbums = [
+                [
+                    'title' => 'Dokumentasi MPLS & Pengenalan Lingkungan Sekolah',
+                    'slug' => 'dokumentasi-mpls-pengenalan-lingkungan-sekolah',
+                    'category' => 'Kegiatan Sekolah',
+                    'description' => 'Koleksi foto kegiatan Masa Pengenalan Lingkungan Sekolah (MPLS), apel pagi, dan perkenalan ekstrakurikuler siswa baru.',
+                    'is_active' => true,
+                    'created_by' => $admin->id,
+                ],
+                [
+                    'title' => 'Album Kenangan Kelas XII & Buku Tahunan Angkatan',
+                    'slug' => 'album-kenangan-kelas-xii-buku-tahunan-angkatan',
+                    'category' => 'Wisuda & Angkatan',
+                    'description' => 'Dokumentasi sesi pemotretan bersama wali kelas, foto buku tahunan siswa, dan pelepasan kelulusan angkatan.',
+                    'is_active' => true,
+                    'created_by' => $admin->id,
+                ],
+                [
+                    'title' => 'Pekan Olahraga & Pentas Seni Siswa (Classmeeting)',
+                    'slug' => 'pekan-olahraga-pentas-seni-siswa-classmeeting',
+                    'category' => 'Ekstrakurikuler',
+                    'description' => 'Momen keseruan pertandingan olahraga antar kelas, pertunjukan musik siswa, dan pembagian piala juara umum.',
+                    'is_active' => true,
+                    'created_by' => $admin->id,
+                ],
+            ];
+
+            foreach ($sampleAlbums as $albumData) {
+                QuestionBank::updateOrCreate(
+                    ['slug' => $albumData['slug']],
+                    $albumData
+                );
+            }
+        }
     }
 }

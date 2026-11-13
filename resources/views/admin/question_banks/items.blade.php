@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola Foto Bank Soal — ' . $questionBank->title)
-@section('header-title', 'Kelola Foto Bank Soal')
+@section('title', 'Kelola Foto Dokumentasi — ' . $questionBank->title)
+@section('header-title', 'Kelola Foto Album Dokumentasi')
 
 @section('content')
 <div class="space-y-6" x-data="{
@@ -11,7 +11,7 @@
     lightboxNotes: '',
     openLightbox(img, title, notes) {
         this.lightboxImage = img;
-        this.lightboxTitle = title || 'Foto Soal';
+        this.lightboxTitle = title || 'Foto Dokumentasi';
         this.lightboxNotes = notes || '';
         this.lightboxOpen = true;
     },
@@ -36,8 +36,8 @@
     confirmDeleteItem(id, title) {
         window.showConfirm({
             type: 'warning',
-            title: 'Hapus Foto Soal',
-            message: 'Foto soal &ldquo;' + title + '&rdquo; akan dihapus permanen dari bank soal ini.',
+            title: 'Hapus Foto Dokumentasi',
+            message: 'Foto &ldquo;' + title + '&rdquo; akan dihapus permanen dari album dokumentasi ini.',
             confirmText: 'Ya, Hapus Foto',
             action: () => this.$refs['deleteItem' + id].submit()
         });
@@ -73,23 +73,23 @@
             <a href="{{ route('admin.question-banks.index') }}"
                class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 transition mb-2 group">
                 <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                Kembali ke Daftar Bank Soal
+                Kembali ke Daftar Album Dokumentasi
             </a>
             <h2 class="page-title flex items-center gap-2.5">
                 <span>{{ $questionBank->title }}</span>
                 <span class="{{ $questionBank->is_active ? 'badge badge-emerald' : 'badge badge-slate' }}">
-                    {{ $questionBank->is_active ? 'Aktif' : 'Draft' }}
+                    {{ $questionBank->is_active ? 'Publik' : 'Draft' }}
                 </span>
             </h2>
             <p class="page-subtitle">
-                Total <strong class="text-slate-700">{{ $questionBank->items->count() }} foto soal</strong> tersimpan dalam bank ini.
+                Total <strong class="text-slate-700">{{ $questionBank->items->count() }} foto dokumentasi</strong> tersimpan dalam album ini.
             </p>
         </div>
 
         <a href="{{ route('user.question-banks.show', $questionBank) }}" target="_blank"
            class="btn-secondary btn-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/></svg>
-            Lihat Tampilan Siswa
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            Lihat Galeri Siswa
         </a>
     </div>
 
@@ -103,9 +103,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <h3 class="text-sm font-bold text-slate-900 mb-1">Unggah Banyak Foto Soal Sekaligus</h3>
+                <h3 class="text-sm font-bold text-slate-900 mb-1">Unggah Banyak Foto Dokumentasi Sekaligus</h3>
                 <p class="text-xs text-slate-500 mb-4">
-                    Pilih atau tarik hingga puluhan file foto sekaligus (JPG, PNG, WebP, GIF maks 15MB per foto).
+                    Pilih hingga puluhan foto kegiatan siswa sekaligus (JPG, PNG, WebP, GIF maks 15MB per foto).
                 </p>
 
                 <!-- Hidden Input & Trigger Button -->
@@ -115,7 +115,7 @@
                 <div class="flex items-center justify-center gap-3 mt-2">
                     <label for="multi_images_input" class="btn-primary btn-sm cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Pilih Foto dari Komputer
+                        Pilih Foto dari Perangkat
                     </label>
                     <template x-if="filePreviews.length > 0">
                         <button type="button" @click="clearSelectedFiles()"
@@ -131,7 +131,7 @@
                 <div class="pt-4 border-t border-indigo-100 mt-4 space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-800">
-                            Pratinjau File Terpilih (<span x-text="filePreviews.length"></span> foto):
+                            Pratinjau Foto Terpilih (<span x-text="filePreviews.length"></span> foto):
                         </span>
                         <button type="submit" class="btn-success btn-sm cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -153,21 +153,21 @@
         </form>
     </div>
 
-    <!-- Existing Photos Gallery in Bank Soal -->
+    <!-- Existing Photos Gallery -->
     @if ($questionBank->items->isEmpty())
         <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
             <p class="text-xs text-slate-500 font-medium">
-                Belum ada foto yang diunggah ke bank soal ini. Gunakan kotak unggah di atas untuk menambahkan foto soal.
+                Belum ada foto dokumentasi yang diunggah ke album ini. Gunakan kotak unggah di atas untuk menambahkan foto kegiatan siswa.
             </p>
         </div>
     @else
         <div class="space-y-4">
             <div class="flex items-center justify-between">
                 <h3 class="text-sm font-bold text-slate-900">
-                    Daftar Foto Soal ({{ $questionBank->items->count() }})
+                    Daftar Foto Dokumentasi ({{ $questionBank->items->count() }})
                 </h3>
                 <span class="text-xs text-slate-500 font-medium">
-                    Klik foto untuk memperbesar atau tombol edit untuk menambah catatan pembahasan.
+                    Klik foto untuk memperbesar atau tombol edit untuk menambah caption/keterangan momen.
                 </span>
             </div>
 
@@ -175,10 +175,10 @@
                 @foreach ($questionBank->items as $item)
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden group">
                         <!-- Image Container with Hover Zoom Action -->
-                        <div class="relative aspect-4/3 bg-slate-50 border-b border-slate-100 overflow-hidden cursor-pointer flex items-center justify-center p-2"
+                        <div class="relative aspect-4/3 bg-slate-900 border-b border-slate-100 overflow-hidden cursor-pointer flex items-center justify-center"
                             @click="openLightbox('{{ $item->image_url }}', '{{ addslashes($item->title) }}', '{{ addslashes($item->notes ?? '') }}')">
                             <img src="{{ $item->image_url }}" alt="{{ $item->title }}"
-                                class="max-h-full max-w-full object-contain rounded-lg transition duration-200 group-hover:scale-105"
+                                class="w-full h-full object-cover transition duration-200 group-hover:scale-105"
                                 loading="lazy">
 
                             <!-- Order Badge -->
@@ -197,7 +197,7 @@
                         <div class="p-4 flex-1 flex flex-col justify-between">
                             <div>
                                 <h4 class="text-xs font-bold text-slate-900 truncate mb-1" title="{{ $item->title }}">
-                                    {{ $item->title ?: 'Foto Soal #' . $item->order }}
+                                    {{ $item->title ?: 'Dokumentasi #' . $item->order }}
                                 </h4>
                                 @if ($item->notes)
                                     <p class="text-[11px] text-slate-500 line-clamp-2 leading-relaxed bg-slate-50 p-2 rounded-lg border border-slate-100">
@@ -205,7 +205,7 @@
                                     </p>
                                 @else
                                     <p class="text-[11px] text-slate-400 italic">
-                                        Belum ada catatan pembahasan.
+                                        Belum ada keterangan momen.
                                     </p>
                                 @endif
                             </div>
@@ -216,7 +216,7 @@
                                     @click="openEditItem({{ Js::from($item) }}, '{{ route('admin.question-banks.items.update', [$questionBank, $item]) }}')"
                                     class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition cursor-pointer">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                    <span>Edit Info</span>
+                                    <span>Edit Caption</span>
                                 </button>
 
                                 <form x-ref="deleteItem{{ $item->id }}" method="POST" action="{{ route('admin.question-banks.items.destroy', [$questionBank, $item]) }}">
@@ -262,7 +262,7 @@
 
             <template x-if="lightboxNotes">
                 <div class="p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-100 text-xs text-slate-800 leading-relaxed">
-                    <span class="font-bold text-indigo-900 block mb-1">Catatan / Pembahasan:</span>
+                    <span class="font-bold text-indigo-900 block mb-1">Keterangan Momen / Caption:</span>
                     <p x-text="lightboxNotes" class="whitespace-pre-line"></p>
                 </div>
             </template>
@@ -277,7 +277,7 @@
                     <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                     </div>
-                    <h3 class="text-base font-extrabold text-slate-900">Edit Data Foto Soal</h3>
+                    <h3 class="text-base font-extrabold text-slate-900">Edit Info Foto Dokumentasi</h3>
                 </div>
                 <button type="button" @click="editItemModal = false" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -287,17 +287,17 @@
                 @csrf
                 @method('PUT')
                 <div>
-                    <label class="form-label">Judul / Label Foto</label>
-                    <input type="text" name="title" x-model="editItem.title" placeholder="Misal: Soal 1, Diagram Matriks" class="form-input">
+                    <label class="form-label">Judul / Nama Momen Foto</label>
+                    <input type="text" name="title" x-model="editItem.title" placeholder="Misal: Upacara Pembukaan, Foto Bersama Kelas XII" class="form-input">
                 </div>
                 <div>
-                    <label class="form-label">Nomor Urut</label>
+                    <label class="form-label">Nomor Urut Tampil</label>
                     <input type="number" name="order" x-model="editItem.order" min="0" class="form-input">
                 </div>
                 <div>
-                    <label class="form-label">Catatan / Pembahasan <span class="text-slate-400 font-normal normal-case text-[11px]">(opsional)</span></label>
+                    <label class="form-label">Keterangan / Caption Foto <span class="text-slate-400 font-normal normal-case text-[11px]">(opsional)</span></label>
                     <textarea name="notes" x-model="editItem.notes" rows="4"
-                              placeholder="Tuliskan kunci jawaban, rumus, atau petunjuk penyelesaian..."
+                              placeholder="Tuliskan cerita singkat atau deskripsi momen pada foto ini..."
                               class="form-input"></textarea>
                 </div>
             </form>

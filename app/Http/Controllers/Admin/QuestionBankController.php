@@ -13,11 +13,14 @@ use Illuminate\Support\Str;
 class QuestionBankController extends Controller
 {
     /**
-     * Display a listing of the question banks.
+     * Display a listing of the photo documentation albums.
      */
     public function index(Request $request)
     {
         $query = QuestionBank::withCount('items')
+            ->with(['items' => function ($q) {
+                $q->orderBy('order')->orderBy('id');
+            }])
             ->orderByDesc('id');
 
         if ($request->filled('search')) {
@@ -35,7 +38,6 @@ class QuestionBankController extends Controller
 
         $banks = $query->paginate(12)->withQueryString();
 
-        // Distinct categories for quick filter pills
         $categories = QuestionBank::whereNotNull('category')
             ->where('category', '!=', '')
             ->distinct()
@@ -45,7 +47,7 @@ class QuestionBankController extends Controller
     }
 
     /**
-     * Store a newly created question bank in storage.
+     * Store a newly created photo documentation album in storage.
      */
     public function store(Request $request)
     {
@@ -62,11 +64,11 @@ class QuestionBankController extends Controller
         $bank = QuestionBank::create($validated);
 
         return redirect()->route('admin.question-banks.items', $bank)
-            ->with('success', "Bank Soal '{$bank->title}' berhasil dibuat! Silakan unggah foto-foto soal di bawah ini.");
+            ->with('success', "Album Dokumentasi '{$bank->title}' berhasil dibuat! Silakan unggah foto-foto kegiatan di bawah ini.");
     }
 
     /**
-     * Update the specified question bank in storage.
+     * Update the specified photo album in storage.
      */
     public function update(Request $request, QuestionBank $questionBank)
     {
@@ -81,15 +83,14 @@ class QuestionBankController extends Controller
 
         $questionBank->update($validated);
 
-        return back()->with('success', "Informasi Bank Soal '{$questionBank->title}' berhasil diperbarui.");
+        return back()->with('success', "Informasi Album '{$questionBank->title}' berhasil diperbarui.");
     }
 
     /**
-     * Remove the specified question bank and all its photos.
+     * Remove the specified album and all its photos.
      */
     public function destroy(QuestionBank $questionBank)
     {
-        // Delete all photo files from disk
         foreach ($questionBank->items as $item) {
             if (!empty($item->image) && Storage::disk('public')->exists($item->image)) {
                 Storage::disk('public')->delete($item->image);
@@ -100,23 +101,23 @@ class QuestionBankController extends Controller
         $questionBank->delete();
 
         return redirect()->route('admin.question-banks.index')
-            ->with('success', "Bank Soal '{$title}' beserta seluruh fotonya berhasil dihapus.");
+            ->with('success', "Album '{$title}' beserta seluruh fotonya berhasil dihapus.");
     }
 
     /**
-     * Toggle active status of a question bank.
+     * Toggle active status of an album.
      */
     public function toggleActive(QuestionBank $questionBank)
     {
         $questionBank->is_active = !$questionBank->is_active;
         $questionBank->save();
 
-        $statusLabel = $questionBank->is_active ? 'diaktifkan (terlihat oleh siswa)' : 'dinonaktifkan (draft)';
-        return back()->with('success', "Bank Soal '{$questionBank->title}' berhasil {$statusLabel}.");
+        $statusLabel = $questionBank->is_active ? 'dipublikasikan (terlihat oleh siswa)' : 'disimpan sebagai draft';
+        return back()->with('success', "Album '{$questionBank->title}' berhasil {$statusLabel}.");
     }
 
     /**
-     * Manage photos/items of a specific question bank.
+     * Manage photos/items of a specific album.
      */
     public function items(QuestionBank $questionBank)
     {
@@ -128,15 +129,15 @@ class QuestionBankController extends Controller
     }
 
     /**
-     * Batch upload multiple photos into the question bank.
+     * Batch upload multiple photos into the album.
      */
     public function uploadItems(Request $request, QuestionBank $questionBank)
     {
         $request->validate([
             'images' => ['required', 'array', 'min:1'],
-            'images.*' => ['required', 'file', 'image', 'max:15360'], // max 15MB per photo
+            'images.*' => ['required', 'file', 'image', 'max:15360'],
         ], [
-            'images.required' => 'Pilih minimal satu file foto untuk diunggah.',
+            'images.required' => 'Pilih minimal satu file foto dokumentasi untuk diunggah.',
             'images.*.image' => 'File harus berupa gambar (JPG, PNG, WebP, GIF).',
             'images.*.max' => 'Ukuran setiap foto maksimal 15 MB.',
         ]);
@@ -154,14 +155,13 @@ class QuestionBankController extends Controller
             $filename = "qb_{$questionBank->id}_" . time() . '_' . Str::random(8) . ".{$ext}";
             $path = $file->storeAs("question_banks/{$questionBank->id}", $filename, 'public');
 
-            // Default title from file name or order
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $cleanTitle = Str::limit(trim($originalName), 100);
 
             QuestionBankItem::create([
                 'question_bank_id' => $questionBank->id,
                 'image' => $path,
-                'title' => $cleanTitle ?: "Soal #{$currentMaxOrder}",
+                'title' => $cleanTitle ?: "Dokumentasi #{$currentMaxOrder}",
                 'notes' => null,
                 'order' => $currentMaxOrder,
             ]);
@@ -169,15 +169,14 @@ class QuestionBankController extends Controller
             $uploadedCount++;
         }
 
-        return back()->with('success', "Berhasil mengunggah {$uploadedCount} foto ke Bank Soal '{$questionBank->title}'!");
+        return back()->with('success', "Berhasil mengunggah {$uploadedCount} foto ke Album '{$questionBank->title}'!");
     }
 
     /**
-     * Update details of a single item (title, notes, order).
+     * Update details of a single photo item (title, notes, order).
      */
     public function updateItem(Request $request, QuestionBank $questionBank, QuestionBankItem $item)
     {
-        // Guard ownership
         if ($item->question_bank_id !== $questionBank->id) {
             abort(404);
         }
@@ -190,11 +189,11 @@ class QuestionBankController extends Controller
 
         $item->update($validated);
 
-        return back()->with('success', 'Data foto soal berhasil diperbarui.');
+        return back()->with('success', 'Informasi foto dokumentasi berhasil diperbarui.');
     }
 
     /**
-     * Delete a single item/photo.
+     * Delete a single photo item.
      */
     public function destroyItem(QuestionBank $questionBank, QuestionBankItem $item)
     {
@@ -208,6 +207,6 @@ class QuestionBankController extends Controller
 
         $item->delete();
 
-        return back()->with('success', 'Foto soal berhasil dihapus dari Bank Soal.');
+        return back()->with('success', 'Foto berhasil dihapus dari album dokumentasi.');
     }
 }
