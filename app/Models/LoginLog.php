@@ -14,6 +14,7 @@ class LoginLog extends Model
         'user_id',
         'session_id',
         'event_type',
+        'attempted_email',
         'visited_url',
         'ip_address',
         'location',

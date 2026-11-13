@@ -115,9 +115,35 @@ class AuthenticationTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
+            'client_ip' => '180.252.10.20',
         ]);
 
         $this->assertGuest();
+
+        // Attempted email is logged for admin audit trail
+        $this->assertDatabaseHas('login_logs', [
+            'event_type' => 'failed_login',
+            'attempted_email' => $user->email,
+            'ip_address' => '180.252.10.20',
+        ]);
+    }
+
+    public function test_failed_login_with_non_existent_email_records_attempted_email(): void
+    {
+        $this->post('/login', [
+            'email' => 'pengguna_palsu@sekolah.sch.id',
+            'password' => 'secret123',
+            'client_ip' => '180.252.10.21',
+        ]);
+
+        $this->assertGuest();
+
+        $this->assertDatabaseHas('login_logs', [
+            'event_type' => 'failed_login',
+            'attempted_email' => 'pengguna_palsu@sekolah.sch.id',
+            'user_id' => null,
+            'ip_address' => '180.252.10.21',
+        ]);
     }
 
     public function test_login_screen_auto_creates_login_logs_table_if_not_migrated_on_hosting(): void

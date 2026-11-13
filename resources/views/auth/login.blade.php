@@ -367,36 +367,6 @@
                     @enderror
                 </div>
 
-                {{-- Kebijakan Privasi & Ketentuan Akses (Tulisan Abu-Abu Collapsible) --}}
-                <div class="pt-0.5">
-                    <details class="group rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 text-xs text-slate-500 transition-all duration-200 open:border-indigo-200 open:bg-indigo-50/30">
-                        <summary class="flex cursor-pointer items-center justify-between font-medium text-slate-500 hover:text-slate-700 transition select-none list-none">
-                            <span class="inline-flex items-center gap-1.5 text-xs text-slate-500 group-hover:text-slate-700">
-                                <svg class="w-3.5 h-3.5 text-slate-400 group-open:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>Kebijakan Privasi &amp; Keamanan Akses</span>
-                            </span>
-                            <span class="text-slate-400 group-open:rotate-180 group-open:text-indigo-600 transition-transform duration-200">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </span>
-                        </summary>
-                        <div class="mt-2.5 pt-2.5 border-t border-slate-200/70 space-y-2 text-[11px] leading-relaxed text-slate-600">
-                            <p>
-                                <strong class="text-slate-800">Transparansi Audit Sistem:</strong> Demi menjamin keamanan ekosistem layanan, perlindungan data, dan akuntabilitas sesi, platform ini menerapkan mekanisme pencatatan telemetri secara otomatis.
-                            </p>
-                            <p>
-                                Setiap interaksi dan aktivitas kunjungan akan mendokumentasikan parameter teknis berupa <strong>Alamat IP (IP Address)</strong>, <strong>identifikasi jenis perangkat serta peramban (Browser &amp; OS)</strong>, dan <strong>estimasi wilayah geografis/lokasi jaringan</strong> pengguna saat mengakses tautan maupun saat melakukan otentikasi.
-                            </p>
-                            <p class="text-slate-500">
-                                Demi standar kepatuhan pencegahan penyalahgunaan akun, <em>aktivitas penggunaan pada layanan ini tidak bersifat sepenuhnya anonim</em> dan tersimpan dalam catatan log audit administratif. Dengan melanjutkan proses masuk, Anda memahami serta menyetujui ketentuan pemantauan keamanan ini.
-                            </p>
-                        </div>
-                    </details>
-                </div>
-
                 {{-- Remember me --}}
                 <div class="flex items-center">
                     <label class="flex items-center gap-2.5 cursor-pointer select-none group">

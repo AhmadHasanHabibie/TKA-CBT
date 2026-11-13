@@ -17,6 +17,7 @@ return new class extends Migration
                 $table->unsignedBigInteger('user_id')->nullable()->index();
                 $table->string('session_id', 100)->nullable()->index();
                 $table->string('event_type', 30)->default('visit');
+                $table->string('attempted_email', 191)->nullable()->index();
                 $table->string('visited_url', 500)->nullable();
                 $table->string('ip_address', 64)->nullable();
                 $table->string('location')->nullable();

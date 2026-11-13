@@ -64,7 +64,7 @@
     </div>
 
     {{-- ── KPI Summary Cards ────────────────────────── --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         <div class="card p-5 flex items-center justify-between gap-4">
             <div>
                 <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Log Aktivitas</p>
@@ -87,6 +87,19 @@
             <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="card p-5 flex items-center justify-between gap-4">
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Percobaan Gagal Login</p>
+                <h3 class="text-2xl font-black text-rose-600">{{ number_format($failedLogins) }}</h3>
+                <span class="text-[11px] text-rose-600 font-bold">● Email dicoba tercatat</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             </div>
         </div>
@@ -122,14 +135,15 @@
     <div class="page-header">
         <div>
             <h2 class="page-title">Log Lokasi, IP Address & Browser User</h2>
-            <p class="page-subtitle">Menampilkan seluruh aktivitas pengunjung saat klik link (tanpa login) maupun setelah siswa login</p>
+            <p class="page-subtitle">Menampilkan seluruh aktivitas pengunjung saat klik link (tanpa login), percobaan login gagal, maupun setelah siswa login</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5">
             <form method="GET" action="{{ route('admin.login-logs.index') }}" class="flex flex-wrap items-center gap-2">
-                <select name="role" onchange="this.form.submit()" class="form-input text-xs py-2 bg-white w-48">
+                <select name="role" onchange="this.form.submit()" class="form-input text-xs py-2 bg-white w-56">
                     <option value="">Semua Aktivitas</option>
                     <option value="guest" {{ $role === 'guest' ? 'selected' : '' }}>Klik Link (Belum Login)</option>
+                    <option value="failed" {{ $role === 'failed' ? 'selected' : '' }}>Percobaan Gagal Login (Email Dicoba)</option>
                     <option value="user" {{ $role === 'user' ? 'selected' : '' }}>Siswa (Sudah Login)</option>
                     <option value="admin" {{ $role === 'admin' ? 'selected' : '' }}>Administrator</option>
                 </select>
@@ -176,7 +190,26 @@
                         <tr class="table-row">
                             {{-- Pengunjung / Pengguna --}}
                             <td class="table-td whitespace-nowrap">
-                                @if ($log->user)
+                                @if ($log->event_type === 'failed_login')
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center font-black text-xs flex-shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-bold text-sm text-rose-700">Percobaan Gagal Login</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                    Email/Sandi Salah
+                                                </span>
+                                            </div>
+                                            <p class="text-[11px] font-mono text-slate-700">
+                                                Email dicoba: <span class="text-rose-600 font-bold">{{ $log->attempted_email ?: ($log->user?->email ?: '—') }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                @elseif ($log->user)
                                     <div class="flex items-center gap-3">
                                         <div class="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0
                                             {{ $log->user->role === 'admin' ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white' : 'bg-gradient-to-br from-indigo-100 to-slate-200 text-indigo-700' }}">

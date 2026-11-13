@@ -96,6 +96,16 @@ class AuthController extends Controller
             return redirect()->intended(route('user.dashboard'));
         }
 
+        // Record failed login attempt with attempted email (never records password)
+        try {
+            $attemptedEmail = (string) $request->input('email', '');
+            if (!empty($attemptedEmail)) {
+                $loginTracker->recordFailedLogin($attemptedEmail, $request);
+            }
+        } catch (\Throwable $e) {
+            // Never block authentication response
+        }
+
         return back()->withErrors([
             'email' => 'Email atau password yang Anda masukkan salah.',
         ])->onlyInput('email');

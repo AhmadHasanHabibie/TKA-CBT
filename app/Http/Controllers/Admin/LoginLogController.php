@@ -21,12 +21,15 @@ class LoginLogController extends Controller
 
         $logs = LoginLog::with('user')
             ->when($role === 'guest', function ($query) {
-                $query->whereNull('user_id');
+                $query->whereNull('user_id')->where('event_type', '!=', 'failed_login');
+            })
+            ->when($role === 'failed', function ($query) {
+                $query->where('event_type', 'failed_login');
             })
             ->when($role && in_array($role, ['user', 'admin'], true), function ($query) use ($role) {
                 $query->whereHas('user', function ($uq) use ($role) {
                     $uq->where('role', $role);
-                });
+                })->where('event_type', '!=', 'failed_login');
             })
             ->when($search, function ($query, $term) {
                 $query->where(function ($q) use ($term) {
@@ -35,6 +38,7 @@ class LoginLogController extends Controller
                       ->orWhere('browser', 'like', "%{$term}%")
                       ->orWhere('os', 'like', "%{$term}%")
                       ->orWhere('visited_url', 'like', "%{$term}%")
+                      ->orWhere('attempted_email', 'like', "%{$term}%")
                       ->orWhereHas('user', function ($uq) use ($term) {
                           $uq->where('name', 'like', "%{$term}%")
                              ->orWhere('email', 'like', "%{$term}%");
@@ -46,7 +50,8 @@ class LoginLogController extends Controller
             ->withQueryString();
 
         $totalLogs = LoginLog::count();
-        $guestClicks = LoginLog::whereNull('user_id')->count();
+        $guestClicks = LoginLog::whereNull('user_id')->where('event_type', '!=', 'failed_login')->count();
+        $failedLogins = LoginLog::where('event_type', 'failed_login')->count();
         $uniqueIps = LoginLog::distinct('ip_address')->count('ip_address');
         $topBrowser = LoginLog::selectRaw('browser, COUNT(*) as total')
             ->whereNotNull('browser')
@@ -68,6 +73,7 @@ class LoginLogController extends Controller
             'role',
             'totalLogs',
             'guestClicks',
+            'failedLogins',
             'uniqueIps',
             'topBrowser',
             'sharedIps'

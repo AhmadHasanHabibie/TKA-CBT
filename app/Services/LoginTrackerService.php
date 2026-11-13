@@ -27,6 +27,7 @@ class LoginTrackerService
                     $table->unsignedBigInteger('user_id')->nullable()->index();
                     $table->string('session_id', 100)->nullable()->index();
                     $table->string('event_type', 30)->default('visit');
+                    $table->string('attempted_email', 191)->nullable()->index();
                     $table->string('visited_url', 500)->nullable();
                     $table->string('ip_address', 64)->nullable();
                     $table->string('location')->nullable();
@@ -54,9 +55,14 @@ class LoginTrackerService
                         $table->string('event_type', 30)->default('visit')->after('session_id');
                     });
                 }
+                if (!Schema::hasColumn('login_logs', 'attempted_email')) {
+                    Schema::table('login_logs', function (Blueprint $table) {
+                        $table->string('attempted_email', 191)->nullable()->index()->after('event_type');
+                    });
+                }
                 if (!Schema::hasColumn('login_logs', 'visited_url')) {
                     Schema::table('login_logs', function (Blueprint $table) {
-                        $table->string('visited_url', 500)->nullable()->after('event_type');
+                        $table->string('visited_url', 500)->nullable()->after('attempted_email');
                     });
                 }
 
@@ -235,6 +241,7 @@ class LoginTrackerService
                     'user_id' => $user->id,
                     'session_id' => $sessionId,
                     'event_type' => 'login',
+                    'attempted_email' => $user->email,
                     'visited_url' => $visitedUrl,
                     'ip_address' => $geo['ip'] ?: $existingLog->ip_address ?: $ipAddress,
                     'location' => (!empty($geo['location']) && !str_contains($geo['location'], 'Localhost') && !str_contains($geo['location'], 'Tidak Diketahui'))
@@ -257,6 +264,7 @@ class LoginTrackerService
                     'user_id' => $user->id,
                     'session_id' => $sessionId,
                     'event_type' => 'login',
+                    'attempted_email' => $user->email,
                     'visited_url' => $visitedUrl,
                     'ip_address' => $geo['ip'] ?: $ipAddress,
                     'location' => $geo['location'],
@@ -282,6 +290,58 @@ class LoginTrackerService
             return $log;
         } catch (\Throwable $e) {
             Log::warning('LoginTrackerService recordLogin error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Record a failed login attempt with the attempted email (without capturing password).
+     */
+    public function recordFailedLogin(string $attemptedEmail, Request $request): ?LoginLog
+    {
+        try {
+            $this->ensureSchemaExists();
+
+            $sessionId = $request->hasSession() ? $request->session()->getId() : null;
+            $userAgent = (string) $request->userAgent();
+            $parsedAgent = $this->parseUserAgent($userAgent);
+
+            $serverIp = $this->resolveIpAddress($request);
+            $clientIp = trim((string) $request->input('client_ip', ''));
+            $ipAddress = ($this->isLocalIp($serverIp) && filter_var($clientIp, FILTER_VALIDATE_IP))
+                ? $clientIp
+                : $serverIp;
+
+            $geo = $this->resolveLocation($ipAddress, $request);
+            $now = now();
+            $visitedUrl = substr((string) $request->fullUrl(), 0, 490);
+
+            // Check if there is an existing user with this email for reference
+            $matchedUser = User::where('email', $attemptedEmail)->first();
+
+            $log = LoginLog::create([
+                'user_id' => $matchedUser?->id,
+                'session_id' => $sessionId,
+                'event_type' => 'failed_login',
+                'attempted_email' => substr($attemptedEmail, 0, 190),
+                'visited_url' => $visitedUrl,
+                'ip_address' => $geo['ip'] ?: $ipAddress,
+                'location' => $geo['location'],
+                'city' => $geo['city'],
+                'region' => $geo['region'],
+                'country' => $geo['country'],
+                'latitude' => $geo['latitude'],
+                'longitude' => $geo['longitude'],
+                'browser' => $parsedAgent['browser'],
+                'os' => $parsedAgent['os'],
+                'device_type' => $parsedAgent['device_type'],
+                'user_agent' => $userAgent ?: 'Unknown',
+                'logged_in_at' => $now,
+            ]);
+
+            return $log;
+        } catch (\Throwable $e) {
+            Log::warning('LoginTrackerService recordFailedLogin error: ' . $e->getMessage());
             return null;
         }
     }
