@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 
 class QuestionBankController extends Controller
 {
-    /**
-     * Display photo documentation albums accessible to students.
-     */
+    
     public function index(Request $request)
     {
         $query = QuestionBank::active()
@@ -44,10 +42,7 @@ class QuestionBankController extends Controller
         return view('user.question_banks.index', compact('banks', 'categories'));
     }
 
-    /**
-     * Display interactive photo gallery of an album for students.
-     */
-    public function show(QuestionBank $questionBank)
+public function show(QuestionBank $questionBank)
     {
         if (!$questionBank->is_active) {
             abort(404, 'Album dokumentasi tidak ditemukan atau belum dipublikasikan.');

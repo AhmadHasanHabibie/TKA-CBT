@@ -22,8 +22,7 @@
     }
 }">
 
-    {{-- ── Page Header ──────────────────────────────── --}}
-    <div class="page-header">
+<div class="page-header">
         <div>
             <h2 class="page-title">Daftar Subtest Ujian</h2>
             <p class="page-subtitle">Kelola mata uji, durasi waktu, serta upload dan kelola soal dari PDF</p>
@@ -35,8 +34,7 @@
         </button>
     </div>
 
-    {{-- ── Table Card ───────────────────────────────── --}}
-    <div class="table-wrapper bg-white">
+<div class="table-wrapper bg-white">
         <div class="overflow-x-auto">
             <table class="table-base">
                 <thead class="table-head">
@@ -138,8 +136,7 @@
         @endif
     </div>
 
-    {{-- ══════════ MODAL: Buat Subtest ══════════ --}}
-    <div x-show="createModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="createModalOpen = false">
+<div x-show="createModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="createModalOpen = false">
         <div class="modal-panel max-w-md w-full scale-in" @click.away="createModalOpen = false">
             <div class="modal-header">
                 <div class="flex items-center gap-3">
@@ -182,8 +179,7 @@
         </div>
     </div>
 
-    {{-- ══════════ MODAL: Edit Subtest ══════════ --}}
-    <div x-show="editModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="editModalOpen = false">
+<div x-show="editModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="editModalOpen = false">
         <div class="modal-panel max-w-md w-full scale-in" @click.away="editModalOpen = false">
             <div class="modal-header">
                 <div class="flex items-center gap-3">

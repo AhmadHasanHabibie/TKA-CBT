@@ -26,10 +26,7 @@ class QuestionBank extends Model
         'is_active' => 'boolean',
     ];
 
-    /**
-     * Boot the model to auto-generate unique slugs if empty.
-     */
-    protected static function boot()
+protected static function boot()
     {
         parent::boot();
 
@@ -46,26 +43,17 @@ class QuestionBank extends Model
         });
     }
 
-    /**
-     * Items (photos/questions) in this bank.
-     */
-    public function items(): HasMany
+public function items(): HasMany
     {
         return $this->hasMany(QuestionBankItem::class)->orderBy('order')->orderBy('id');
     }
 
-    /**
-     * Admin user who created this bank.
-     */
-    public function creator(): BelongsTo
+public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    /**
-     * Scope for active question banks (visible to students).
-     */
-    public function scopeActive($query)
+public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }

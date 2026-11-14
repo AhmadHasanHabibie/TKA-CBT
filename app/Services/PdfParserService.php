@@ -14,23 +14,14 @@ class PdfParserService
         $this->parser = new Parser();
     }
 
-    /**
-     * Parse uploaded PDF file into structured question array.
-     *
-     * @param string $filePath
-     * @param int $subtestId
-     * @return array
-     * @throws Exception
-     */
-    public function parse(string $filePath, int $subtestId = 0): array
+public function parse(string $filePath, int $subtestId = 0): array
     {
         $pdf = $this->parser->parseFile($filePath);
         $rawText = $pdf->getText();
 
         $questions = $this->parseText($rawText);
 
-        // Fail-safe image extraction and correlation
-        try {
+try {
             $imagesByPage = $this->extractImagesFromDocument($pdf, $subtestId);
             $questions = $this->correlateImagesToQuestions($questions, $pdf->getPages(), $imagesByPage);
         } catch (\Throwable $e) {
@@ -44,20 +35,12 @@ class PdfParserService
         return $questions;
     }
 
-    /**
-     * Parse raw extracted text into structured question array.
-     *
-     * @param string $text
-     * @return array
-     */
-    public function parseText(string $text): array
+public function parseText(string $text): array
     {
-        // Normalize line breaks and spaces
+        
         $text = str_replace(["\r\n", "\r"], "\n", $text);
 
-        // Replace Adobe Symbol / Word / LaTeX Private Use Area characters
-        // to prevent tofu [] box rendering in web browsers
-        $puaMap = [
+$puaMap = [
             "\xef\xa3\xab" => "⎛",
             "\xef\xa3\xac" => "⎜",
             "\xef\xa3\xad" => "⎝",
@@ -73,18 +56,16 @@ class PdfParserService
         ];
         $text = strtr($text, $puaMap);
 
-        // Pattern to identify question beginnings: SOAL 1, SOAL 2, etc. (at beginning of line)
-        $parts = preg_split('/(?:^|\n)\s*SOAL\s+(\d+)/i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+$parts = preg_split('/(?:^|\n)\s*SOAL\s+(\d+)/i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         if (empty($parts) || count($parts) < 3) {
-            // Fallback: try splitting by 'SOAL' if number is on next line or separated
+            
             $parts = preg_split('/(?:^|\n)\s*SOAL\s*(\d*)/i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
         }
 
         $questions = [];
 
-        // $parts will look like: [intro_text, num1, content1, num2, content2, ...]
-        for ($i = 1; $i < count($parts); $i += 2) {
+for ($i = 1; $i < count($parts); $i += 2) {
             $number = !empty($parts[$i]) ? (int) $parts[$i] : (count($questions) + 1);
             $block = $parts[$i + 1] ?? '';
 
@@ -96,8 +77,7 @@ class PdfParserService
             $questions[] = $parsedQuestion;
         }
 
-        // If no questions found via SOAL header, attempt fallback line-by-line inspection
-        if (empty($questions) && trim($text) !== '') {
+if (empty($questions) && trim($text) !== '') {
             $questions[] = [
                 'number' => 1,
                 'type' => 'single',
@@ -120,42 +100,30 @@ class PdfParserService
         return $questions;
     }
 
-    /**
-     * Parse an individual question block.
-     *
-     * @param string $block
-     * @param int $number
-     * @return array
-     */
-    protected function parseSingleBlock(string $block, int $number): array
+protected function parseSingleBlock(string $block, int $number): array
     {
         $hasError = false;
         $errorMessage = null;
 
-        // 1. Extract KUNCI line
-        $kunciRaw = '';
+$kunciRaw = '';
         if (preg_match('/KUNCI\s*:\s*([^\n\r]+)/i', $block, $kMatches)) {
             $kunciRaw = trim($kMatches[1]);
         }
 
-        // 2. Extract PEMBAHASAN
-        $explanation = '';
+$explanation = '';
         if (preg_match('/PEMBAHASAN\s*:\s*([\s\S]*)$/i', $block, $matches)) {
             $explanation = trim($matches[1]);
         }
 
-        // 3. Remove PEMBAHASAN and KUNCI from block to isolate Question Text & Content
-        $contentBeforeKunci = preg_replace('/KUNCI\s*:[\s\S]*$/i', '', $block);
+$contentBeforeKunci = preg_replace('/KUNCI\s*:[\s\S]*$/i', '', $block);
 
-        // 4. CHECK FOR STATEMENT TYPE: marker PERNYATAAN:
-        if (preg_match('/(?:^|\n)\s*PERNYATAAN\s*:\s*/i', $contentBeforeKunci, $pMatch, PREG_OFFSET_CAPTURE)) {
+if (preg_match('/(?:^|\n)\s*PERNYATAAN\s*:\s*/i', $contentBeforeKunci, $pMatch, PREG_OFFSET_CAPTURE)) {
             $splitOffset = $pMatch[0][1];
             $questionText = trim(substr($contentBeforeKunci, 0, $splitOffset));
             $questionText = preg_replace('/^\s*(?:SOAL\s*\d*|\d+[\.\)])\s*/i', '', $questionText);
             $statementsSection = substr($contentBeforeKunci, $splitOffset + strlen($pMatch[0][0]));
 
-            // Extract numbered statements (1., 2., 3., etc.)
-            $statementTexts = [];
+$statementTexts = [];
             if (preg_match_all('/(?:^|\n)\s*(\d+)[\.\)]\s*([\s\S]*?)(?=(?:^|\n)\s*\d+[\.\)]\s*|$)/', "\n" . $statementsSection, $stmtMatches, PREG_SET_ORDER)) {
                 foreach ($stmtMatches as $sm) {
                     $sText = trim($sm[2]);
@@ -165,8 +133,7 @@ class PdfParserService
                 }
             }
 
-            // Parse KUNCI tokens (S, TS, SESUAI, TIDAK SESUAI)
-            $keyBooleans = [];
+$keyBooleans = [];
             $keyLabels = [];
             if (!empty($kunciRaw)) {
                 $rawTokens = array_map('trim', explode(',', $kunciRaw));
@@ -209,8 +176,7 @@ class PdfParserService
                 }
             }
 
-            // Assemble statement options
-            $options = [];
+$options = [];
             foreach ($statementTexts as $idx => $sText) {
                 $options[] = [
                     'label' => (string) ($idx + 1),
@@ -233,8 +199,7 @@ class PdfParserService
             ];
         }
 
-        // 5. STANDARD MULTIPLE CHOICE (Single or PGK Multiple)
-        $keys = [];
+$keys = [];
         if (!empty($kunciRaw)) {
             if (preg_match_all('/[A-Ea-e]/', $kunciRaw, $letterMatches)) {
                 $keys = array_values(array_unique(array_map('strtoupper', $letterMatches[0])));
@@ -243,8 +208,7 @@ class PdfParserService
 
         $type = count($keys) > 1 ? 'multiple' : 'single';
 
-        // Extract Options A, B, C, D, and optional E
-        $optionPosA = preg_match('/(?:^|\n)\s*A\.\s*/i', $contentBeforeKunci, $aMatch, PREG_OFFSET_CAPTURE);
+$optionPosA = preg_match('/(?:^|\n)\s*A\.\s*/i', $contentBeforeKunci, $aMatch, PREG_OFFSET_CAPTURE);
         $questionText = '';
         $options = [];
 
@@ -253,9 +217,7 @@ class PdfParserService
             $questionText = trim(substr($contentBeforeKunci, 0, $splitOffset));
             $optionsSection = substr($contentBeforeKunci, $splitOffset);
 
-            // Regex to extract each option (A through E)
-            // Supports A-D (4 options) or A-E (5 options)
-            $labels = ['A', 'B', 'C', 'D', 'E'];
+$labels = ['A', 'B', 'C', 'D', 'E'];
             $optionTexts = [];
 
             for ($idx = 0; $idx < count($labels); $idx++) {
@@ -270,15 +232,14 @@ class PdfParserService
 
                 if (preg_match($pattern, $optionsSection, $optMatch)) {
                     $optText = trim($optMatch[1]);
-                    // Don't add empty E if it doesn't exist
+                    
                     if ($cur !== 'E' || $optText !== '') {
                         $optionTexts[$cur] = $optText;
                     }
                 }
             }
 
-            // Assemble options array
-            $availableLabels = array_keys($optionTexts);
+$availableLabels = array_keys($optionTexts);
             foreach ($optionTexts as $lbl => $txt) {
                 $options[] = [
                     'label' => $lbl,
@@ -287,8 +248,7 @@ class PdfParserService
                 ];
             }
 
-            // Validate that keys exist in extracted options
-            if (empty($keys)) {
+if (empty($keys)) {
                 $hasError = true;
                 $errorMessage = 'Baris KUNCI: [A-E] tidak ditemukan atau tidak memuat huruf kunci yang valid.';
             } else {
@@ -308,13 +268,12 @@ class PdfParserService
                 }
             }
         } else {
-            // Options A-E could not be isolated properly
+            
             $questionText = trim($contentBeforeKunci);
             $hasError = true;
             $errorMessage = 'Opsi jawaban (A., B., C., D.) tidak berhasil dipisahkan secara otomatis.';
 
-            // Provide blank fallback options
-            $options = [
+$options = [
                 ['label' => 'A', 'text' => '', 'is_correct' => false],
                 ['label' => 'B', 'text' => '', 'is_correct' => false],
                 ['label' => 'C', 'text' => '', 'is_correct' => false],
@@ -323,8 +282,7 @@ class PdfParserService
             ];
         }
 
-        // Clean any leading/trailing question label from question text
-        $questionText = preg_replace('/^\s*(?:SOAL\s*\d*|\d+[\.\)])\s*/i', '', $questionText);
+$questionText = preg_replace('/^\s*(?:SOAL\s*\d*|\d+[\.\)])\s*/i', '', $questionText);
 
         return [
             'number' => $number,
@@ -340,14 +298,7 @@ class PdfParserService
         ];
     }
 
-    /**
-     * Extract images from PDF document and save to staging storage directory.
-     *
-     * @param \Smalot\PdfParser\Document $pdf
-     * @param int $subtestId
-     * @return array [pageNum => [relativeImagePath, ...]]
-     */
-    protected function extractImagesFromDocument($pdf, int $subtestId = 0): array
+protected function extractImagesFromDocument($pdf, int $subtestId = 0): array
     {
         $stagingDir = storage_path('app/public/staging_images');
         if (!is_dir($stagingDir)) {
@@ -394,12 +345,11 @@ class PdfParserService
                         $fullPath = $stagingDir . '/' . $filename;
                         $relPath = 'staging_images/' . $filename;
 
-                        // Check JPEG magic bytes \xFF\xD8\xFF
-                        if (substr($content, 0, 3) === "\xFF\xD8\xFF") {
+if (substr($content, 0, 3) === "\xFF\xD8\xFF") {
                             file_put_contents($fullPath, $content);
                             $saved = true;
                         } else {
-                            // Try GD imagecreatefromstring (PNG/GIF/BMP/WebP)
+                            
                             $res = @imagecreatefromstring($content);
                             if ($res) {
                                 $filename = "img_sub_{$subtestId}_p{$pageNum}_{$imgIdx}_" . uniqid() . ".png";
@@ -416,33 +366,24 @@ class PdfParserService
                             $imgIdx++;
                         }
                     } catch (\Throwable $e) {
-                        // Suppress per-image errors so parsing never crashes
+                        
                     }
                 }
             }
         } catch (\Throwable $e) {
-            // Suppress document-wide extraction errors
+            
         }
 
         return $imagesByPage;
     }
 
-    /**
-     * Map extracted images to parsed questions.
-     *
-     * @param array $questions
-     * @param array $pages
-     * @param array $imagesByPage
-     * @return array
-     */
-    protected function correlateImagesToQuestions(array $questions, array $pages, array $imagesByPage): array
+protected function correlateImagesToQuestions(array $questions, array $pages, array $imagesByPage): array
     {
         if (empty($imagesByPage)) {
             return $questions;
         }
 
-        // 1. Identify which questions start on which page
-        $questionsOnPage = [];
+$questionsOnPage = [];
         foreach ($pages as $pIdx => $page) {
             $pageNum = $pIdx + 1;
             try {
@@ -459,8 +400,7 @@ class PdfParserService
             }
         }
 
-        // 2. Assign images on matching pages
-        $assignedImages = []; // questionNumber => imagePath
+$assignedImages = []; 
         $unassignedImages = [];
 
         foreach ($imagesByPage as $pageNum => $imgs) {
@@ -480,16 +420,14 @@ class PdfParserService
             }
         }
 
-        // 3. Fallback: distribute remaining unassigned images to questions that don't have images
-        foreach ($questions as $q) {
+foreach ($questions as $q) {
             $num = $q['number'];
             if (!isset($assignedImages[$num]) && !empty($unassignedImages)) {
                 $assignedImages[$num] = array_shift($unassignedImages);
             }
         }
 
-        // 4. Attach to questions
-        foreach ($questions as &$q) {
+foreach ($questions as &$q) {
             $num = $q['number'];
             $q['image'] = $assignedImages[$num] ?? null;
         }

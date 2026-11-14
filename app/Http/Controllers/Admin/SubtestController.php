@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 
 class SubtestController extends Controller
 {
-    /**
-     * Display a listing of subtests.
-     */
+    
     public function index()
     {
         $subtests = Subtest::withCount(['questions', 'examSessions'])
@@ -20,10 +18,7 @@ class SubtestController extends Controller
         return view('admin.subtests.index', compact('subtests'));
     }
 
-    /**
-     * Store a newly created subtest and redirect to PDF upload.
-     */
-    public function store(Request $request)
+public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -47,10 +42,7 @@ class SubtestController extends Controller
             ->with('success', "Subtest '{$subtest->name}' berhasil dibuat. Silakan upload file PDF soal.");
     }
 
-    /**
-     * Update the specified subtest in storage.
-     */
-    public function update(Request $request, Subtest $subtest)
+public function update(Request $request, Subtest $subtest)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -70,10 +62,7 @@ class SubtestController extends Controller
             ->with('success', "Subtest '{$subtest->name}' berhasil diperbarui.");
     }
 
-    /**
-     * Toggle the active status of a subtest.
-     */
-    public function toggleActive(Subtest $subtest)
+public function toggleActive(Subtest $subtest)
     {
         $subtest->update([
             'is_active' => !$subtest->is_active,
@@ -85,10 +74,7 @@ class SubtestController extends Controller
             ->with('success', "Subtest '{$subtest->name}' berhasil {$statusText}.");
     }
 
-    /**
-     * Remove the specified subtest from storage.
-     */
-    public function destroy(Subtest $subtest)
+public function destroy(Subtest $subtest)
     {
         $name = $subtest->name;
         $subtest->delete();

@@ -11,12 +11,7 @@ class Subtest extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
+protected $fillable = [
         'name',
         'slug',
         'description',
@@ -25,21 +20,13 @@ class Subtest extends Model
         'is_active',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
+protected $casts = [
         'duration_minutes' => 'integer',
         'total_questions' => 'integer',
         'is_active' => 'boolean',
     ];
 
-    /**
-     * Boot logic for auto-generating slug.
-     */
-    protected static function boot()
+protected static function boot()
     {
         parent::boot();
 
@@ -57,26 +44,17 @@ class Subtest extends Model
         });
     }
 
-    /**
-     * Questions belonging to this subtest.
-     */
-    public function questions(): HasMany
+public function questions(): HasMany
     {
         return $this->hasMany(Question::class)->orderBy('number');
     }
 
-    /**
-     * Exam sessions associated with this subtest.
-     */
-    public function examSessions(): HasMany
+public function examSessions(): HasMany
     {
         return $this->hasMany(ExamSession::class);
     }
 
-    /**
-     * Sync and update total questions count automatically.
-     */
-    public function updateQuestionCount(): void
+public function updateQuestionCount(): void
     {
         $this->update([
             'total_questions' => $this->questions()->count(),

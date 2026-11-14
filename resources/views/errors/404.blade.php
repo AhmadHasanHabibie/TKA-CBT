@@ -19,7 +19,7 @@
             padding: 2rem;
             overflow: hidden;
         }
-        /* Orbs */
+        
         .orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; }
         .orb-1 { width: 500px; height: 500px; background: rgba(99,102,241,0.15); top: -150px; right: -150px; }
         .orb-2 { width: 350px; height: 350px; background: rgba(139,92,246,0.10); bottom: -100px; left: -100px; }

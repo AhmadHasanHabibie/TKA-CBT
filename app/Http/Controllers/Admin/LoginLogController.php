@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class LoginLogController extends Controller
 {
-    /**
-     * Display a listing of visitor link clicks & user login logs (Location, IP Address, Browser, OS).
-     */
+    
     public function index(Request $request, LoginTrackerService $loginTracker)
     {
         $loginTracker->ensureSchemaExists();
@@ -72,8 +70,7 @@ class LoginLogController extends Controller
             ->orderByRaw('COUNT(*) DESC')
             ->value('browser') ?? '—';
 
-        // Detect shared IPs across multiple accesses (anti-cheating indicator)
-        $sharedIps = LoginLog::whereNotNull('ip_address')
+$sharedIps = LoginLog::whereNotNull('ip_address')
             ->selectRaw('ip_address, COUNT(*) as hits')
             ->groupBy('ip_address')
             ->havingRaw('COUNT(ip_address) > 1')
@@ -93,10 +90,7 @@ class LoginLogController extends Controller
         ));
     }
 
-    /**
-     * Delete a single login log record.
-     */
-    public function destroy(LoginLog $loginLog)
+public function destroy(LoginLog $loginLog)
     {
         $loginLog->delete();
 
@@ -104,10 +98,7 @@ class LoginLogController extends Controller
             ->with('success', 'Data riwayat akses berhasil dihapus.');
     }
 
-    /**
-     * Clear all login logs.
-     */
-    public function clear(LoginTrackerService $loginTracker)
+public function clear(LoginTrackerService $loginTracker)
     {
         $loginTracker->ensureSchemaExists();
         LoginLog::query()->delete();

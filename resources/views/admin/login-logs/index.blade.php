@@ -31,8 +31,7 @@
     }
 }">
 
-    {{-- ── Instant Link Tracker Banner ── --}}
-    <div class="card p-5 bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 text-white border-0 shadow-lg">
+<div class="card p-5 bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 text-white border-0 shadow-lg">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="space-y-1">
                 <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
@@ -63,8 +62,7 @@
         </div>
     </div>
 
-    {{-- ── KPI Summary Cards ────────────────────────── --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         <div class="card p-5 flex items-center justify-between gap-4">
             <div>
                 <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Log Aktivitas</p>
@@ -131,8 +129,7 @@
         </div>
     </div>
 
-    {{-- ── Page Header & Filters ─────────────────────── --}}
-    <div class="page-header">
+<div class="page-header">
         <div>
             <h2 class="page-title">Log Lokasi, IP Address & Browser User</h2>
             <p class="page-subtitle">Menampilkan seluruh aktivitas pengunjung saat klik link (tanpa login), percobaan login gagal, maupun setelah siswa login</p>
@@ -175,8 +172,7 @@
         </div>
     </div>
 
-    {{-- ── Login & Visitor Logs Table ────────────────── --}}
-    <div class="table-wrapper bg-white">
+<div class="table-wrapper bg-white">
         <div class="overflow-x-auto">
             <table class="table-base">
                 <thead class="table-head">
@@ -192,7 +188,7 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($logs as $log)
                         <tr class="table-row">
-                            {{-- Pengunjung / Pengguna --}}
+                            
                             <td class="table-td whitespace-nowrap">
                                 @if (in_array($log->event_type, ['search_documentation', 'search_empty', 'search_found', 'search_not_found', 'search_school']))
                                     <div class="flex items-center gap-3">
@@ -350,8 +346,7 @@
                                 @endif
                             </td>
 
-                            {{-- Lokasi Langsung --}}
-                            <td class="table-td">
+<td class="table-td">
                                 <div class="flex items-start gap-2">
                                     <svg class="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -375,8 +370,7 @@
                                 </div>
                             </td>
 
-                            {{-- IP Address --}}
-                            <td class="table-td whitespace-nowrap">
+<td class="table-td whitespace-nowrap">
                                 <div class="flex flex-col items-start gap-1">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-mono font-bold text-slate-700">
                                         <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,8 +386,7 @@
                                 </div>
                             </td>
 
-                            {{-- Browser & Perangkat --}}
-                            <td class="table-td">
+<td class="table-td">
                                 <div class="space-y-0.5" title="{{ $log->user_agent }}">
                                     <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800">
                                         <svg class="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -407,8 +400,7 @@
                                 </div>
                             </td>
 
-                            {{-- Waktu Akses --}}
-                            <td class="table-td whitespace-nowrap">
+<td class="table-td whitespace-nowrap">
                                 <div class="text-xs font-mono font-semibold text-slate-700">
                                     {{ $log->logged_in_at ? $log->logged_in_at->format('d M Y, H:i:s') : '—' }}
                                 </div>
@@ -417,8 +409,7 @@
                                 </div>
                             </td>
 
-                            {{-- Aksi --}}
-                            <td class="table-td text-right whitespace-nowrap">
+<td class="table-td text-right whitespace-nowrap">
                                 <form x-ref="deleteLog{{ $log->id }}" method="POST" action="{{ route('admin.login-logs.destroy', $log) }}">
                                     @csrf
                                     @method('DELETE')

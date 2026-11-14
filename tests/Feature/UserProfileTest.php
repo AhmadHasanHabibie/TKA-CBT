@@ -21,7 +21,7 @@ class UserProfileTest extends TestCase
     {
         $user = User::factory()->create([
             'name' => 'Peserta Uji Coba',
-            'email' => 'peserta@tka.test',
+            'email' => 'student@example.com',
             'role' => 'user',
         ]);
 
@@ -30,7 +30,7 @@ class UserProfileTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Profil Saya');
         $response->assertSee('Peserta Uji Coba');
-        $response->assertSee('peserta@tka.test');
+        $response->assertSee('student@example.com');
         $response->assertSee('Ganti Password Baru');
         $response->assertSee('Bebas Masuk Sandi Baru');
     }
@@ -52,7 +52,7 @@ class UserProfileTest extends TestCase
 
         $user->refresh();
         $this->assertSame('Nama Baru Peserta Keren', $user->name);
-        // Password remains unchanged
+        
         $this->assertTrue(Hash::check('old_password_123', $user->password));
     }
 
@@ -61,7 +61,7 @@ class UserProfileTest extends TestCase
         $user = User::factory()->create(['role' => 'user']);
 
         $response = $this->actingAs($user)->put(route('user.profile.update'), [
-            'name' => 'A', // too short
+            'name' => 'A', 
         ]);
 
         $response->assertSessionHasErrors(['name']);
@@ -75,8 +75,7 @@ class UserProfileTest extends TestCase
             'role' => 'user',
         ]);
 
-        // No 'current_password' sent! Only new password & confirmation.
-        $response = $this->actingAs($user)->put(route('user.profile.update-password'), [
+$response = $this->actingAs($user)->put(route('user.profile.update-password'), [
             'password' => 'new_secret_pass_789',
             'password_confirmation' => 'new_secret_pass_789',
         ]);
@@ -116,23 +115,20 @@ class UserProfileTest extends TestCase
     public function test_newly_updated_password_can_be_used_for_login(): void
     {
         $user = User::factory()->create([
-            'email' => 'login_test@tka.test',
+            'email' => 'login_test@example.com',
             'password' => Hash::make('first_pass_123'),
             'role' => 'user',
         ]);
 
-        // Update password via profile
-        $this->actingAs($user)->put(route('user.profile.update-password'), [
+$this->actingAs($user)->put(route('user.profile.update-password'), [
             'password' => 'second_pass_456',
             'password_confirmation' => 'second_pass_456',
         ]);
 
-        // Logout
-        $this->post(route('logout'));
+$this->post(route('logout'));
 
-        // Attempt login with new password
-        $loginResponse = $this->post(route('login.post'), [
-            'email' => 'login_test@tka.test',
+$loginResponse = $this->post(route('login.post'), [
+            'email' => 'login_test@example.com',
             'password' => 'second_pass_456',
         ]);
 
@@ -147,21 +143,18 @@ class UserProfileTest extends TestCase
             'role' => 'admin',
         ]);
 
-        // View admin profile
-        $response = $this->actingAs($admin)->get(route('admin.profile.edit'));
+$response = $this->actingAs($admin)->get(route('admin.profile.edit'));
         $response->assertStatus(200);
         $response->assertSee('Profil Administrator');
 
-        // Update name
-        $updateNameResponse = $this->actingAs($admin)->put(route('admin.profile.update'), [
+$updateNameResponse = $this->actingAs($admin)->put(route('admin.profile.update'), [
             'name' => 'Superadmin Master',
         ]);
         $updateNameResponse->assertRedirect(route('admin.profile.edit'));
         $admin->refresh();
         $this->assertSame('Superadmin Master', $admin->name);
 
-        // Update password directly
-        $updatePassResponse = $this->actingAs($admin)->put(route('admin.profile.update-password'), [
+$updatePassResponse = $this->actingAs($admin)->put(route('admin.profile.update-password'), [
             'password' => 'admin_brand_new_pass_2026',
             'password_confirmation' => 'admin_brand_new_pass_2026',
         ]);

@@ -20,25 +20,18 @@ class PdfUploadController extends Controller
         $this->parserService = $parserService;
     }
 
-    /**
-     * Download the official TKA PDF template file.
-     */
-    public function downloadTemplate()
+public function downloadTemplate()
     {
         $filePath = storage_path('app/template_soal_tka.pdf');
 
-        // Always regenerate to ensure clean word-wrapping and prevent text truncation
-        $this->generateTemplatePdfFile($filePath);
+$this->generateTemplatePdfFile($filePath);
 
         return response()->download($filePath, 'template_soal_tka.pdf', [
             'Content-Type' => 'application/pdf',
         ]);
     }
 
-    /**
-     * Generate the official template PDF with automatic word-wrapping to prevent cut-off text.
-     */
-    protected function generateTemplatePdfFile(string $outputPath): void
+protected function generateTemplatePdfFile(string $outputPath): void
     {
         $rawLines = [
             "TEMPLATE SOAL UJIAN TKA (TES KOMPETENSI AKADEMIK)",
@@ -74,8 +67,7 @@ class PdfUploadController extends Controller
             "PEMBAHASAN: Berdasarkan bacaan, korelasi antara suhu air laut dan penurunan populasi terumbu karang bersifat negatif (pernyataan 1 sesuai), sehingga pernyataan 2 yang menyatakan sebaliknya tidak sesuai. Penelitian disebutkan berlangsung 10 tahun/satu dekade (pernyataan 3 sesuai).",
         ];
 
-        // Automatically wrap long lines at 78 characters so text stays well within page margins
-        $lines = [];
+$lines = [];
         foreach ($rawLines as $line) {
             if (trim($line) === '') {
                 $lines[] = '';
@@ -131,20 +123,14 @@ class PdfUploadController extends Controller
         file_put_contents($outputPath, $pdf);
     }
 
-    /**
-     * Show the upload PDF form for a subtest.
-     */
-    public function showUpload(Subtest $subtest)
+public function showUpload(Subtest $subtest)
     {
         $existingCount = $subtest->questions()->count();
 
         return view('admin.subtests.upload', compact('subtest', 'existingCount'));
     }
 
-    /**
-     * Handle PDF parsing and store results in session staging.
-     */
-    public function parsePdf(Request $request, Subtest $subtest)
+public function parsePdf(Request $request, Subtest $subtest)
     {
         $request->validate([
             'pdf_file' => ['required', 'file', 'mimes:pdf', 'max:20480'],
@@ -162,8 +148,7 @@ class PdfUploadController extends Controller
                 return back()->with('error', 'File PDF tidak memuat blok soal dengan pola SOAL [nomor] yang valid.');
             }
 
-            // Store in session for staging area
-            session(["subtest_staging_{$subtest->id}" => $parsedQuestions]);
+session(["subtest_staging_{$subtest->id}" => $parsedQuestions]);
 
             $count = count($parsedQuestions);
 
@@ -174,10 +159,7 @@ class PdfUploadController extends Controller
         }
     }
 
-    /**
-     * Display the Staging / Preview form for review and edits.
-     */
-    public function preview(Subtest $subtest)
+public function preview(Subtest $subtest)
     {
         $sessionKey = "subtest_staging_{$subtest->id}";
         $questions = session($sessionKey);
@@ -192,10 +174,7 @@ class PdfUploadController extends Controller
         return view('admin.subtests.preview', compact('subtest', 'questions', 'errorCount'));
     }
 
-    /**
-     * Commit the staged questions into database in a transaction.
-     */
-    public function publish(Request $request, Subtest $subtest)
+public function publish(Request $request, Subtest $subtest)
     {
         $sessionKey = "subtest_staging_{$subtest->id}";
         $rawSubmittedQuestions = $request->input('questions', []);
@@ -204,8 +183,7 @@ class PdfUploadController extends Controller
             return back()->with('error', 'Tidak ada data soal untuk disimpan.');
         }
 
-        // Pre-validate questions to ensure correct key configuration
-        $questionIndex = 1;
+$questionIndex = 1;
         foreach ($rawSubmittedQuestions as $qData) {
             $type = in_array($qData['type'] ?? '', ['single', 'multiple', 'statement']) ? $qData['type'] : 'single';
             
@@ -225,7 +203,7 @@ class PdfUploadController extends Controller
                     }
                 }
             } else {
-                // Extract correct keys array for single or multiple
+                
                 $correctKeys = [];
                 if ($type === 'multiple') {
                     $correctKeys = (array) ($qData['correct_keys'] ?? []);
@@ -251,7 +229,7 @@ class PdfUploadController extends Controller
 
         DB::beginTransaction();
         try {
-            // Remove previous questions if any (replace behavior)
+            
             $subtest->questions()->delete();
 
             $questionNumber = 1;
@@ -264,8 +242,7 @@ class PdfUploadController extends Controller
                     continue;
                 }
 
-                // Handle image (uploaded file or preserved staging image)
-                $imagePath = null;
+$imagePath = null;
                 $deleteImage = !empty($qData['delete_image']) && $qData['delete_image'] === '1';
 
                 $uploadedFile = $request->file("questions.{$key}.image_file");
@@ -300,7 +277,7 @@ class PdfUploadController extends Controller
                 $optionsData = $qData['options'] ?? [];
 
                 if ($type === 'statement') {
-                    // For statement questions: label is statement index "1", "2", ... and is_correct is Sesuai (true) or Tidak Sesuai (false)
+                    
                     $stmtNum = 1;
                     foreach ($optionsData as $opt) {
                         $text = trim($opt['text'] ?? '');
@@ -318,7 +295,7 @@ class PdfUploadController extends Controller
                         ]);
                     }
                 } else {
-                    // Determine correct keys array
+                    
                     if ($type === 'multiple') {
                         $correctKeys = array_map('strtoupper', (array) ($qData['correct_keys'] ?? []));
                     } else {
@@ -344,11 +321,9 @@ class PdfUploadController extends Controller
                 }
             }
 
-            // Sync total_questions count
-            $subtest->updateQuestionCount();
+$subtest->updateQuestionCount();
 
-            // Clear session staging
-            session()->forget($sessionKey);
+session()->forget($sessionKey);
 
             DB::commit();
 

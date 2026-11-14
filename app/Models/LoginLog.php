@@ -37,18 +37,12 @@ class LoginLog extends Model
         'longitude' => 'float',
     ];
 
-    /**
-     * Get the user that owns the login log (nullable for guest link clicks).
-     */
-    public function user(): BelongsTo
+public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get Google Maps URL if coordinates or location exist.
-     */
-    public function getMapUrlAttribute(): ?string
+public function getMapUrlAttribute(): ?string
     {
         if ($this->latitude !== null && $this->longitude !== null) {
             return "https://www.google.com/maps?q={$this->latitude},{$this->longitude}";

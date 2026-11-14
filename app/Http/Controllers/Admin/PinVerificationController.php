@@ -8,12 +8,10 @@ use Illuminate\Support\Facades\Auth;
 
 class PinVerificationController extends Controller
 {
-    /**
-     * Show the administrator PIN verification form.
-     */
+    
     public function show()
     {
-        // If already verified in this session, head straight to admin dashboard
+        
         if (session('admin_pin_verified')) {
             return redirect()->route('admin.dashboard');
         }
@@ -21,10 +19,7 @@ class PinVerificationController extends Controller
         return view('auth.admin-pin');
     }
 
-    /**
-     * Verify the administrator PIN submission.
-     */
-    public function verify(Request $request)
+public function verify(Request $request)
     {
         $request->validate([
             'pin' => ['required', 'string'],
@@ -32,7 +27,7 @@ class PinVerificationController extends Controller
             'pin.required' => 'PIN keamanan wajib diisi.',
         ]);
 
-        $expectedPin = (string) config('auth.admin_pin', '252009');
+        $expectedPin = (string) config('auth.admin_pin', '000000');
         $enteredPin = trim((string) $request->input('pin'));
 
         if ($enteredPin === $expectedPin) {

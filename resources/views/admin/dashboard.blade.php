@@ -5,11 +5,9 @@
 @section('content')
 <div class="space-y-7 slide-up">
 
-    {{-- ── Stat Cards ──────────────────────────────── --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
 
-        {{-- Total Siswa --}}
-        <div class="card p-6 flex items-center justify-between gap-4 hover-lift hover:shadow-md transition-all duration-200">
+<div class="card p-6 flex items-center justify-between gap-4 hover-lift hover:shadow-md transition-all duration-200">
             <div>
                 <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Akun Siswa</p>
                 <h3 class="text-3xl font-black text-slate-900">{{ number_format($totalUsers) }}</h3>
@@ -22,8 +20,7 @@
             </div>
         </div>
 
-        {{-- Album Dokumentasi Aktif --}}
-        <div class="card p-6 flex items-center justify-between gap-4 hover-lift hover:shadow-md transition-all duration-200">
+<div class="card p-6 flex items-center justify-between gap-4 hover-lift hover:shadow-md transition-all duration-200">
             <div>
                 <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Album Dokumentasi</p>
                 <h3 class="text-3xl font-black text-slate-900">{{ number_format($totalActiveAlbums ?? 0) }}</h3>
@@ -36,8 +33,7 @@
             </div>
         </div>
 
-        {{-- Total Foto Dokumentasi --}}
-        <div class="card p-6 flex items-center justify-between gap-4 hover-lift hover:shadow-md transition-all duration-200">
+<div class="card p-6 flex items-center justify-between gap-4 hover-lift hover:shadow-md transition-all duration-200">
             <div>
                 <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Foto Siswa</p>
                 <h3 class="text-3xl font-black text-slate-900">{{ number_format($totalPhotos ?? 0) }}</h3>
@@ -50,8 +46,7 @@
             </div>
         </div>
 
-        {{-- Total Log Aktivitas & Lokasi --}}
-        <div class="card p-6 flex items-center justify-between gap-4 hover-lift hover:shadow-md transition-all duration-200">
+<div class="card p-6 flex items-center justify-between gap-4 hover-lift hover:shadow-md transition-all duration-200">
             <div>
                 <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Log Aktivitas &amp; IP</p>
                 <h3 class="text-3xl font-black text-slate-900">{{ number_format($totalLogs ?? 0) }}</h3>
@@ -66,8 +61,7 @@
         </div>
     </div>
 
-    {{-- ── Quick Actions ────────────────────────────── --}}
-    <div class="flex flex-wrap items-center gap-3">
+<div class="flex flex-wrap items-center gap-3">
         <a href="{{ route('admin.question-banks.index') }}"
            class="btn-primary btn-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -88,8 +82,7 @@
         </a>
     </div>
 
-    {{-- ── Recent User Login & Visitor Monitoring (Lokasi, IP, Browser) ── --}}
-    <div class="table-wrapper bg-white">
+<div class="table-wrapper bg-white">
         <div class="p-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="text-base font-extrabold text-slate-900">Log Aktivitas Pengunjung &amp; Siswa (Lokasi, IP &amp; Browser)</h2>
@@ -301,8 +294,7 @@
         </div>
     </div>
 
-    {{-- ── Latest Photo Documentation Albums ─────────── --}}
-    <div class="table-wrapper bg-white">
+<div class="table-wrapper bg-white">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
             <div>
                 <h2 class="text-base font-extrabold text-slate-900">Album Dokumentasi Foto Terbaru</h2>

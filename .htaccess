@@ -1,6 +1,21 @@
+Options -Indexes
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+    RewriteRule ^(composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|artisan)$ - [F,L,NC]
+
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 
+<FilesMatch "^\.|\.(env|git|htaccess|htpasswd)$|^(composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|artisan)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

@@ -12,27 +12,23 @@ use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
+    
     public function run(): void
     {
-        // 1. Admin Account
         $admin = User::updateOrCreate(
-            ['email' => 'admin@tka.test'],
+            ['email' => 'admin@example.com'],
             [
                 'name' => 'Administrator Dokumentasi',
-                'password' => Hash::make('kingahmad123'),
+                'password' => Hash::make('password'),
                 'role' => 'admin',
                 'email_verified_at' => now(),
             ]
         );
 
-        // 2. Three Student (User) Accounts
         $users = [
-            ['name' => 'Budi Santoso', 'email' => 'budi@tka.test'],
-            ['name' => 'Siti Nurhaliza', 'email' => 'siti@tka.test'],
-            ['name' => 'Ahmad Fauzi', 'email' => 'ahmad@tka.test'],
+            ['name' => 'Student One', 'email' => 'student1@example.com'],
+            ['name' => 'Student Two', 'email' => 'student2@example.com'],
+            ['name' => 'Student Three', 'email' => 'student3@example.com'],
         ];
 
         foreach ($users as $u) {
@@ -47,8 +43,7 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // 3. Sample Subtest "Penalaran Umum" (30 mins, 5 complete questions)
-        $subtest = Subtest::updateOrCreate(
+$subtest = Subtest::updateOrCreate(
             ['slug' => 'penalaran-umum'],
             [
                 'name' => 'Penalaran Umum',
@@ -59,8 +54,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Wipe any existing questions for idempotent re-seeding
-        $subtest->questions()->delete();
+$subtest->questions()->delete();
 
         $sampleQuestions = [
             [
@@ -148,8 +142,7 @@ class DatabaseSeeder extends Seeder
 
         $subtest->updateQuestionCount();
 
-        // 4. Sample Photo Documentation Albums
-        $sampleAlbums = [
+$sampleAlbums = [
             [
                 'title' => 'Dokumentasi MPLS & Pengenalan Lingkungan Sekolah',
                 'school_name' => 'SMA Negeri 1 Jakarta',
@@ -177,7 +170,7 @@ class DatabaseSeeder extends Seeder
                 'is_active' => true,
                 'created_by' => $admin->id,
             ],
-            // Khusus SMAN 25 Jakarta: Bulan Bahasa, MPLS, Class Meeting, LDKS, 17 Agustus, Hari Kartini (Semua 2026)
+            
             [
                 'title' => 'Bulan Bahasa',
                 'school_name' => 'SMAN 25 Jakarta',

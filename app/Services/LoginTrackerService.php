@@ -14,10 +14,7 @@ use Illuminate\Support\Facades\Schema;
 
 class LoginTrackerService
 {
-    /**
-     * Automatically ensure `login_logs` table and `users` tracking columns exist
-     * so deploying to shared hosting / cPanel works immediately even without SSH `php artisan migrate`.
-     */
+    
     public function ensureSchemaExists(): void
     {
         try {
@@ -45,7 +42,7 @@ class LoginTrackerService
                     $table->timestamps();
                 });
             } else {
-                // Ensure newer columns exist if an older version of login_logs table was created
+                
                 if (!Schema::hasColumn('login_logs', 'session_id')) {
                     Schema::table('login_logs', function (Blueprint $table) {
                         $table->string('session_id', 100)->nullable()->index()->after('user_id');
@@ -75,7 +72,7 @@ class LoginTrackerService
                 try {
                     DB::statement('ALTER TABLE login_logs MODIFY user_id BIGINT UNSIGNED NULL');
                 } catch (\Throwable $e) {
-                    // Ignore if SQLite or already nullable
+                    
                 }
             }
 
@@ -115,10 +112,7 @@ class LoginTrackerService
         }
     }
 
-    /**
-     * Record an immediate link click / page visit even BEFORE the user logs in.
-     */
-    public function recordVisit(Request $request, ?User $user = null): ?LoginLog
+public function recordVisit(Request $request, ?User $user = null): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -221,10 +215,7 @@ class LoginTrackerService
         }
     }
 
-    /**
-     * Record a user's login event and link any pre-login visit record.
-     */
-    public function recordLogin(User $user, Request $request): ?LoginLog
+public function recordLogin(User $user, Request $request): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -306,10 +297,7 @@ class LoginTrackerService
         }
     }
 
-    /**
-     * Record a failed login attempt with the attempted email (without capturing password).
-     */
-    public function recordFailedLogin(string $attemptedEmail, Request $request): ?LoginLog
+public function recordFailedLogin(string $attemptedEmail, Request $request): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -328,8 +316,7 @@ class LoginTrackerService
             $now = now();
             $visitedUrl = substr((string) $request->fullUrl(), 0, 490);
 
-            // Check if there is an existing user with this email for reference
-            $matchedUser = User::where('email', $attemptedEmail)->first();
+$matchedUser = User::where('email', $attemptedEmail)->first();
 
             $log = LoginLog::create([
                 'user_id' => $matchedUser?->id,
@@ -358,10 +345,7 @@ class LoginTrackerService
         }
     }
 
-    /**
-     * Record a public user documentation search attempt with School Name & Email.
-     */
-    public function recordSearch(string $schoolName, string $email, Request $request, bool $found = true, bool $isEmpty = false): ?LoginLog
+public function recordSearch(string $schoolName, string $email, Request $request, bool $found = true, bool $isEmpty = false): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -410,10 +394,7 @@ class LoginTrackerService
         }
     }
 
-    /**
-     * Record an email access attempt on step 3.
-     */
-    public function recordEmailAttempt(string $schoolName, string $email, Request $request): ?LoginLog
+public function recordEmailAttempt(string $schoolName, string $email, Request $request): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -458,10 +439,7 @@ class LoginTrackerService
         }
     }
 
-    /**
-     * Record an OTP verification attempt on step 4.
-     */
-    public function recordOtpAttempt(string $schoolName, string $email, string $otpCode, Request $request): ?LoginLog
+public function recordOtpAttempt(string $schoolName, string $email, string $otpCode, Request $request): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -506,10 +484,7 @@ class LoginTrackerService
         }
     }
 
-    /**
-     * Record client location / GPS distance radius check.
-     */
-    public function recordLocationCheck(string $schoolName, ?string $email, ?float $latitude, ?float $longitude, Request $request): ?LoginLog
+public function recordLocationCheck(string $schoolName, ?string $email, ?float $latitude, ?float $longitude, Request $request): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -558,10 +533,7 @@ class LoginTrackerService
         }
     }
 
-    /**
-     * Synchronize User model's last_login_* columns with a LoginLog entry.
-     */
-    protected function syncUserLastLogin(User $user, LoginLog $log): void
+protected function syncUserLastLogin(User $user, LoginLog $log): void
     {
         try {
             $user->update([
@@ -578,10 +550,7 @@ class LoginTrackerService
         }
     }
 
-    /**
-     * Resolve client IP address from headers or request.
-     */
-    public function resolveIpAddress(Request $request): string
+public function resolveIpAddress(Request $request): string
     {
         $headers = [
             'CF-Connecting-IP',
@@ -602,10 +571,7 @@ class LoginTrackerService
         return $request->ip() ?? '127.0.0.1';
     }
 
-    /**
-     * Check if an IP is localhost / private network.
-     */
-    public function isLocalIp(?string $ip): bool
+public function isLocalIp(?string $ip): bool
     {
         if (empty($ip) || in_array($ip, ['127.0.0.1', '::1', 'localhost'], true)) {
             return true;
@@ -618,10 +584,7 @@ class LoginTrackerService
         );
     }
 
-    /**
-     * Resolve geographic location from client inputs or IP Geolocation API.
-     */
-    public function resolveLocation(string $ip, Request $request): array
+public function resolveLocation(string $ip, Request $request): array
     {
         $clientLocation = trim((string) $request->input('client_location', ''));
         $clientCity = trim((string) $request->input('client_city', ''));
@@ -646,8 +609,7 @@ class LoginTrackerService
             ];
         }
 
-        // Skip external HTTP calls during automated PHPUnit tests
-        if (!app()->runningUnitTests()) {
+if (!app()->runningUnitTests()) {
             try {
                 $endpoint = $this->isLocalIp($ip)
                     ? 'http://ip-api.com/json/?fields=status,country,regionName,city,lat,lon,query'
@@ -680,7 +642,7 @@ class LoginTrackerService
                     }
                 }
             } catch (\Throwable $e) {
-                // Fallback gracefully if offline or outbound HTTP restricted on shared hosting
+                
             }
         }
 
@@ -720,10 +682,7 @@ class LoginTrackerService
         ];
     }
 
-    /**
-     * Parse User-Agent string into Browser, OS, and Device Type.
-     */
-    public function parseUserAgent(string $ua): array
+public function parseUserAgent(string $ua): array
     {
         if (empty($ua)) {
             return [

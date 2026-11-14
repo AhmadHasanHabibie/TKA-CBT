@@ -31,8 +31,7 @@
     }
 }">
 
-    {{-- ── Page Header ──────────────────────────────── --}}
-    <div class="page-header">
+<div class="page-header">
         <div>
             <h2 class="page-title">Album Dokumentasi Foto Siswa</h2>
             <p class="page-subtitle">Kelola album dokumentasi kegiatan sekolah, unggah banyak foto sekaligus, dan atur publikasinya untuk siswa</p>
@@ -43,8 +42,7 @@
         </button>
     </div>
 
-    {{-- ── Filters & Search ─────────────────────────── --}}
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
             <a href="{{ route('admin.question-banks.index') }}"
                class="px-3.5 py-2 rounded-xl font-bold transition-all duration-150 whitespace-nowrap
@@ -78,8 +76,7 @@
         </form>
     </div>
 
-    {{-- ── Cards Grid ───────────────────────────────── --}}
-    @if ($banks->isEmpty())
+@if ($banks->isEmpty())
         <div class="card p-16 text-center">
             <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-400 flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -101,7 +98,7 @@
                 @endphp
                 <div class="card flex flex-col justify-between hover:shadow-md hover:border-slate-300/80 transition-all duration-200 overflow-hidden group">
                     <div>
-                        {{-- Cover Thumbnail Preview --}}
+                        
                         <div class="relative aspect-16/9 bg-slate-900 overflow-hidden flex items-center justify-center border-b border-slate-100">
                             @if ($coverItem)
                                 <img src="{{ $coverItem->image_url }}" alt="{{ $bank->title }}"
@@ -132,7 +129,7 @@
                         </div>
 
                         <div class="p-5 space-y-3">
-                            {{-- Title & Description --}}
+                            
                             <div>
                                 @if ($bank->school_name)
                                     <div class="mb-1.5 inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-700 bg-indigo-50/80 border border-indigo-100 px-2 py-0.5 rounded-md">
@@ -148,8 +145,7 @@
                                 </p>
                             </div>
 
-                            {{-- Stats --}}
-                            <div class="flex items-center gap-3 pt-3 border-t border-slate-100">
+<div class="flex items-center gap-3 pt-3 border-t border-slate-100">
                                 <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
                                     <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                     <span class="font-bold text-slate-800">{{ $bank->items_count }}</span> Foto Dokumentasi
@@ -160,8 +156,7 @@
                         </div>
                     </div>
 
-                    {{-- Action Buttons --}}
-                    <div class="p-3 bg-slate-50 border-t border-slate-100 flex items-center gap-2">
+<div class="p-3 bg-slate-50 border-t border-slate-100 flex items-center gap-2">
                         <a href="{{ route('admin.question-banks.items', $bank) }}"
                            class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 shadow-sm transition-all duration-150">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -189,8 +184,7 @@
         <div class="mt-6 pagination-wrapper">{{ $banks->links() }}</div>
     @endif
 
-    {{-- ══════ MODAL: Buat Album Dokumentasi ══════ --}}
-    <div x-show="createModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="createModalOpen = false">
+<div x-show="createModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="createModalOpen = false">
         <div class="modal-panel max-w-lg w-full scale-in" @click.away="createModalOpen = false">
             <div class="modal-header">
                 <div class="flex items-center gap-3">
@@ -248,8 +242,7 @@
         </div>
     </div>
 
-    {{-- ══════ MODAL: Edit Album Dokumentasi ══════ --}}
-    <div x-show="editModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="editModalOpen = false">
+<div x-show="editModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="editModalOpen = false">
         <div class="modal-panel max-w-lg w-full scale-in" @click.away="editModalOpen = false">
             <div class="modal-header">
                 <div class="flex items-center gap-3">

@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Top Action & Summary Bar -->
+    
     <div class="card p-6 sticky top-20 z-10">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -34,8 +34,7 @@
         </div>
     </div>
 
-    <!-- Questions Form -->
-    <form id="staging-form" method="POST" action="{{ route('admin.subtests.publish', $subtest) }}" enctype="multipart/form-data" class="space-y-6">
+<form id="staging-form" method="POST" action="{{ route('admin.subtests.publish', $subtest) }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
         @foreach ($questions as $index => $q)
@@ -100,12 +99,11 @@
                         }
                     }
                 }">
-                <!-- Hidden inputs for image state -->
+                
                 <input type="hidden" name="questions[{{ $index }}][existing_image]" value="{{ $q['image'] ?? '' }}">
                 <input type="hidden" name="questions[{{ $index }}][delete_image]" :value="deleteImage ? '1' : '0'">
 
-                <!-- Question Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-100 gap-3">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-100 gap-3">
                     <div class="flex items-center gap-3">
                         <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl font-bold text-xs {{ $q['has_error'] ? 'bg-rose-100 text-rose-800' : 'bg-slate-900 text-white' }}">
                             #{{ $index + 1 }}
@@ -114,8 +112,7 @@
                             Soal Nomor {{ $index + 1 }}
                         </h3>
 
-                        <!-- Type Badge -->
-                        <span x-show="type === 'single'"
+<span x-show="type === 'single'"
                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                             Pilihan Ganda
                         </span>
@@ -139,8 +136,7 @@
                             </div>
                         @endif
 
-                        <!-- Type Override Selector -->
-                        <div class="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+<div class="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
                             <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider pl-1">Tipe:</label>
                             <select name="questions[{{ $index }}][type]" x-model="type"
                                 class="text-xs font-bold rounded-lg border border-slate-300 py-1 px-2.5 bg-white text-slate-800 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600">
@@ -152,8 +148,7 @@
                     </div>
                 </div>
 
-                <!-- Question Text / Stimulus -->
-                <div class="space-y-4">
+<div class="space-y-4">
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
                             <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">
@@ -171,8 +166,7 @@
                         </p>
                     </div>
 
-                    <!-- Image Attachment / Preview Section -->
-                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-3">
+<div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-3">
                         <div class="flex items-center justify-between">
                             <label class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
                                 <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,16 +187,14 @@
                             </template>
                         </div>
 
-                        <!-- Image Preview Box -->
-                        <template x-if="imagePreview">
+<template x-if="imagePreview">
                             <div class="inline-block rounded-xl overflow-hidden border border-slate-200 bg-white p-2 shadow-2xs">
                                 <img :src="imagePreview" alt="Pratinjau Gambar Soal #{{ $index + 1 }}"
                                     class="max-h-52 max-w-full rounded-lg object-contain">
                             </div>
                         </template>
 
-                        <!-- File Input -->
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+<div class="flex flex-col sm:flex-row sm:items-center gap-3">
                             <input type="file" x-ref="fileInput" name="questions[{{ $index }}][image_file]" accept="image/*"
                                 @change="handleImageUpload($event)"
                                 class="text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
@@ -210,8 +202,7 @@
                         </div>
                     </div>
 
-                    <!-- Statement Questions Editor -->
-                    <template x-if="type === 'statement'">
+<template x-if="type === 'statement'">
                         <div class="space-y-3">
                             <div class="flex items-center justify-between">
                                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">
@@ -238,8 +229,7 @@
                                             x-model="stmt.text" required placeholder="Tulis teks pernyataan..."
                                             class="flex-1 text-xs rounded-lg border border-slate-200 px-3 py-2 focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600 bg-white font-medium text-slate-800">
 
-                                        <!-- Segmented Toggle -->
-                                        <div class="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 flex-shrink-0">
+<div class="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 flex-shrink-0">
                                             <input type="hidden" :name="'questions[{{ $index }}][options][' + stmtIdx + '][is_correct]'" :value="stmt.is_correct ? '1' : '0'">
                                             
                                             <button type="button" @click="stmt.is_correct = true"
@@ -266,8 +256,7 @@
                         </div>
                     </template>
 
-                    <!-- Single / Multiple Options Grid -->
-                    <template x-if="type !== 'statement'">
+<template x-if="type !== 'statement'">
                         <div>
                             <div class="flex items-center justify-between mb-2">
                                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">
@@ -291,7 +280,7 @@
                                         :class="selectedKeys.includes('{{ $opt['label'] }}') ? 'border-indigo-300 bg-indigo-50/30' : ''">
                                         
                                         <div class="flex items-center gap-2 flex-shrink-0">
-                                            <!-- Single Choice Radio -->
+                                            
                                             <template x-if="type === 'single'">
                                                 <input type="radio" id="q_{{ $index }}_opt_{{ $opt['label'] }}"
                                                     name="questions[{{ $index }}][correct_key]" value="{{ $opt['label'] }}"
@@ -300,8 +289,7 @@
                                                     class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 cursor-pointer">
                                             </template>
 
-                                            <!-- Multiple Choice Checkbox -->
-                                            <template x-if="type === 'multiple'">
+<template x-if="type === 'multiple'">
                                                 <input type="checkbox" id="q_{{ $index }}_opt_cb_{{ $opt['label'] }}"
                                                     name="questions[{{ $index }}][correct_keys][]" value="{{ $opt['label'] }}"
                                                     :checked="selectedKeys.includes('{{ $opt['label'] }}')"
@@ -326,8 +314,7 @@
                         </div>
                     </template>
 
-                    <!-- Explanation (Pembahasan) -->
-                    <div>
+<div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                             Pembahasan Soal (PEMBAHASAN)
                         </label>
@@ -338,8 +325,7 @@
             </div>
         @endforeach
 
-        <!-- Bottom Publish Button -->
-        <div class="flex items-center justify-between p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
             <p class="text-xs text-slate-500 font-medium">
                 Pastikan seluruh {{ count($questions) }} soal sudah sesuai dengan kunci jawaban sebelum mempublikasikan.
             </p>

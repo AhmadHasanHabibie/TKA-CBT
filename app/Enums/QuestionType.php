@@ -8,10 +8,7 @@ enum QuestionType: string
     case MULTIPLE = 'multiple';
     case STATEMENT = 'statement';
 
-    /**
-     * Human-readable Indonesian label for UI display.
-     */
-    public function label(): string
+public function label(): string
     {
         return match ($this) {
             self::SINGLE => 'Pilihan Ganda',
@@ -20,12 +17,7 @@ enum QuestionType: string
         };
     }
 
-    /**
-     * All valid string values.
-     *
-     * @return array<string>
-     */
-    public static function values(): array
+public static function values(): array
     {
         return array_column(self::cases(), 'value');
     }

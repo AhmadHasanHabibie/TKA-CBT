@@ -16,15 +16,6 @@ use App\Http\Controllers\User\ProfileController as UserProfileController;
 use App\Http\Controllers\User\QuestionBankController as UserQuestionBankController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes — Portal Dokumentasi Foto Siswa
-|--------------------------------------------------------------------------
-*/
-
-// ==========================================
-// Portal Publik Dokumentasi Siswa (Tanpa Perlu Login)
-// ==========================================
 Route::get('/', [PortalController::class, 'index'])->name('home');
 Route::match(['get', 'post'], '/cari-dokumentasi', [PortalController::class, 'index'])->name('portal.search');
 Route::post('/cari-dokumentasi/submit-email', [PortalController::class, 'submitEmail'])->name('portal.submit-email');
@@ -33,57 +24,43 @@ Route::post('/cari-dokumentasi/check-location', [PortalController::class, 'check
 Route::get('/dokumentasi/{questionBank:slug}', [PortalController::class, 'showAlbum'])->name('portal.album.show');
 Route::get('/dokumentasi-album/{questionBank:slug}', [PortalController::class, 'showAlbum'])->name('portal.album');
 
-// ==========================================
-// Pintu Rahasia Login Admin (Hanya Akses Manual via URL)
-// ==========================================
 Route::get('/dokumentasi-siswa/login/admin', [AuthController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/dokumentasi-siswa/login/admin', [AuthController::class, 'login'])->name('admin.login.post');
 
-// Backward-compatible alias for login & telemetry
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/telemetry/track', [AuthController::class, 'trackVisitor'])->name('telemetry.track');
 
-// ==========================================
-// Admin Route Group (Protected by 'admin' middleware)
-// ==========================================
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Administrator Security PIN Verification
+    
     Route::get('/verify-pin', [AdminPinVerificationController::class, 'show'])->name('pin.show');
     Route::post('/verify-pin', [AdminPinVerificationController::class, 'verify'])->name('pin.verify');
 
-    // Dashboard
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-
-    // User Management
-    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
     Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
     Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
-    // User Login Monitoring (Location, IP Address, Browser)
-    Route::get('/login-logs', [AdminLoginLogController::class, 'index'])->name('login-logs.index');
+Route::get('/login-logs', [AdminLoginLogController::class, 'index'])->name('login-logs.index');
     Route::delete('/login-logs/clear', [AdminLoginLogController::class, 'clear'])->name('login-logs.clear');
     Route::delete('/login-logs/{loginLog}', [AdminLoginLogController::class, 'destroy'])->name('login-logs.destroy');
 
-    // Subtest Management
-    Route::get('/subtests', [AdminSubtestController::class, 'index'])->name('subtests.index');
+Route::get('/subtests', [AdminSubtestController::class, 'index'])->name('subtests.index');
     Route::post('/subtests', [AdminSubtestController::class, 'store'])->name('subtests.store');
     Route::put('/subtests/{subtest}', [AdminSubtestController::class, 'update'])->name('subtests.update');
     Route::patch('/subtests/{subtest}/toggle', [AdminSubtestController::class, 'toggleActive'])->name('subtests.toggle');
     Route::delete('/subtests/{subtest}', [AdminSubtestController::class, 'destroy'])->name('subtests.destroy');
 
-    // PDF Upload & Staging & Template Download
-    Route::get('/subtests/template/download', [AdminPdfUploadController::class, 'downloadTemplate'])->name('subtests.template.download');
+Route::get('/subtests/template/download', [AdminPdfUploadController::class, 'downloadTemplate'])->name('subtests.template.download');
     Route::get('/subtests/{subtest}/upload', [AdminPdfUploadController::class, 'showUpload'])->name('subtests.upload');
     Route::post('/subtests/{subtest}/upload', [AdminPdfUploadController::class, 'parsePdf'])->name('subtests.upload.post');
     Route::get('/subtests/{subtest}/preview', [AdminPdfUploadController::class, 'preview'])->name('subtests.preview');
     Route::post('/subtests/{subtest}/publish', [AdminPdfUploadController::class, 'publish'])->name('subtests.publish');
 
-    // Question Banks Management (Bank Soal Multi-Foto)
-    Route::get('/question-banks', [AdminQuestionBankController::class, 'index'])->name('question-banks.index');
+Route::get('/question-banks', [AdminQuestionBankController::class, 'index'])->name('question-banks.index');
     Route::post('/question-banks', [AdminQuestionBankController::class, 'store'])->name('question-banks.store');
     Route::put('/question-banks/{questionBank}', [AdminQuestionBankController::class, 'update'])->name('question-banks.update');
     Route::patch('/question-banks/{questionBank}/toggle', [AdminQuestionBankController::class, 'toggleActive'])->name('question-banks.toggle');
@@ -93,33 +70,26 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('/question-banks/{questionBank}/items/{item}', [AdminQuestionBankController::class, 'updateItem'])->name('question-banks.items.update');
     Route::delete('/question-banks/{questionBank}/items/{item}', [AdminQuestionBankController::class, 'destroyItem'])->name('question-banks.items.destroy');
 
-    // Admin Profile Management
-    Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [AdminProfileController::class, 'updateProfile'])->name('profile.update');
     Route::put('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.update-password');
 });
 
-// ==========================================
-// User / Student Route Group (Protected by 'user' middleware)
-// ==========================================
 Route::middleware(['auth', 'user'])->prefix('user')->name('user.')->group(function () {
-    // Dashboard
+    
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 
-    // User Profile Management (Ganti Username & Password Baru langsung tanpa password lama)
-    Route::get('/profile', [UserProfileController::class, 'edit'])->name('profile.edit');
+Route::get('/profile', [UserProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [UserProfileController::class, 'updateProfile'])->name('profile.update');
     Route::put('/profile/password', [UserProfileController::class, 'updatePassword'])->name('profile.update-password');
 
-    // CBT Exam Engine
-    Route::get('/exam/{subtest:slug}/start', [UserExamEngineController::class, 'start'])->name('exam.start');
+Route::get('/exam/{subtest:slug}/start', [UserExamEngineController::class, 'start'])->name('exam.start');
     Route::get('/exam/{subtest:slug}/board', [UserExamEngineController::class, 'board'])->name('exam.board');
     Route::post('/exam/{session}/answer', [UserExamEngineController::class, 'saveAnswer'])->name('exam.save-answer');
     Route::post('/exam/{session}/violation', [UserExamEngineController::class, 'recordViolation'])->name('exam.violation');
     Route::post('/exam/{session}/finish', [UserExamEngineController::class, 'finish'])->name('exam.finish');
     Route::get('/exam/{subtest:slug}/result', [UserExamEngineController::class, 'result'])->name('exam.result');
 
-    // Question Banks (Bank Soal untuk Siswa)
-    Route::get('/question-banks', [UserQuestionBankController::class, 'index'])->name('question-banks.index');
+Route::get('/question-banks', [UserQuestionBankController::class, 'index'])->name('question-banks.index');
     Route::get('/question-banks/{questionBank:slug}', [UserQuestionBankController::class, 'show'])->name('question-banks.show');
 });

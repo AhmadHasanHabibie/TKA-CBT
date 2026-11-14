@@ -67,8 +67,7 @@
     }
 }">
 
-    <!-- Top Breadcrumb & Actions -->
-    <div class="card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <a href="{{ route('admin.question-banks.index') }}"
                class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 transition mb-2 group">
@@ -93,8 +92,7 @@
         </a>
     </div>
 
-    <!-- Batch Multi-Photo Upload Dropzone Section -->
-    <div class="drop-zone bg-indigo-50/30 border-indigo-200">
+<div class="drop-zone bg-indigo-50/30 border-indigo-200">
         <form method="POST" action="{{ route('admin.question-banks.items.upload', $questionBank) }}" enctype="multipart/form-data" class="space-y-4">
             @csrf
             <div class="text-center max-w-lg mx-auto">
@@ -108,8 +106,7 @@
                     Pilih hingga puluhan foto kegiatan siswa sekaligus (JPG, PNG, WebP, GIF maks 15MB per foto).
                 </p>
 
-                <!-- Hidden Input & Trigger Button -->
-                <input type="file" x-ref="multiInput" name="images[]" multiple accept="image/*"
+<input type="file" x-ref="multiInput" name="images[]" multiple accept="image/*"
                     @change="handleFiles($event)" class="hidden" id="multi_images_input">
 
                 <div class="flex items-center justify-center gap-3 mt-2">
@@ -126,8 +123,7 @@
                 </div>
             </div>
 
-            <!-- Client-side Selected Files Preview Grid -->
-            <template x-if="filePreviews.length > 0">
+<template x-if="filePreviews.length > 0">
                 <div class="pt-4 border-t border-indigo-100 mt-4 space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-800">
@@ -153,8 +149,7 @@
         </form>
     </div>
 
-    <!-- Existing Photos Gallery -->
-    @if ($questionBank->items->isEmpty())
+@if ($questionBank->items->isEmpty())
         <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
             <p class="text-xs text-slate-500 font-medium">
                 Belum ada foto dokumentasi yang diunggah ke album ini. Gunakan kotak unggah di atas untuk menambahkan foto kegiatan siswa.
@@ -174,27 +169,24 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 @foreach ($questionBank->items as $item)
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden group">
-                        <!-- Image Container with Hover Zoom Action -->
+                        
                         <div class="relative aspect-4/3 bg-slate-900 border-b border-slate-100 overflow-hidden cursor-pointer flex items-center justify-center"
                             @click="openLightbox('{{ $item->image_url }}', '{{ addslashes($item->title) }}', '{{ addslashes($item->notes ?? '') }}')">
                             <img src="{{ $item->image_url }}" alt="{{ $item->title }}"
                                 class="w-full h-full object-cover transition duration-200 group-hover:scale-105"
                                 loading="lazy">
 
-                            <!-- Order Badge -->
-                            <div class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg bg-slate-900/80 text-white text-[11px] font-bold backdrop-blur-xs font-mono">
+<div class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg bg-slate-900/80 text-white text-[11px] font-bold backdrop-blur-xs font-mono">
                                 #{{ $item->order }}
                             </div>
 
-                            <!-- Click to Zoom Pill -->
-                            <div class="absolute bottom-2.5 right-2.5 px-2 py-1 rounded-lg bg-indigo-600 text-white text-[10px] font-bold shadow-xs opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
+<div class="absolute bottom-2.5 right-2.5 px-2 py-1 rounded-lg bg-indigo-600 text-white text-[10px] font-bold shadow-xs opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
                                 <span>Perbesar</span>
                             </div>
                         </div>
 
-                        <!-- Card Info & Notes -->
-                        <div class="p-4 flex-1 flex flex-col justify-between">
+<div class="p-4 flex-1 flex flex-col justify-between">
                             <div>
                                 <h4 class="text-xs font-bold text-slate-900 truncate mb-1" title="{{ $item->title }}">
                                     {{ $item->title ?: 'Dokumentasi #' . $item->order }}
@@ -210,8 +202,7 @@
                                 @endif
                             </div>
 
-                            <!-- Card Action Buttons -->
-                            <div class="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-slate-100">
+<div class="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-slate-100">
                                 <button type="button"
                                     @click="openEditItem({{ Js::from($item) }}, '{{ route('admin.question-banks.items.update', [$questionBank, $item]) }}')"
                                     class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition cursor-pointer">
@@ -236,8 +227,7 @@
         </div>
     @endif
 
-    <!-- Lightbox Zoom Modal -->
-    <div x-show="lightboxOpen" style="display: none;"
+<div x-show="lightboxOpen" style="display: none;"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"
@@ -269,8 +259,7 @@
         </div>
     </div>
 
-    <!-- Edit Item Modal -->
-    <div x-show="editItemModal" x-cloak class="modal-backdrop" @keydown.escape.window="editItemModal = false">
+<div x-show="editItemModal" x-cloak class="modal-backdrop" @keydown.escape.window="editItemModal = false">
         <div class="modal-panel max-w-md w-full scale-in" @click.away="editItemModal = false">
             <div class="modal-header">
                 <div class="flex items-center gap-3">

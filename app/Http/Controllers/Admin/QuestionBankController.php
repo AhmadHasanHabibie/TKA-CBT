@@ -12,9 +12,7 @@ use Illuminate\Support\Str;
 
 class QuestionBankController extends Controller
 {
-    /**
-     * Display a listing of the photo documentation albums.
-     */
+    
     public function index(Request $request)
     {
         $query = QuestionBank::withCount('items')
@@ -46,10 +44,7 @@ class QuestionBankController extends Controller
         return view('admin.question_banks.index', compact('banks', 'categories'));
     }
 
-    /**
-     * Store a newly created photo documentation album in storage.
-     */
-    public function store(Request $request)
+public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -68,10 +63,7 @@ class QuestionBankController extends Controller
             ->with('success', "Album Dokumentasi '{$bank->title}' berhasil dibuat! Silakan unggah foto-foto kegiatan di bawah ini.");
     }
 
-    /**
-     * Update the specified photo album in storage.
-     */
-    public function update(Request $request, QuestionBank $questionBank)
+public function update(Request $request, QuestionBank $questionBank)
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -88,10 +80,7 @@ class QuestionBankController extends Controller
         return back()->with('success', "Informasi Album '{$questionBank->title}' berhasil diperbarui.");
     }
 
-    /**
-     * Remove the specified album and all its photos.
-     */
-    public function destroy(QuestionBank $questionBank)
+public function destroy(QuestionBank $questionBank)
     {
         foreach ($questionBank->items as $item) {
             if (!empty($item->image) && Storage::disk('public')->exists($item->image)) {
@@ -106,10 +95,7 @@ class QuestionBankController extends Controller
             ->with('success', "Album '{$title}' beserta seluruh fotonya berhasil dihapus.");
     }
 
-    /**
-     * Toggle active status of an album.
-     */
-    public function toggleActive(QuestionBank $questionBank)
+public function toggleActive(QuestionBank $questionBank)
     {
         $questionBank->is_active = !$questionBank->is_active;
         $questionBank->save();
@@ -118,10 +104,7 @@ class QuestionBankController extends Controller
         return back()->with('success', "Album '{$questionBank->title}' berhasil {$statusLabel}.");
     }
 
-    /**
-     * Manage photos/items of a specific album.
-     */
-    public function items(QuestionBank $questionBank)
+public function items(QuestionBank $questionBank)
     {
         $questionBank->load(['items' => function ($query) {
             $query->orderBy('order')->orderBy('id');
@@ -130,10 +113,7 @@ class QuestionBankController extends Controller
         return view('admin.question_banks.items', compact('questionBank'));
     }
 
-    /**
-     * Batch upload multiple photos into the album.
-     */
-    public function uploadItems(Request $request, QuestionBank $questionBank)
+public function uploadItems(Request $request, QuestionBank $questionBank)
     {
         $request->validate([
             'images' => ['required', 'array', 'min:1'],
@@ -174,10 +154,7 @@ class QuestionBankController extends Controller
         return back()->with('success', "Berhasil mengunggah {$uploadedCount} foto ke Album '{$questionBank->title}'!");
     }
 
-    /**
-     * Update details of a single photo item (title, notes, order).
-     */
-    public function updateItem(Request $request, QuestionBank $questionBank, QuestionBankItem $item)
+public function updateItem(Request $request, QuestionBank $questionBank, QuestionBankItem $item)
     {
         if ($item->question_bank_id !== $questionBank->id) {
             abort(404);
@@ -194,10 +171,7 @@ class QuestionBankController extends Controller
         return back()->with('success', 'Informasi foto dokumentasi berhasil diperbarui.');
     }
 
-    /**
-     * Delete a single photo item.
-     */
-    public function destroyItem(QuestionBank $questionBank, QuestionBankItem $item)
+public function destroyItem(QuestionBank $questionBank, QuestionBankItem $item)
     {
         if ($item->question_bank_id !== $questionBank->id) {
             abort(404);

@@ -13,9 +13,7 @@ use App\Services\LoginTrackerService;
 
 class DashboardController extends Controller
 {
-    /**
-     * Display the Admin Dashboard for Website Dokumentasi Foto Siswa.
-     */
+    
     public function index(LoginTrackerService $loginTracker)
     {
         $loginTracker->ensureSchemaExists();
@@ -39,7 +37,7 @@ class DashboardController extends Controller
                 ->take(6)
                 ->get();
         } catch (\Throwable $e) {
-            // Fallback gracefully
+            
         }
 
         $recentAttempts = collect();
@@ -53,7 +51,7 @@ class DashboardController extends Controller
                 ->take(10)
                 ->get();
         } catch (\Throwable $e) {
-            // Fallback empty collection if table is unavailable
+            
         }
 
         return view('admin.dashboard', compact(

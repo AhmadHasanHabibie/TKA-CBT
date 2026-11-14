@@ -10,31 +10,18 @@ class Option extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
+protected $fillable = [
         'question_id',
         'label',
         'text',
         'is_correct',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
+protected $casts = [
         'is_correct' => 'boolean',
     ];
 
-    /**
-     * Question that this option belongs to.
-     */
-    public function question(): BelongsTo
+public function question(): BelongsTo
     {
         return $this->belongsTo(Question::class);
     }

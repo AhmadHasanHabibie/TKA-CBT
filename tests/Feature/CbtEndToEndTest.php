@@ -22,51 +22,38 @@ class CbtEndToEndTest extends TestCase
         $this->seed();
     }
 
-    /**
-     * Test 1: Authentication & Role-based Redirection
-     */
-    public function test_login_flow_and_role_redirects(): void
+public function test_login_flow_and_role_redirects(): void
     {
-        // Unauthenticated access redirects to admin secret login
+        
         $response = $this->get('/admin/dashboard');
         $response->assertRedirect('/dokumentasi-siswa/login/admin');
 
         $response = $this->get('/user/dashboard');
         $response->assertRedirect('/login');
 
-        // Admin login (directly to admin dashboard without 2-step PIN)
         $response = $this->post('/login', [
-            'email' => 'admin@tka.test',
-            'password' => 'kingahmad123',
+            'email' => 'admin@example.com',
+            'password' => 'password',
         ]);
         $response->assertRedirect('/admin/dashboard');
 
-
-
-        // Admin accessing user dashboard gets redirected to admin dashboard
-        $admin = User::where('email', 'admin@tka.test')->first();
+        $admin = User::where('email', 'admin@example.com')->first();
         $response = $this->actingAs($admin)->get('/user/dashboard');
         $response->assertRedirect('/admin/dashboard');
 
-        // Student login
-        $user = User::where('email', 'budi@tka.test')->first();
+        $user = User::where('email', 'student1@example.com')->first();
         $response = $this->actingAs($user)->get('/admin/dashboard');
         $response->assertRedirect('/user/dashboard');
 
-        // Logout
-        $response = $this->actingAs($user)->post('/logout');
+$response = $this->actingAs($user)->post('/logout');
         $response->assertRedirect('/login');
     }
 
-    /**
-     * Test 2: Admin CRUD Subtests & PDF Staging Publish
-     */
-    public function test_admin_subtest_and_pdf_staging_publish(): void
+public function test_admin_subtest_and_pdf_staging_publish(): void
     {
-        $admin = User::where('email', 'admin@tka.test')->first();
+        $admin = User::where('email', 'admin@example.com')->first();
 
-        // 1. Create a new subtest
-        $response = $this->actingAs($admin)->post('/admin/subtests', [
+$response = $this->actingAs($admin)->post('/admin/subtests', [
             'name' => 'Matematika Dasar',
             'description' => 'Tes berhitung dan logika matematika',
             'duration_minutes' => 20,
@@ -75,8 +62,7 @@ class CbtEndToEndTest extends TestCase
         $this->assertNotNull($subtest);
         $response->assertRedirect(route('admin.subtests.upload', $subtest));
 
-        // 2. Toggle active state
-        $response = $this->actingAs($admin)->patch(route('admin.subtests.toggle', $subtest));
+$response = $this->actingAs($admin)->patch(route('admin.subtests.toggle', $subtest));
         $subtest->refresh();
         $this->assertFalse($subtest->is_active);
 
@@ -84,13 +70,11 @@ class CbtEndToEndTest extends TestCase
         $subtest->refresh();
         $this->assertTrue($subtest->is_active);
 
-        // 3. Download official PDF template
-        $response = $this->actingAs($admin)->get(route('admin.subtests.template.download'));
+$response = $this->actingAs($admin)->get(route('admin.subtests.template.download'));
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'application/pdf');
 
-        // 4. Upload sample PDF
-        $samplePdfPath = storage_path('app/contoh_soal_tka.pdf');
+$samplePdfPath = storage_path('app/contoh_soal_tka.pdf');
         $uploadedFile = new UploadedFile($samplePdfPath, 'contoh_soal_tka.pdf', 'application/pdf', null, true);
 
         $response = $this->actingAs($admin)->post(route('admin.subtests.upload.post', $subtest), [
@@ -98,16 +82,14 @@ class CbtEndToEndTest extends TestCase
         ]);
         $response->assertRedirect(route('admin.subtests.preview', $subtest));
 
-        // 4. Check staging session exists with all three types: single, multiple (PGK), and statement
-        $stagedQuestions = session("subtest_staging_{$subtest->id}");
+$stagedQuestions = session("subtest_staging_{$subtest->id}");
         $this->assertIsArray($stagedQuestions);
         $this->assertCount(3, $stagedQuestions);
         $this->assertEquals('single', $stagedQuestions[0]['type']);
         $this->assertEquals('multiple', $stagedQuestions[1]['type']);
         $this->assertEquals('statement', $stagedQuestions[2]['type']);
 
-        // 5. Commit Publish with Single, PGK (multiple), and Statement questions
-        $payload = [
+$payload = [
             'questions' => [
                 [
                     'type' => 'single',
@@ -149,8 +131,7 @@ class CbtEndToEndTest extends TestCase
         $response = $this->actingAs($admin)->post(route('admin.subtests.publish', $subtest), $payload);
         $response->assertRedirect(route('admin.subtests.index'));
 
-        // Verify subtest now has 3 questions with proper types
-        $subtest->refresh();
+$subtest->refresh();
         $this->assertEquals(3, $subtest->total_questions);
         $this->assertEquals(3, $subtest->questions()->count());
 
@@ -165,68 +146,55 @@ class CbtEndToEndTest extends TestCase
         $this->assertEquals(1, $q3Staged->options()->where('is_correct', false)->count());
     }
 
-    /**
-     * Test 3: Admin User Management & Self-Deletion Protection
-     */
-    public function test_admin_user_management(): void
+public function test_admin_user_management(): void
     {
-        $admin = User::where('email', 'admin@tka.test')->first();
+        $admin = User::where('email', 'admin@example.com')->first();
 
-        // Admin adds new user
         $response = $this->actingAs($admin)->post(route('admin.users.store'), [
-            'name' => 'Charlie Test',
-            'email' => 'charlie@tka.test',
+            'name' => 'Student Four',
+            'email' => 'student4@example.com',
             'password' => 'secret123',
             'role' => 'user',
         ]);
         $response->assertRedirect(route('admin.users.index'));
-        $this->assertDatabaseHas('users', ['email' => 'charlie@tka.test']);
+        $this->assertDatabaseHas('users', ['email' => 'student4@example.com']);
 
-        $charlie = User::where('email', 'charlie@tka.test')->first();
+        $student4 = User::where('email', 'student4@example.com')->first();
 
-        // Admin edits user
-        $response = $this->actingAs($admin)->put(route('admin.users.update', $charlie), [
-            'name' => 'Charlie Updated',
-            'email' => 'charlie@tka.test',
+        $response = $this->actingAs($admin)->put(route('admin.users.update', $student4), [
+            'name' => 'Student Updated',
+            'email' => 'student4@example.com',
             'role' => 'user',
         ]);
         $response->assertRedirect(route('admin.users.index'));
-        $charlie->refresh();
-        $this->assertEquals('Charlie Updated', $charlie->name);
+        $student4->refresh();
+        $this->assertEquals('Student Updated', $student4->name);
 
-        // Admin deletes user
-        $response = $this->actingAs($admin)->delete(route('admin.users.destroy', $charlie));
-        $this->assertDatabaseMissing('users', ['id' => $charlie->id]);
+        $response = $this->actingAs($admin)->delete(route('admin.users.destroy', $student4));
+        $this->assertDatabaseMissing('users', ['id' => $student4->id]);
 
-        // Admin cannot delete their own account
         $response = $this->actingAs($admin)->delete(route('admin.users.destroy', $admin));
         $this->assertDatabaseHas('users', ['id' => $admin->id]);
     }
 
-    /**
-     * Test 4: Complete Student Exam Flow (Start -> Auto-save -> Timer -> Finish -> Result)
-     */
     public function test_student_exam_lifecycle_and_grading(): void
     {
-        $user = User::where('email', 'budi@tka.test')->first();
+        $user = User::where('email', 'student1@example.com')->first();
         $subtest = Subtest::where('slug', 'penalaran-umum')->first();
         $this->assertNotNull($subtest);
         $this->assertEquals(5, $subtest->total_questions);
 
-        // 1. User accesses exam start
-        $response = $this->actingAs($user)->get(route('user.exam.start', $subtest));
+$response = $this->actingAs($user)->get(route('user.exam.start', $subtest));
         $response->assertRedirect(route('user.exam.board', $subtest));
 
-        // 2. Verify ExamSession was created with server-authoritative timer
-        $session = ExamSession::where('user_id', $user->id)
+$session = ExamSession::where('user_id', $user->id)
             ->where('subtest_id', $subtest->id)
             ->first();
         $this->assertNotNull($session);
         $this->assertEquals('ongoing', $session->status);
         $this->assertTrue($session->ends_at->isAfter(now()));
 
-        // 3. User accesses board
-        $response = $this->actingAs($user)->get(route('user.exam.board', $subtest));
+$response = $this->actingAs($user)->get(route('user.exam.board', $subtest));
         $response->assertStatus(200);
         $response->assertSee('Semua mamalia');
         $response->assertSee('mobileNavOpen');
@@ -234,8 +202,7 @@ class CbtEndToEndTest extends TestCase
         $response->assertDontSee('ring-offset-2');
         $response->assertDontSee('border-slate-900');
 
-        // 4. Auto-save answer for Question 1 (Single choice: select option B which is correct)
-        $q1 = $subtest->questions()->where('number', 1)->first();
+$q1 = $subtest->questions()->where('number', 1)->first();
         $q1CorrectOption = $q1->options()->where('is_correct', true)->first();
 
         $response = $this->actingAs($user)->postJson(route('user.exam.save-answer', $session), [
@@ -255,8 +222,7 @@ class CbtEndToEndTest extends TestCase
             'option_id' => $q1CorrectOption->id,
         ]);
 
-        // 5. Auto-save answer for Question 2 (PGK multiple choice: select correct options A & B)
-        $q2 = $subtest->questions()->where('number', 2)->first();
+$q2 = $subtest->questions()->where('number', 2)->first();
         $this->assertEquals('multiple', $q2->type);
         $q2CorrectOptionIds = $q2->options()->where('is_correct', true)->pluck('id')->all();
 
@@ -267,8 +233,7 @@ class CbtEndToEndTest extends TestCase
         ]);
         $response->assertStatus(200);
 
-        // 6. Auto-save answer for Question 3 (Statement S/TS: answer each statement accurately)
-        $q3 = $subtest->questions()->where('number', 3)->first();
+$q3 = $subtest->questions()->where('number', 3)->first();
         $this->assertEquals('statement', $q3->type);
         foreach ($q3->options as $stmtOpt) {
             $resp = $this->actingAs($user)->postJson(route('user.exam.save-answer', $session), [
@@ -284,8 +249,7 @@ class CbtEndToEndTest extends TestCase
             ]);
         }
 
-        // 7. Auto-save answer for Question 4 (Single choice: select correct option B)
-        $q4 = $subtest->questions()->where('number', 4)->first();
+$q4 = $subtest->questions()->where('number', 4)->first();
         $q4CorrectOpt = $q4->options()->where('is_correct', true)->first();
         $this->actingAs($user)->postJson(route('user.exam.save-answer', $session), [
             'question_id' => $q4->id,
@@ -293,26 +257,20 @@ class CbtEndToEndTest extends TestCase
             'is_doubt' => false,
         ]);
 
-        // Leave question 5 empty
-
-        // 8. Record anti-cheat violation
-        $response = $this->actingAs($user)->postJson(route('user.exam.violation', $session));
+$response = $this->actingAs($user)->postJson(route('user.exam.violation', $session));
         $response->assertStatus(200);
         $session->refresh();
         $this->assertEquals(1, $session->tab_violation_count);
 
-        // 9. Finish exam
-        $response = $this->actingAs($user)->post(route('user.exam.finish', $session));
+$response = $this->actingAs($user)->post(route('user.exam.finish', $session));
         $response->assertRedirect(route('user.exam.result', $subtest));
 
-        // 10. Verify grading calculation: 4 of 5 correct = 80.00 score
-        $session->refresh();
+$session->refresh();
         $this->assertEquals('finished', $session->status);
         $this->assertEquals(4, $session->correct_count);
         $this->assertEquals(80.00, (float) $session->score);
 
-        // 11. View Result page
-        $response = $this->actingAs($user)->get(route('user.exam.result', $subtest));
+$response = $this->actingAs($user)->get(route('user.exam.result', $subtest));
         $response->assertStatus(200);
         $response->assertSee('80.00');
         $response->assertSee('Pembahasan');
@@ -321,26 +279,20 @@ class CbtEndToEndTest extends TestCase
         $response->assertSee('Stimulus / Teks Bacaan');
         $response->assertSee('Jawaban Kamu');
 
-        // 12. Cannot take exam again once finished
-        $response = $this->actingAs($user)->get(route('user.exam.start', $subtest));
+$response = $this->actingAs($user)->get(route('user.exam.start', $subtest));
         $response->assertRedirect(route('user.exam.result', $subtest));
 
-        // 13. User dashboard displays finished status and score
-        $response = $this->actingAs($user)->get(route('user.dashboard'));
+$response = $this->actingAs($user)->get(route('user.dashboard'));
         $response->assertStatus(200);
         $response->assertSee('Skor: 80.0');
     }
 
-    /**
-     * Test 5: Server Time Expiration Guard Auto-Grading
-     */
-    public function test_expired_session_auto_grading_guard(): void
+public function test_expired_session_auto_grading_guard(): void
     {
-        $user = User::where('email', 'siti@tka.test')->first();
+        $user = User::where('email', 'student2@example.com')->first();
         $subtest = Subtest::where('slug', 'penalaran-umum')->first();
 
-        // Create an already-expired ongoing session
-        $session = ExamSession::create([
+$session = ExamSession::create([
             'user_id' => $user->id,
             'subtest_id' => $subtest->id,
             'started_at' => now()->subMinutes(35),
@@ -348,8 +300,7 @@ class CbtEndToEndTest extends TestCase
             'status' => 'ongoing',
         ]);
 
-        // Attempting to save answer after expiration should return 410 Gone and auto-grade
-        $q = $subtest->questions()->first();
+$q = $subtest->questions()->first();
         $opt = $q->options()->first();
 
         $response = $this->actingAs($user)->postJson(route('user.exam.save-answer', $session), [
@@ -362,44 +313,32 @@ class CbtEndToEndTest extends TestCase
         $this->assertEquals('finished', $session->status);
     }
 
-    /**
-     * Test 6: Strict All-or-Nothing Grading Logic for PGK
-     */
-    public function test_pgk_all_or_nothing_grading(): void
+public function test_pgk_all_or_nothing_grading(): void
     {
         $gradingService = app(\App\Services\ExamGradingService::class);
         $subtest = Subtest::where('slug', 'penalaran-umum')->first();
         $q2 = $subtest->questions()->where('number', 2)->first();
         $this->assertEquals('multiple', $q2->type);
 
-        $optA = $q2->options()->where('label', 'A')->first(); // correct
-        $optB = $q2->options()->where('label', 'B')->first(); // correct
-        $optC = $q2->options()->where('label', 'C')->first(); // wrong
+        $optA = $q2->options()->where('label', 'A')->first(); 
+        $optB = $q2->options()->where('label', 'B')->first(); 
+        $optC = $q2->options()->where('label', 'C')->first(); 
 
-        // Case 1: Partial match (only A) -> FALSE (0 pts)
-        $this->assertFalse($gradingService->isQuestionCorrect($q2, [$optA->id]));
+$this->assertFalse($gradingService->isQuestionCorrect($q2, [$optA->id]));
 
-        // Case 2: Partial match (only B) -> FALSE (0 pts)
-        $this->assertFalse($gradingService->isQuestionCorrect($q2, [$optB->id]));
+$this->assertFalse($gradingService->isQuestionCorrect($q2, [$optB->id]));
 
-        // Case 3: Over-selection (A, B, C) -> FALSE (0 pts)
-        $this->assertFalse($gradingService->isQuestionCorrect($q2, [$optA->id, $optB->id, $optC->id]));
+$this->assertFalse($gradingService->isQuestionCorrect($q2, [$optA->id, $optB->id, $optC->id]));
 
-        // Case 4: Completely wrong (only C) -> FALSE (0 pts)
-        $this->assertFalse($gradingService->isQuestionCorrect($q2, [$optC->id]));
+$this->assertFalse($gradingService->isQuestionCorrect($q2, [$optC->id]));
 
-        // Case 5: Empty answer -> FALSE (0 pts)
-        $this->assertFalse($gradingService->isQuestionCorrect($q2, []));
+$this->assertFalse($gradingService->isQuestionCorrect($q2, []));
 
-        // Case 6: Exact set match (A and B in any order) -> TRUE (Full pts)
-        $this->assertTrue($gradingService->isQuestionCorrect($q2, [$optA->id, $optB->id]));
+$this->assertTrue($gradingService->isQuestionCorrect($q2, [$optA->id, $optB->id]));
         $this->assertTrue($gradingService->isQuestionCorrect($q2, [$optB->id, $optA->id]));
     }
 
-    /**
-     * Test 7: Strict All-or-Nothing Grading Logic for Statement Questions
-     */
-    public function test_statement_all_or_nothing_grading(): void
+public function test_statement_all_or_nothing_grading(): void
     {
         $gradingService = app(\App\Services\ExamGradingService::class);
         $subtest = Subtest::where('slug', 'penalaran-umum')->first();
@@ -407,49 +346,41 @@ class CbtEndToEndTest extends TestCase
         $this->assertEquals('statement', $q3->type);
 
         $opts = $q3->options->keyBy('label');
-        $opt1 = $opts['1']; // is_correct: true (Sesuai)
-        $opt2 = $opts['2']; // is_correct: false (Tidak Sesuai)
-        $opt3 = $opts['3']; // is_correct: true (Sesuai)
+        $opt1 = $opts['1']; 
+        $opt2 = $opts['2']; 
+        $opt3 = $opts['3']; 
 
-        // Case 1: All 3 match exact expected boolean -> TRUE
-        $allCorrect = [
+$allCorrect = [
             $opt1->id => true,
             $opt2->id => false,
             $opt3->id => true,
         ];
         $this->assertTrue($gradingService->isQuestionCorrect($q3, [], $allCorrect));
 
-        // Case 2: One statement mismatch (statement 2 answered true instead of false) -> FALSE
-        $oneWrong = [
+$oneWrong = [
             $opt1->id => true,
             $opt2->id => true,
             $opt3->id => true,
         ];
         $this->assertFalse($gradingService->isQuestionCorrect($q3, [], $oneWrong));
 
-        // Case 3: Partial answer (statement 3 missing) -> FALSE
-        $partial = [
+$partial = [
             $opt1->id => true,
             $opt2->id => false,
         ];
         $this->assertFalse($gradingService->isQuestionCorrect($q3, [], $partial));
 
-        // Case 4: Completely opposite answers -> FALSE
-        $allOpposite = [
+$allOpposite = [
             $opt1->id => false,
             $opt2->id => true,
             $opt3->id => false,
         ];
         $this->assertFalse($gradingService->isQuestionCorrect($q3, [], $allOpposite));
 
-        // Case 5: Empty values -> FALSE
-        $this->assertFalse($gradingService->isQuestionCorrect($q3, [], []));
+$this->assertFalse($gradingService->isQuestionCorrect($q3, [], []));
     }
 
-    /**
-     * Test 8: Automatic Detection of Question Types by PdfParserService
-     */
-    public function test_pdf_parser_service_detects_all_question_types(): void
+public function test_pdf_parser_service_detects_all_question_types(): void
     {
         $parser = new \App\Services\PdfParserService();
 
@@ -485,16 +416,13 @@ PEMBAHASAN: Pembahasan soal 3.
         $parsed = $parser->parseText($sampleText);
         $this->assertCount(3, $parsed);
 
-        // Soal 1 has 1 key (B) -> 'single'
-        $this->assertEquals('single', $parsed[0]['type']);
+$this->assertEquals('single', $parsed[0]['type']);
         $this->assertEquals(['B'], $parsed[0]['keys']);
 
-        // Soal 2 has 2 keys (A, D) -> 'multiple'
-        $this->assertEquals('multiple', $parsed[1]['type']);
+$this->assertEquals('multiple', $parsed[1]['type']);
         $this->assertEquals(['A', 'D'], $parsed[1]['keys']);
 
-        // Soal 3 has PERNYATAAN marker -> 'statement'
-        $this->assertEquals('statement', $parsed[2]['type']);
+$this->assertEquals('statement', $parsed[2]['type']);
         $this->assertCount(3, $parsed[2]['options']);
         $this->assertEquals(['S', 'TS', 'S'], $parsed[2]['keys']);
         $this->assertEquals(true, $parsed[2]['options'][0]['is_correct']);
@@ -502,18 +430,14 @@ PEMBAHASAN: Pembahasan soal 3.
         $this->assertEquals(true, $parsed[2]['options'][2]['is_correct']);
     }
 
-    /**
-     * Test 9: Question Image Support (Upload, Publish, Model Accessors, and Rendering)
-     */
-    public function test_question_image_upload_and_publishing(): void
+public function test_question_image_upload_and_publishing(): void
     {
         $admin = User::where('role', 'admin')->first();
         $subtest = Subtest::where('slug', 'penalaran-umum')->first();
 
         \Illuminate\Support\Facades\Storage::fake('public');
 
-        // Create a fake image file
-        $fakeImage = \Illuminate\Http\UploadedFile::fake()->image('diagram_soal.jpg', 400, 300);
+$fakeImage = \Illuminate\Http\UploadedFile::fake()->image('diagram_soal.jpg', 400, 300);
 
         $payload = [
             'questions' => [
@@ -544,11 +468,9 @@ PEMBAHASAN: Pembahasan soal 3.
         $this->assertNotNull($question->image_url);
         $this->assertStringContainsString('/storage/questions/', $question->image_url);
 
-        // Verify image file exists in storage
-        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($question->image);
+\Illuminate\Support\Facades\Storage::disk('public')->assertExists($question->image);
 
-        // Verify exam board preloads question with image
-        $user = User::where('role', 'user')->first();
+$user = User::where('role', 'user')->first();
         $session = \App\Models\ExamSession::where('user_id', $user->id)->where('subtest_id', $subtest->id)->first();
         if ($session) {
             $session->update(['status' => 'ongoing']);
@@ -558,12 +480,9 @@ PEMBAHASAN: Pembahasan soal 3.
         }
     }
 
-    /**
-     * Test 10: PDF Parser Service Image Extraction and Correlation
-     */
-    public function test_pdf_parser_service_extracts_images_from_pdf(): void
+public function test_pdf_parser_service_extracts_images_from_pdf(): void
     {
-        // Generate minimal 1x1 JPEG image
+        
         $im = imagecreatetruecolor(10, 10);
         $red = imagecolorallocate($im, 255, 0, 0);
         imagefill($im, 0, 0, $red);
@@ -610,12 +529,9 @@ PEMBAHASAN: Pembahasan soal 3.
         $this->assertNotNull($parsed[0]['image']);
         $this->assertStringStartsWith('staging_images/', $parsed[0]['image']);
 
-        // Verify staging file was created on disk
-        $this->assertFileExists(storage_path('app/public/' . $parsed[0]['image']));
+$this->assertFileExists(storage_path('app/public/' . $parsed[0]['image']));
 
-        // Clean up extracted staging file
-        @unlink(storage_path('app/public/' . $parsed[0]['image']));
+@unlink(storage_path('app/public/' . $parsed[0]['image']));
     }
 }
-
 

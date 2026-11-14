@@ -20,12 +20,10 @@
 
 <div class="flex min-h-screen">
 
-    {{-- ═══════════════ SIDEBAR (DESKTOP & LAPTOP) ═══════════════ --}}
-    <aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-40">
+<aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-40">
         <div class="flex flex-col h-full bg-slate-950 border-r border-slate-800/60 overflow-hidden">
 
-            {{-- Brand Header --}}
-            <div class="flex items-center gap-3 h-16 px-5 border-b border-slate-800/60 flex-shrink-0">
+<div class="flex items-center gap-3 h-16 px-5 border-b border-slate-800/60 flex-shrink-0">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center font-black text-base shadow-md shadow-indigo-600/40">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -38,8 +36,7 @@
                 </div>
             </div>
 
-            {{-- Nav Section --}}
-            <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto min-h-0">
+<nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto min-h-0">
                 <p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-600">Menu Utama</p>
 
                 <a href="{{ route('admin.dashboard') }}"
@@ -104,8 +101,7 @@
                 </a>
             </nav>
 
-            {{-- User Card + Logout --}}
-            <div class="p-3 border-t border-slate-800/60 flex-shrink-0 bg-slate-950">
+<div class="p-3 border-t border-slate-800/60 flex-shrink-0 bg-slate-950">
                 <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-900 mb-2 transition group" title="Buka Profil">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
                         {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
@@ -129,15 +125,13 @@
         </div>
     </aside>
 
-    {{-- ═══════════════ MOBILE DRAWER ═══════════════ --}}
-    <div x-show="mobileMenuOpen"
+<div x-show="mobileMenuOpen"
          x-cloak
          class="fixed inset-0 z-50 flex md:hidden"
          role="dialog"
          aria-modal="true">
 
-        {{-- Backdrop --}}
-        <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm"
+<div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm"
              x-show="mobileMenuOpen"
              x-transition:enter="transition-opacity ease-out duration-250"
              x-transition:enter-start="opacity-0"
@@ -147,8 +141,7 @@
              x-transition:leave-end="opacity-0"
              @click="mobileMenuOpen = false"></div>
 
-        {{-- Drawer Panel --}}
-        <div class="relative flex flex-col w-72 max-w-[85vw] h-full h-[100dvh] bg-slate-950 border-r border-slate-800/60 shadow-2xl z-10"
+<div class="relative flex flex-col w-72 max-w-[85vw] h-full h-[100dvh] bg-slate-950 border-r border-slate-800/60 shadow-2xl z-10"
              x-show="mobileMenuOpen"
              x-transition:enter="transition ease-out duration-250 transform"
              x-transition:enter-start="-translate-x-full"
@@ -158,8 +151,7 @@
              x-transition:leave-end="-translate-x-full"
              @click.away="mobileMenuOpen = false">
 
-            {{-- Drawer Header --}}
-            <div class="flex items-center justify-between h-16 px-5 border-b border-slate-800/60 flex-shrink-0">
+<div class="flex items-center justify-between h-16 px-5 border-b border-slate-800/60 flex-shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-indigo-600/30">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,8 +171,7 @@
                 </button>
             </div>
 
-            {{-- Nav Section --}}
-            <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto min-h-0">
+<nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto min-h-0">
                 <p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-600">Menu Utama</p>
 
                 <a href="{{ route('admin.dashboard') }}"
@@ -230,8 +221,7 @@
                 </a>
             </nav>
 
-            {{-- Mobile Drawer Footer --}}
-            <div class="p-3 border-t border-slate-800/60 flex-shrink-0 bg-slate-950/95">
+<div class="p-3 border-t border-slate-800/60 flex-shrink-0 bg-slate-950/95">
                 <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 mb-2 transition group" title="Buka Profil">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
                         {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
@@ -255,11 +245,9 @@
         </div>
     </div>
 
-    {{-- ═══════════════ MAIN COLUMN ═══════════════ --}}
-    <div class="md:pl-64 flex flex-col flex-1 min-w-0 min-h-screen">
+<div class="md:pl-64 flex flex-col flex-1 min-w-0 min-h-screen">
 
-        {{-- Topbar --}}
-        <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-slate-200/80 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
+<header class="h-16 bg-white/90 backdrop-blur-sm border-b border-slate-200/80 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
             <div class="flex items-center gap-3">
                 <button type="button" @click="mobileMenuOpen = true"
                         class="md:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
@@ -305,8 +293,7 @@
             </div>
         </header>
 
-        {{-- Page Body --}}
-        <main class="flex-1 px-5 sm:px-8 py-6 pb-12 slide-up">
+<main class="flex-1 px-5 sm:px-8 py-6 pb-12 slide-up">
             @yield('content')
         </main>
     </div>

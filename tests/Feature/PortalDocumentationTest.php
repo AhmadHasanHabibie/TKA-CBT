@@ -24,15 +24,14 @@ class PortalDocumentationTest extends TestCase
         $response->assertSee('SMAN 30 Jakarta');
         $response->assertSee('Cari Dokumentasi');
 
-        // Confirm there is NO admin login button or link on the public portal
-        $response->assertDontSee('/dokumentasi-siswa/login/admin');
+$response->assertDontSee('/dokumentasi-siswa/login/admin');
         $response->assertDontSee('Masuk Admin');
         $response->assertDontSee('Login Admin');
     }
 
     public function test_empty_search_shows_validation_error_and_logs_to_admin(): void
     {
-        // 1. Submit empty school selection
+        
         $response = $this->post('/cari-dokumentasi', [
             'school_name' => '',
         ]);
@@ -40,8 +39,7 @@ class PortalDocumentationTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Harap pilih sekolah terlebih dahulu');
 
-        // Verify logged in admin login_logs
-        $this->assertDatabaseHas('login_logs', [
+$this->assertDatabaseHas('login_logs', [
             'event_type' => 'search_empty',
         ]);
     }
@@ -114,8 +112,7 @@ class PortalDocumentationTest extends TestCase
             'school_name' => 'SMAN 25 Jakarta',
         ]);
 
-        // Also test JSON response for Alpine
-        $jsonResponse = $this->postJson('/cari-dokumentasi', [
+$jsonResponse = $this->postJson('/cari-dokumentasi', [
             'school_name' => 'SMAN 25 Jakarta',
         ]);
 
@@ -255,26 +252,23 @@ class PortalDocumentationTest extends TestCase
             $firstAlbumTitles[$school] = $data['albums'][0]['title'];
         }
 
-        // 1. SMAN 25 must have exactly 237 photos and 6 albums
-        $this->assertEquals(237, $photoCounts['SMAN 25 Jakarta']);
+$this->assertEquals(237, $photoCounts['SMAN 25 Jakarta']);
         $sman25Res = $this->postJson('/cari-dokumentasi', ['school_name' => 'SMAN 25 Jakarta']);
         $this->assertCount(6, $sman25Res->json('albums'));
         $this->assertTrue($sman25Res->json('is_sman25'));
 
-        // 2. All schools must have different album titles
-        $this->assertNotEquals($firstAlbumTitles['SMAN 1 Jakarta'], $firstAlbumTitles['SMAN 2 Jakarta']);
+$this->assertNotEquals($firstAlbumTitles['SMAN 1 Jakarta'], $firstAlbumTitles['SMAN 2 Jakarta']);
         $this->assertNotEquals($firstAlbumTitles['SMAN 2 Jakarta'], $firstAlbumTitles['SMAN 3 Jakarta']);
         $this->assertNotEquals($firstAlbumTitles['SMAN 3 Jakarta'], $firstAlbumTitles['SMAN 8 Jakarta']);
         $this->assertNotEquals($firstAlbumTitles['SMAN 8 Jakarta'], $firstAlbumTitles['SMAN 25 Jakarta']);
         $this->assertNotEquals($firstAlbumTitles['SMAN 28 Jakarta'], $firstAlbumTitles['SMAN 30 Jakarta']);
 
-        // 3. Photo counts must be unique across the tested schools
-        $this->assertCount(count($schoolsToTest), array_unique($photoCounts));
+$this->assertCount(count($schoolsToTest), array_unique($photoCounts));
     }
 
     public function test_school_options_deduplicates_case_insensitive_variants_like_sman_25_jakarta(): void
     {
-        // Seed database with uppercase duplicate
+        
         QuestionBank::create([
             'title' => 'Dokumentasi Khusus 2026',
             'slug' => 'dokumentasi-khusus-sman-25-jakarta-caps',
@@ -284,16 +278,14 @@ class PortalDocumentationTest extends TestCase
 
         $options = \App\Http\Controllers\PortalController::getSchoolOptions();
 
-        // Count how many times SMAN 25 appears (case-insensitively)
-        $sman25Matches = array_filter($options, function ($opt) {
+$sman25Matches = array_filter($options, function ($opt) {
             return (bool) preg_match('/sman\s*25\s*jakarta/i', $opt);
         });
 
         $this->assertCount(1, $sman25Matches, 'SMAN 25 Jakarta must only appear ONCE in school options dropdown');
         $this->assertEquals('SMAN 25 Jakarta', array_values($sman25Matches)[0]);
 
-        // Also test on rendered HTML page
-        $response = $this->get('/');
+$response = $this->get('/');
         $response->assertStatus(200);
         $content = $response->getContent();
         preg_match_all('/<option[^>]*>\s*SMAN 25 Jakarta\s*<\/option>/i', $content, $matches);

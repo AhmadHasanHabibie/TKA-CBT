@@ -13,12 +13,10 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile settings page.
-     */
+    
     public function edit(): View
     {
-        /** @var \App\Models\User $user */
+        
         $user = Auth::user();
 
         $totalAlbums = 0;
@@ -51,12 +49,9 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's username / name.
-     */
-    public function updateProfile(Request $request): RedirectResponse
+public function updateProfile(Request $request): RedirectResponse
     {
-        /** @var \App\Models\User $user */
+        
         $user = Auth::user();
 
         $validated = $request->validate([
@@ -73,12 +68,9 @@ class ProfileController extends Controller
         return redirect()->route('user.profile.edit')->with('success', 'Username berhasil diperbarui!');
     }
 
-    /**
-     * Update the user's password directly without requiring the old password.
-     */
-    public function updatePassword(Request $request): RedirectResponse
+public function updatePassword(Request $request): RedirectResponse
     {
-        /** @var \App\Models\User $user */
+        
         $user = Auth::user();
 
         $validated = $request->validate([

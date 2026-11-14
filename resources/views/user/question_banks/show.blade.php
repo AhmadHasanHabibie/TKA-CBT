@@ -73,8 +73,7 @@
 @keydown.right.window="if(viewerOpen && zoomLevel === 1) nextSlide()"
 @keydown.escape.window="if(viewerOpen) closeViewer()">
 
-    <!-- Top Navigation & Title Bar -->
-    <div class="card p-5 sm:p-7 space-y-4">
+<div class="card p-5 sm:p-7 space-y-4">
         <a href="{{ route('user.question-banks.index') }}"
            class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 transition group">
             <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,8 +115,7 @@
         </div>
     </div>
 
-    <!-- Photo Documentation Gallery -->
-    @if ($questionBank->items->isEmpty())
+@if ($questionBank->items->isEmpty())
         <div class="card p-12 text-center shadow-sm">
             <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-400 flex items-center justify-center mx-auto mb-3">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,21 +143,18 @@
                     @endphp
                     <div class="card-hover overflow-hidden flex flex-col justify-between group border border-slate-200/90">
 
-                        <!-- Thumbnail Image Container -->
-                        <div class="relative aspect-4/3 bg-slate-900 flex items-center justify-center overflow-hidden cursor-pointer"
+<div class="relative aspect-4/3 bg-slate-900 flex items-center justify-center overflow-hidden cursor-pointer"
                              @click="openViewer({{ $idx }})">
                             <img src="{{ $item->image_url }}"
                                   alt="{{ $displayTitle }}"
                                   class="w-full h-full object-cover transition duration-300 group-hover:scale-105"
                                   loading="lazy">
 
-                            <!-- Order Badge -->
-                            <div class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-950/85 text-white text-[11px] font-black font-mono shadow-md border border-white/10 backdrop-blur-xs">
+<div class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-950/85 text-white text-[11px] font-black font-mono shadow-md border border-white/10 backdrop-blur-xs">
                                 #{{ $idx + 1 }}
                             </div>
 
-                            <!-- Hover Overlay -->
-                            <div class="absolute inset-0 bg-indigo-950/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+<div class="absolute inset-0 bg-indigo-950/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                                 <div class="px-3.5 py-2 rounded-xl bg-white text-indigo-700 text-xs font-bold shadow-xl flex items-center gap-1.5 transform translate-y-1 group-hover:translate-y-0 transition">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
@@ -169,8 +164,7 @@
                             </div>
                         </div>
 
-                        <!-- Info / Notes & Download -->
-                        <div class="p-4 space-y-2.5 bg-white flex-1 flex flex-col justify-between">
+<div class="p-4 space-y-2.5 bg-white flex-1 flex flex-col justify-between">
                             <div>
                                 <h3 class="text-xs font-bold text-slate-900 truncate group-hover:text-indigo-600 transition cursor-pointer"
                                     @click="openViewer({{ $idx }})">
@@ -207,8 +201,7 @@
         </div>
     @endif
 
-    <!-- ═══════════════ FULLSCREEN IMMERSIVE SLIDE VIEWER MODAL ═══════════════ -->
-    <div x-show="viewerOpen"
+<div x-show="viewerOpen"
          x-cloak
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
@@ -220,9 +213,8 @@
          @touchstart="handleTouchStart($event)"
          @touchend="handleTouchEnd($event)">
 
-        <!-- Viewer Top Toolbar Header -->
-        <header class="h-16 px-4 sm:px-6 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 flex items-center justify-between gap-3 flex-shrink-0 z-20">
-            <!-- Left: Counter & Title -->
+<header class="h-16 px-4 sm:px-6 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 flex items-center justify-between gap-3 flex-shrink-0 z-20">
+            
             <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-mono font-bold text-xs tracking-wider shadow-sm flex-shrink-0">
                     <span x-text="currentIndex + 1"></span> / <span x-text="items.length"></span>
@@ -233,9 +225,8 @@
                 </div>
             </div>
 
-            <!-- Right: Actions & Guaranteed Close Button -->
-            <div class="flex items-center gap-2 flex-shrink-0">
-                <!-- Download Photo Button -->
+<div class="flex items-center gap-2 flex-shrink-0">
+                
                 <a :href="currentItem.image_url"
                    download
                    target="_blank"
@@ -245,8 +236,7 @@
                     <span class="hidden sm:inline">Unduh</span>
                 </a>
 
-                <!-- Zoom Toggle -->
-                <button type="button"
+<button type="button"
                         @click="toggleZoom()"
                         class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
                         :title="zoomLevel === 1 ? 'Perbesar Foto (Zoom)' : 'Kembalikan Ukuran Normal'">
@@ -257,8 +247,7 @@
                     <span class="hidden sm:inline" x-text="zoomLevel === 1 ? 'Perbesar' : 'Normal'"></span>
                 </button>
 
-                <!-- Close Button -->
-                <button type="button"
+<button type="button"
                         @click="closeViewer()"
                         class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white border border-slate-700/80 flex items-center justify-center font-black text-sm transition-all duration-150 active:scale-95 shadow-sm"
                         aria-label="Tutup Penampil Foto"
@@ -268,9 +257,8 @@
             </div>
         </header>
 
-        <!-- Main Image Display Canvas -->
-        <div class="relative flex-1 bg-slate-950 flex items-center justify-center overflow-auto p-2 sm:p-4 min-h-0">
-            <!-- Desktop Left Arrow -->
+<div class="relative flex-1 bg-slate-950 flex items-center justify-center overflow-auto p-2 sm:p-4 min-h-0">
+            
             <button type="button"
                     @click="prevSlide()"
                     class="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-2xl bg-slate-900/80 hover:bg-indigo-600 text-white border border-slate-700/80 items-center justify-center shadow-2xl backdrop-blur-md transition-all duration-150 hover:scale-110 active:scale-95 cursor-pointer"
@@ -280,8 +268,7 @@
                 </svg>
             </button>
 
-            <!-- Image Container with Zoom State -->
-            <div class="relative max-h-full max-w-full flex items-center justify-center transition-transform duration-200"
+<div class="relative max-h-full max-w-full flex items-center justify-center transition-transform duration-200"
                  :class="{ 'scale-150 cursor-grab': zoomLevel > 1 }">
                 <img :src="currentItem.image_url"
                      :alt="currentItem.title"
@@ -290,8 +277,7 @@
                      loading="eager">
             </div>
 
-            <!-- Desktop Right Arrow -->
-            <button type="button"
+<button type="button"
                     @click="nextSlide()"
                     class="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-2xl bg-slate-900/80 hover:bg-indigo-600 text-white border border-slate-700/80 items-center justify-center shadow-2xl backdrop-blur-md transition-all duration-150 hover:scale-110 active:scale-95 cursor-pointer"
                     title="Foto Selanjutnya (Panah Kanan)">
@@ -301,9 +287,8 @@
             </button>
         </div>
 
-        <!-- Bottom Controls & Caption Bar -->
-        <footer class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0 z-20 space-y-2.5">
-            <!-- Notes / Caption Section -->
+<footer class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0 z-20 space-y-2.5">
+            
             <template x-if="currentItem.notes">
                 <div class="rounded-xl bg-slate-800/90 border border-slate-700 p-3 sm:p-3.5 text-xs text-slate-100 max-h-24 overflow-y-auto">
                     <div class="flex items-center gap-1.5 font-bold text-indigo-400 text-[11px] mb-1">
@@ -316,9 +301,8 @@
                 </div>
             </template>
 
-            <!-- Bottom Navigation Bar -->
-            <div class="flex items-center justify-between gap-2">
-                <!-- Prev Button -->
+<div class="flex items-center justify-between gap-2">
+                
                 <button type="button"
                         @click="prevSlide()"
                         class="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 hover:text-white border border-slate-700 text-xs font-bold transition active:scale-95 shadow-xs">
@@ -328,16 +312,14 @@
                     <span>Sebelumnya</span>
                 </button>
 
-                <!-- Center Counter & Swipe Hint -->
-                <div class="text-center">
+<div class="text-center">
                     <span class="text-xs font-bold text-slate-300">
                         Foto <span x-text="currentIndex + 1" class="text-indigo-400 font-mono"></span> dari <span x-text="items.length" class="font-mono"></span>
                     </span>
                     <span class="block text-[10px] text-slate-500 sm:hidden">Geser layar ◄ ►</span>
                 </div>
 
-                <!-- Next Button -->
-                <button type="button"
+<button type="button"
                         @click="nextSlide()"
                         class="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition active:scale-95">
                     <span>Selanjutnya</span>

@@ -5,9 +5,8 @@
 @section('content')
 <div class="space-y-8">
 
-    {{-- ── Welcome Hero Banner ──────────────────────────── --}}
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-7 sm:p-9 text-white shadow-xl shadow-indigo-950/10">
-        {{-- Decorative orbs --}}
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-7 sm:p-9 text-white shadow-xl shadow-indigo-950/10">
+        
         <div class="absolute top-0 right-0 w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
         <div class="absolute bottom-0 left-0 w-48 h-48 bg-violet-600/15 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4 pointer-events-none"></div>
 
@@ -25,8 +24,7 @@
                 </p>
             </div>
 
-            {{-- Gallery stats --}}
-            <div class="flex items-center gap-5 bg-white/8 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 flex-shrink-0">
+<div class="flex items-center gap-5 bg-white/8 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 flex-shrink-0">
                 <div class="text-center">
                     <span class="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Koleksi</span>
                     <span class="text-2xl font-black text-white">{{ $totalAlbums }}</span>
@@ -42,8 +40,7 @@
         </div>
     </div>
 
-    {{-- ── Galeri Album CTA Banner ───────────────────────── --}}
-    <div class="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-700 p-6 sm:p-7 text-white shadow-lg shadow-indigo-600/20 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+<div class="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-700 p-6 sm:p-7 text-white shadow-lg shadow-indigo-600/20 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
         <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center flex-shrink-0">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,8 +64,7 @@
         </a>
     </div>
 
-    {{-- ── Album Dokumentasi Terbaru ─────────────────────── --}}
-    <div class="space-y-4">
+<div class="space-y-4">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-900">Album Dokumentasi Terbaru</h2>
@@ -86,7 +82,7 @@
                 @endphp
                 <div class="card-hover flex flex-col justify-between overflow-hidden group">
                     <div>
-                        {{-- Cover Thumbnail --}}
+                        
                         <a href="{{ route('user.question-banks.show', $album) }}" class="block relative aspect-16/10 bg-slate-900 overflow-hidden">
                             @if ($coverItem)
                                 <img src="{{ $coverItem->image_url }}"
@@ -113,8 +109,7 @@
                             </div>
                         </a>
 
-                        {{-- Title & Description --}}
-                        <div class="p-5 space-y-2">
+<div class="p-5 space-y-2">
                             <h3 class="text-base font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors duration-200 line-clamp-1">
                                 {{ $album->title }}
                             </h3>
@@ -124,8 +119,7 @@
                         </div>
                     </div>
 
-                    {{-- CTA Button --}}
-                    <div class="p-4 bg-slate-50/70 border-t border-slate-100">
+<div class="p-4 bg-slate-50/70 border-t border-slate-100">
                         <a href="{{ route('user.question-banks.show', $album) }}"
                            class="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-black shadow-sm transition-all duration-200 group-hover:bg-indigo-600">
                             <span>Buka Album Foto</span>
@@ -147,8 +141,7 @@
         </div>
     </div>
 
-    {{-- ── Foto Dokumentasi Terbaru ─────────────────────── --}}
-    @if ($recentPhotos->isNotEmpty())
+@if ($recentPhotos->isNotEmpty())
         <div class="space-y-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -188,8 +181,7 @@
         </div>
     @endif
 
-    {{-- Hidden compatibility metadata for automated tests --}}
-    <div class="sr-only" aria-hidden="true">
+<div class="sr-only" aria-hidden="true">
         @foreach ($subtests as $subtest)
             @php
                 $session = $sessions->get($subtest->id);

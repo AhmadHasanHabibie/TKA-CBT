@@ -5,8 +5,7 @@
 @section('content')
 <div class="max-w-4xl space-y-6">
 
-    {{-- ── Breadcrumb ───────────────────────────────── --}}
-    <div>
+<div>
         <a href="{{ route('admin.subtests.index') }}"
            class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 transition group">
             <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -16,8 +15,7 @@
         </a>
     </div>
 
-    {{-- ── Warning if existing questions ──────────────── --}}
-    @if ($existingCount > 0)
+@if ($existingCount > 0)
         <div class="alert alert-warning">
             <svg class="w-5 h-5 flex-shrink-0 text-amber-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -31,8 +29,7 @@
         </div>
     @endif
 
-    {{-- ── Upload Card ──────────────────────────────── --}}
-    <div class="card p-7 sm:p-9">
+<div class="card p-7 sm:p-9">
         <div class="flex items-start gap-4 mb-7 pb-5 border-b border-slate-100">
             <div class="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,8 +50,7 @@
               class="space-y-7" id="upload-form" x-data="{ fileName: '' }">
             @csrf
 
-            {{-- Drop Zone --}}
-            <div>
+<div>
                 <label class="form-label">Pilih File PDF</label>
                 <div class="drop-zone" onclick="document.getElementById('pdf_file').click()">
                     <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center mx-auto mb-4">
@@ -81,8 +77,7 @@
                 @enderror
             </div>
 
-            {{-- Template Guide --}}
-            <div class="rounded-2xl bg-slate-50 border border-slate-200 overflow-hidden">
+<div class="rounded-2xl bg-slate-50 border border-slate-200 overflow-hidden">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-5 border-b border-slate-200">
                     <div class="flex items-center gap-2.5">
                         <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
@@ -149,8 +144,7 @@ PEMBAHASAN: Pernyataan 1 Sesuai, 2 Tidak Sesuai, 3 Sesuai berdasarkan bacaan.
                 </div>
             </div>
 
-            {{-- Submit Buttons --}}
-            <div class="flex items-center justify-end gap-3 pt-2">
+<div class="flex items-center justify-end gap-3 pt-2">
                 <a href="{{ route('admin.subtests.index') }}" class="btn-secondary btn-sm">
                     Batal
                 </a>

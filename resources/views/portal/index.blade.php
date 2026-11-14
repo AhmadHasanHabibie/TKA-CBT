@@ -80,7 +80,6 @@
             if (!this.selectedSchool || this.selectedSchool.trim() === '') {
                 this.stepErrorMessage = 'Harap pilih sekolah terlebih dahulu';
                 this.notFoundAlert = '';
-                // Background log
                 fetch('{{ route('portal.search') }}', {
                     method: 'POST',
                     headers: {
@@ -287,20 +286,18 @@
         }
       }">
 
-    {{-- ── Background Ambient Eye-Friendly Subtle Glow & Micro Grid ──── --}}
-    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        {{-- Subtle geometric micro grid pattern (Apple/Linear aesthetic) --}}
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        
         <div class="absolute inset-0 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:28px_28px] opacity-[0.035]"></div>
-        {{-- Softer, eye-friendly ambient gradient blooms (no harsh oversaturation) --}}
+        
         <div class="absolute top-[-120px] left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-indigo-950/25 rounded-full blur-[160px]"></div>
         <div class="absolute bottom-[-100px] right-[-60px] w-[550px] h-[550px] bg-violet-950/20 rounded-full blur-[170px]"></div>
         <div class="absolute top-1/2 left-[-150px] w-[500px] h-[500px] bg-slate-900/40 rounded-full blur-[140px]"></div>
     </div>
 
-    {{-- ── Public Header (Strictly NO Login button for safety) ── --}}
-    <header class="relative z-10 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+<header class="relative z-10 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            {{-- Brand Identity --}}
+            
             <a href="{{ route('home') }}" class="flex items-center gap-3.5 group">
                 <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/25 border border-white/15 group-hover:scale-105 transition-transform duration-200">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -317,8 +314,7 @@
                 </div>
             </a>
 
-            {{-- Institutional Security & Status Badge --}}
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-slate-300 backdrop-blur-md">
+<div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-slate-300 backdrop-blur-md">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>Arsip Digital Terbuka</span>
                 <span class="text-white/20 hidden sm:inline">|</span>
@@ -327,11 +323,9 @@
         </div>
     </header>
 
-    {{-- ── Main Container ──────────────────────────────── --}}
-    <main class="relative z-10 flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
+<main class="relative z-10 flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
 
-        {{-- ── Hero Section & Live Sliding Photo Showcase ── --}}
-        <div class="space-y-6 text-center">
+<div class="space-y-6 text-center">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 shadow-sm backdrop-blur-md">
                 <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -349,8 +343,7 @@
                 Akses arsip album foto kegiatan sekolah, acara tahunan, perlombaan, dan momen kebersamaan siswa terverifikasi se-DKI Jakarta. Pilih nama sekolah Anda di bawah ini untuk melihat album.
             </p>
 
-            {{-- ── Institutional Trust & Metrics Bar (Fills empty space elegantly) ── --}}
-            <div class="pt-2 max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3">
+<div class="pt-2 max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div class="p-3 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-md flex items-center gap-3">
                     <div class="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
@@ -390,8 +383,7 @@
             </div>
         </div>
 
-        {{-- ── Sliding Photo Carousel (Bergerak Slide ke Samping) ── --}}
-        <div class="relative rounded-3xl overflow-hidden border border-white/10 bg-slate-950/80 shadow-2xl backdrop-blur-md group"
+<div class="relative rounded-3xl overflow-hidden border border-white/10 bg-slate-950/80 shadow-2xl backdrop-blur-md group"
              x-data="{
                 activeSlide: 0,
                 totalSlides: {{ count($showcaseSlides) }},
@@ -417,8 +409,7 @@
              @mouseenter="stop()"
              @mouseleave="start()">
 
-            {{-- Slider viewport --}}
-            <div class="relative aspect-16/10 sm:aspect-21/9 w-full overflow-hidden select-none">
+<div class="relative aspect-16/10 sm:aspect-21/9 w-full overflow-hidden select-none">
                 <div class="flex h-full w-full transition-transform duration-700 ease-out"
                      :style="'transform: translateX(-' + (activeSlide * 100) + '%)'">
                     @foreach ($showcaseSlides as $idx => $slide)
@@ -426,13 +417,11 @@
                             <img src="{{ $slide['image'] }}"
                                  alt="{{ $slide['title'] }}"
                                  class="w-full h-full object-cover">
-                            
-                            {{-- Vignette gradients --}}
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
+
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
                             <div class="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-transparent to-transparent"></div>
 
-                            {{-- Badges on top of slide (No raw emojis, crisp SVG vector icons) --}}
-                            <div class="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 z-10">
+<div class="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 z-10">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/80 backdrop-blur-md text-white text-xs font-bold border border-white/15 shadow-lg">
                                     @if(($slide['category_icon'] ?? '') === 'academic' || ($slide['category_icon'] ?? '') === '🎓')
                                         <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14v7"/></svg>
@@ -449,8 +438,7 @@
                                 </span>
                             </div>
 
-                            {{-- Info caption on bottom of slide --}}
-                            <div class="absolute bottom-5 left-5 right-5 z-10 space-y-1.5">
+<div class="absolute bottom-5 left-5 right-5 z-10 space-y-1.5">
                                 <div class="flex items-center gap-2 text-xs font-bold text-indigo-300">
                                     <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                     <span>{{ $slide['location'] }}</span>
@@ -466,8 +454,7 @@
                 </div>
             </div>
 
-            {{-- Slider indicators / dots --}}
-            <div class="px-5 py-3.5 bg-slate-950 border-t border-white/5 flex items-center justify-between">
+<div class="px-5 py-3.5 bg-slate-950 border-t border-white/5 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     @foreach ($showcaseSlides as $idx => $slide)
                         <button type="button"
@@ -488,8 +475,7 @@
             </div>
         </div>
 
-        {{-- ── Quick School Selector Strip (Fills the gap between Slider & Funnel) ── --}}
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3.5 rounded-2xl bg-slate-950/70 border border-white/10 backdrop-blur-md shadow-lg">
+<div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3.5 rounded-2xl bg-slate-950/70 border border-white/10 backdrop-blur-md shadow-lg">
             <div class="flex items-center gap-2 text-xs font-bold text-slate-300">
                 <svg class="w-4 h-4 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -508,14 +494,11 @@
             </div>
         </div>
 
-        {{-- ── FUNNEL STEP CARD ──────────────────────────────── --}}
-        <div id="funnel-card" class="rounded-3xl border border-white/10 bg-slate-950/80 p-6 sm:p-10 shadow-2xl backdrop-blur-xl relative overflow-hidden transition-all duration-300">
-            
-            {{-- Decorative glow in card corner --}}
-            <div class="absolute -top-24 -right-24 w-60 h-60 rounded-full bg-indigo-600/20 blur-[80px] pointer-events-none"></div>
+<div id="funnel-card" class="rounded-3xl border border-white/10 bg-slate-950/80 p-6 sm:p-10 shadow-2xl backdrop-blur-xl relative overflow-hidden transition-all duration-300">
 
-            {{-- Step Indicator Dots --}}
-            <div class="flex items-center justify-between pb-6 mb-6 border-b border-white/10">
+<div class="absolute -top-24 -right-24 w-60 h-60 rounded-full bg-indigo-600/20 blur-[80px] pointer-events-none"></div>
+
+<div class="flex items-center justify-between pb-6 mb-6 border-b border-white/10">
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></span>
                     <span class="text-xs font-black uppercase tracking-wider text-indigo-400"
@@ -530,8 +513,7 @@
                 </div>
             </div>
 
-            {{-- Dynamic Alert: Validation Error --}}
-            <div x-show="stepErrorMessage"
+<div x-show="stepErrorMessage"
                  x-cloak
                  class="mb-6 rounded-2xl bg-rose-500/15 border border-rose-500/30 p-4 flex items-start gap-3 text-rose-200">
                 <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -545,8 +527,7 @@
                 </div>
             </div>
 
-            {{-- Dynamic Alert: Not Found --}}
-            <div x-show="notFoundAlert"
+<div x-show="notFoundAlert"
                  x-cloak
                  class="mb-6 rounded-2xl bg-amber-500/15 border border-amber-500/30 p-4 flex items-start gap-3 text-amber-200">
                 <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -560,8 +541,7 @@
                 </div>
             </div>
 
-            {{-- Dynamic Location Notice Alert --}}
-            <div x-show="locationMessage"
+<div x-show="locationMessage"
                  x-cloak
                  class="mb-6 rounded-2xl bg-violet-500/15 border border-violet-500/30 p-4 flex items-start gap-3 text-violet-200">
                 <div class="w-8 h-8 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -576,10 +556,7 @@
                 </div>
             </div>
 
-            {{-- ══════════════════════════════════════════════════════════ --}}
-            {{-- TAHAP 1: PILIH SEKOLAH                                   --}}
-            {{-- ══════════════════════════════════════════════════════════ --}}
-            <div x-show="step === 1" class="space-y-6">
+<div x-show="step === 1" class="space-y-6">
                 <div>
                     <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">
                         Cari Dokumentasi Foto Sekolah
@@ -639,10 +616,7 @@
                 </form>
             </div>
 
-            {{-- ══════════════════════════════════════════════════════════ --}}
-            {{-- TAHAP 2: DAFTAR ALBUM (EFEK BLUR)                         --}}
-            {{-- ══════════════════════════════════════════════════════════ --}}
-            <div x-show="step === 2" x-cloak id="step-2-section" class="space-y-6">
+<div x-show="step === 2" x-cloak id="step-2-section" class="space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
                     <div>
                         <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 mb-1">
@@ -665,8 +639,7 @@
                    x-text="isSman25 ? 'Koleksi dokumentasi kegiatan khusus SMAN 25 Jakarta tahun 2026. Pilih album di bawah ini:' : 'Pilih salah satu album tahunan di bawah ini untuk melihat koleksi foto kegiatan:'">
                 </p>
 
-                {{-- Dynamic Grid Album Cards (Khusus SMAN 25 Jakarta: 6 Album 2026, Sekolah lain: 3 Album Tahunan) --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     <template x-for="(album, idx) in albums" :key="album.title">
                         <div @click="chooseAlbum(album.year, album.title)"
                              class="group relative rounded-3xl overflow-hidden bg-slate-900 border border-white/10 shadow-xl hover:border-indigo-500/60 hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer">
@@ -675,9 +648,8 @@
                                      :alt="album.title"
                                      class="w-full h-full object-cover blur-thumb group-hover:scale-110 transition-transform duration-700">
                                 <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-[4px]"></div>
-                                
-                                {{-- Center lock button overlay --}}
-                                <div class="absolute inset-0 flex items-center justify-center p-4">
+
+<div class="absolute inset-0 flex items-center justify-center p-4">
                                     <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-950/85 backdrop-blur-md border border-indigo-400/40 text-white font-extrabold text-xs shadow-2xl group-hover:scale-105 group-hover:border-indigo-400 transition-all duration-300">
                                         <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -686,8 +658,7 @@
                                     </div>
                                 </div>
 
-                                {{-- Year badge (Semua 2026 untuk SMAN 25 Jakarta) --}}
-                                <div class="absolute top-3 left-3">
+<div class="absolute top-3 left-3">
                                     <span class="px-2.5 py-1 rounded-xl bg-indigo-600/90 text-white font-black text-xs shadow" x-text="album.year"></span>
                                 </div>
                             </div>
@@ -703,10 +674,7 @@
                 </div>
             </div>
 
-            {{-- ══════════════════════════════════════════════════════════ --}}
-            {{-- TAHAP 3: INPUT EMAIL PENGUNJUNG & OPSI LOKASI             --}}
-            {{-- ══════════════════════════════════════════════════════════ --}}
-            <div x-show="step === 3" x-cloak class="space-y-6">
+<div x-show="step === 3" x-cloak class="space-y-6">
                 <div class="flex items-center justify-between pb-3 border-b border-white/10">
                     <div>
                         <div class="text-xs font-bold text-indigo-400 mb-1" x-text="selectedSchool"></div>
@@ -743,8 +711,7 @@
                         <p class="text-[11px] text-slate-400 mt-2">Kode akses verifikasi akan dikirimkan ke email ini.</p>
                     </div>
 
-                    {{-- Primary Button: Lanjutkan --}}
-                    <button type="submit"
+<button type="submit"
                             :disabled="emailLoading"
                             class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-sm tracking-wide shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2.5 transition transform active:scale-[0.99] cursor-pointer disabled:opacity-60">
                         <template x-if="emailLoading">
@@ -757,8 +724,7 @@
                     </button>
                 </form>
 
-                {{-- Secondary Button: Geolocation check --}}
-                <div class="pt-2 text-center">
+<div class="pt-2 text-center">
                     <button type="button"
                             @click="checkLocation()"
                             :disabled="locationLoading"
@@ -772,10 +738,7 @@
                 </div>
             </div>
 
-            {{-- ══════════════════════════════════════════════════════════ --}}
-            {{-- TAHAP 4: FORM KODE AKSES (6 DIGIT) & LOKASI               --}}
-            {{-- ══════════════════════════════════════════════════════════ --}}
-            <div x-show="step === 4" x-cloak class="space-y-6">
+<div x-show="step === 4" x-cloak class="space-y-6">
                 <div>
                     <h3 class="text-xl sm:text-2xl font-black text-white">Masukkan 6 Digit Kode Akses</h3>
                     <p class="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">
@@ -783,8 +746,7 @@
                     </p>
                 </div>
 
-                {{-- OTP Error Alert --}}
-                <div x-show="otpError"
+<div x-show="otpError"
                      x-cloak
                      class="rounded-2xl bg-rose-500/15 border border-rose-500/30 p-4 flex items-start gap-3 text-rose-200">
                     <div class="w-7 h-7 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -812,8 +774,7 @@
                         </div>
                     </div>
 
-                    {{-- Primary Verify Button --}}
-                    <button type="submit"
+<button type="submit"
                             :disabled="otpLoading"
                             class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-sm tracking-wide shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2.5 transition transform active:scale-[0.99] cursor-pointer disabled:opacity-60">
                         <template x-if="otpLoading">
@@ -826,8 +787,7 @@
                     </button>
                 </form>
 
-                {{-- Action options: Ganti Email & Verifikasi Lokasi --}}
-                <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10">
+<div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10">
                     <button type="button"
                             @click="changeEmail()"
                             class="w-full sm:w-auto px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
@@ -850,8 +810,7 @@
 
         </div>
 
-        {{-- ── Institutional Trust Pillars (Fills bottom void with authoritative details) ── --}}
-        <div class="pt-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="pt-2 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="p-5 rounded-3xl bg-slate-950/60 border border-white/10 backdrop-blur-md shadow-xl hover:border-indigo-500/30 transition-all duration-300 space-y-3">
                 <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-indigo-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -889,8 +848,7 @@
             </div>
         </div>
 
-        {{-- ── Advisory Notice Band ── --}}
-        <div class="px-5 py-3.5 rounded-2xl bg-indigo-950/30 border border-indigo-500/20 text-center flex flex-col sm:flex-row items-center justify-center gap-2 text-xs text-indigo-300">
+<div class="px-5 py-3.5 rounded-2xl bg-indigo-950/30 border border-indigo-500/20 text-center flex flex-col sm:flex-row items-center justify-center gap-2 text-xs text-indigo-300">
             <svg class="w-4 h-4 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
@@ -899,8 +857,7 @@
 
     </main>
 
-    {{-- ── Minimal Footer (No Admin Links) ────────────────────── --}}
-    <footer class="relative z-10 w-full border-t border-white/5 py-8 mt-12 bg-slate-950/60 backdrop-blur-sm">
+<footer class="relative z-10 w-full border-t border-white/5 py-8 mt-12 bg-slate-950/60 backdrop-blur-sm">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-indigo-500"></span>

@@ -4,7 +4,6 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
-// Global CBT Alert & Confirmation Helpers
 window.showConfirm = function(options) {
     window.dispatchEvent(new CustomEvent('confirm', {
         detail: {

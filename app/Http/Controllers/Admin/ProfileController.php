@@ -11,12 +11,10 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display admin profile settings.
-     */
+    
     public function edit(): View
     {
-        /** @var \App\Models\User $user */
+        
         $user = Auth::user();
 
         return view('admin.profile.edit', [
@@ -24,12 +22,9 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update admin username / name.
-     */
-    public function updateProfile(Request $request): RedirectResponse
+public function updateProfile(Request $request): RedirectResponse
     {
-        /** @var \App\Models\User $user */
+        
         $user = Auth::user();
 
         $validated = $request->validate([
@@ -46,12 +41,9 @@ class ProfileController extends Controller
         return redirect()->route('admin.profile.edit')->with('success', 'Nama administrator berhasil diperbarui!');
     }
 
-    /**
-     * Update admin password directly without old password.
-     */
-    public function updatePassword(Request $request): RedirectResponse
+public function updatePassword(Request $request): RedirectResponse
     {
-        /** @var \App\Models\User $user */
+        
         $user = Auth::user();
 
         $validated = $request->validate([

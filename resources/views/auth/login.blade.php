@@ -53,16 +53,13 @@
 
 <div class="flex min-h-screen">
 
-    {{-- ── Left Panel: Brand & Interactive Auto-Sliding Photo Showcase ── --}}
-    <div class="hidden lg:flex lg:w-[52%] relative flex-col bg-slate-950 overflow-hidden select-none">
+<div class="hidden lg:flex lg:w-[52%] relative flex-col bg-slate-950 overflow-hidden select-none">
 
-        {{-- Gradient orbs background --}}
-        <div class="absolute top-[-80px] left-[-80px] w-[420px] h-[420px] rounded-full bg-indigo-600/25 blur-[100px] pointer-events-none"></div>
+<div class="absolute top-[-80px] left-[-80px] w-[420px] h-[420px] rounded-full bg-indigo-600/25 blur-[100px] pointer-events-none"></div>
         <div class="absolute bottom-[-60px] right-[-60px] w-[360px] h-[360px] rounded-full bg-violet-600/20 blur-[80px] pointer-events-none"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-indigo-900/20 blur-[120px] pointer-events-none"></div>
 
-        {{-- Grid pattern overlay --}}
-        <div class="absolute inset-0 opacity-[0.04]"
+<div class="absolute inset-0 opacity-[0.04]"
              style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;">
         </div>
 
@@ -94,8 +91,7 @@
              @mouseenter="pauseSlider()"
              @mouseleave="startSlider()">
 
-            {{-- Top Header / Brand & Live Status --}}
-            <div class="flex items-center justify-between">
+<div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-600/40 border border-white/10">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,18 +105,15 @@
                     </div>
                 </div>
 
-                {{-- Live Indicator Badge --}}
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-400/25">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-400/25">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span>Slide Dokumentasi AI</span>
                 </div>
             </div>
 
-            {{-- Middle: Sliding Photo Showcase Card (Slide ke Samping) --}}
-            <div class="relative rounded-3xl overflow-hidden border border-white/10 bg-slate-900/80 shadow-2xl backdrop-blur-md group">
-                
-                {{-- Slide Frame Container --}}
-                <div class="relative aspect-16/10 w-full overflow-hidden">
+<div class="relative rounded-3xl overflow-hidden border border-white/10 bg-slate-900/80 shadow-2xl backdrop-blur-md group">
+
+<div class="relative aspect-16/10 w-full overflow-hidden">
                     <div class="flex h-full w-full transition-transform duration-700 ease-out"
                          :style="'transform: translateX(-' + (activeSlide * 100) + '%)'">
                         @foreach ($showcaseSlides as $idx => $slide)
@@ -128,13 +121,11 @@
                                 <img src="{{ $slide['image'] }}"
                                      alt="{{ $slide['title'] }}"
                                      class="w-full h-full object-cover">
-                                
-                                {{-- Cinematic dark vignette gradients --}}
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
                                 <div class="absolute inset-0 bg-gradient-to-r from-slate-950/60 via-transparent to-transparent"></div>
 
-                                {{-- Top Badges on Photo --}}
-                                <div class="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 z-10">
+<div class="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 z-10">
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/75 backdrop-blur-md text-white text-xs font-bold border border-white/15 shadow-lg">
                                         <span>{{ $slide['category_icon'] }}</span>
                                         <span>{{ $slide['category'] }}</span>
@@ -145,8 +136,7 @@
                                     </span>
                                 </div>
 
-                                {{-- Bottom Overlay Information on Photo --}}
-                                <div class="absolute bottom-4 left-4 right-4 z-10 space-y-1.5">
+<div class="absolute bottom-4 left-4 right-4 z-10 space-y-1.5">
                                     <div class="flex items-center gap-2 text-xs font-bold text-indigo-300">
                                         <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                         <span>{{ $slide['location'] }}</span>
@@ -164,8 +154,7 @@
                         @endforeach
                     </div>
 
-                    {{-- Next & Prev Interactive Arrows --}}
-                    <button type="button"
+<button type="button"
                             @click="prevSlide()"
                             class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-slate-950/70 hover:bg-indigo-600 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 shadow-xl"
                             title="Foto Sebelumnya">
@@ -179,9 +168,8 @@
                     </button>
                 </div>
 
-                {{-- Bottom Slider Bar: Dots & Counter --}}
-                <div class="px-5 py-3 bg-slate-950/95 border-t border-white/10 flex items-center justify-between text-xs">
-                    {{-- Animated Dots Indicators --}}
+<div class="px-5 py-3 bg-slate-950/95 border-t border-white/10 flex items-center justify-between text-xs">
+                    
                     <div class="flex items-center gap-2">
                         @foreach ($showcaseSlides as $idx => $slide)
                             <button type="button"
@@ -193,8 +181,7 @@
                         @endforeach
                     </div>
 
-                    {{-- Numerical Slide Counter --}}
-                    <div class="text-[11px] font-mono font-bold text-slate-400">
+<div class="text-[11px] font-mono font-bold text-slate-400">
                         <span class="text-white" x-text="'0' + (activeSlide + 1)"></span>
                         <span class="text-slate-600">/</span>
                         <span>0{{ count($showcaseSlides) }}</span>
@@ -202,8 +189,7 @@
                 </div>
             </div>
 
-            {{-- Bottom Highlights Bar --}}
-            <div class="grid grid-cols-3 gap-3 pt-3 border-t border-white/8 text-left">
+<div class="grid grid-cols-3 gap-3 pt-3 border-t border-white/8 text-left">
                 <div>
                     <div class="text-base font-black text-white">Resolusi HD</div>
                     <div class="text-[11px] text-slate-400 font-medium mt-0.5">Kualitas Foto Jernih</div>
@@ -220,12 +206,10 @@
         </div>
     </div>
 
-    {{-- ── Right Panel: Form Area ─────────────────────── --}}
-    <div class="flex-1 flex flex-col justify-center py-12 px-6 sm:px-12 lg:px-16 bg-white">
+<div class="flex-1 flex flex-col justify-center py-12 px-6 sm:px-12 lg:px-16 bg-white">
         <div class="w-full max-w-md mx-auto slide-up">
 
-            {{-- Mobile Logo --}}
-            <div class="flex items-center gap-3 mb-6 lg:hidden">
+<div class="flex items-center gap-3 mb-6 lg:hidden">
                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-black text-lg shadow-sm shadow-indigo-600/30">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -238,8 +222,7 @@
                 </div>
             </div>
 
-            {{-- Mobile Sliding Photo Card (Slide ke Samping untuk HP) --}}
-            <div class="lg:hidden mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-slate-950"
+<div class="lg:hidden mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-slate-950"
                  x-data="{
                     activeMobSlide: 0,
                     totalMobSlides: {{ count($showcaseSlides) }},
@@ -298,8 +281,7 @@
                 <p class="text-slate-500 text-sm mt-1.5">Masuk ke akun Anda untuk melihat album dokumentasi foto siswa</p>
             </div>
 
-            {{-- Status / Error Alerts --}}
-            @if (session('status'))
+@if (session('status'))
                 <div class="alert alert-success mb-5 flash-message">
                     <svg class="w-5 h-5 flex-shrink-0 text-emerald-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -317,12 +299,10 @@
                 </div>
             @endif
 
-            {{-- Direct Login Form (Email + Password only) --}}
-            <form method="POST" action="{{ route('login.post') }}" class="space-y-5" id="login-form">
+<form method="POST" action="{{ route('login.post') }}" class="space-y-5" id="login-form">
                 @csrf
 
-                {{-- Hidden Client Telemetry Fields (IP & Geolocation) --}}
-                <input type="hidden" name="client_ip" id="client_ip" value="">
+<input type="hidden" name="client_ip" id="client_ip" value="">
                 <input type="hidden" name="client_location" id="client_location" value="">
                 <input type="hidden" name="client_city" id="client_city" value="">
                 <input type="hidden" name="client_region" id="client_region" value="">
@@ -330,8 +310,7 @@
                 <input type="hidden" name="client_latitude" id="client_latitude" value="">
                 <input type="hidden" name="client_longitude" id="client_longitude" value="">
 
-                {{-- Email --}}
-                <div>
+<div>
                     <label for="email" class="form-label">Alamat Email</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -352,8 +331,7 @@
                     @enderror
                 </div>
 
-                {{-- Password --}}
-                <div x-data="{ show: false }">
+<div x-data="{ show: false }">
                     <label for="password" class="form-label">Kata Sandi</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -382,8 +360,7 @@
                     @enderror
                 </div>
 
-                {{-- Remember me --}}
-                <div class="flex items-center">
+<div class="flex items-center">
                     <label class="flex items-center gap-2.5 cursor-pointer select-none group">
                         <input type="checkbox" name="remember"
                                class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition">
@@ -391,8 +368,7 @@
                     </label>
                 </div>
 
-                {{-- Submit Button --}}
-                <button type="submit" id="login-btn"
+<button type="submit" id="login-btn"
                         class="btn-primary w-full text-sm py-3 font-bold tracking-wide shadow-indigo-600/30 shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -442,7 +418,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }).catch(function () {});
     }
 
-    // 1. Fetch public IP & location via IP geolocation API and immediately report to Admin
     fetch('https://ipwho.is/')
         .then(function (r) { return r.json(); })
         .then(function (data) {
@@ -462,7 +437,6 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(function () {});
 
-    // 2. Request precise browser GPS geolocation if available and immediately report to Admin
     if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(function (pos) {
             telemetryState.client_latitude = pos.coords.latitude;

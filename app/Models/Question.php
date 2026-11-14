@@ -11,12 +11,7 @@ class Question extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
+protected $fillable = [
         'subtest_id',
         'number',
         'type',
@@ -25,68 +20,42 @@ class Question extends Model
         'explanation',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
+protected $casts = [
         'number' => 'integer',
         'type' => 'string',
     ];
 
-    /**
-     * Subtest that this question belongs to.
-     */
-    public function subtest(): BelongsTo
+public function subtest(): BelongsTo
     {
         return $this->belongsTo(Subtest::class);
     }
 
-    /**
-     * Options available for this question.
-     */
-    public function options(): HasMany
+public function options(): HasMany
     {
         return $this->hasMany(Option::class)->orderBy('label');
     }
 
-    /**
-     * Check if this question is a Pilihan Ganda Kompleks (multiple correct answers).
-     */
-    public function isMultiple(): bool
+public function isMultiple(): bool
     {
         return $this->type === 'multiple';
     }
 
-    /**
-     * Check if this question is a standard single-choice question.
-     */
-    public function isSingle(): bool
+public function isSingle(): bool
     {
         return $this->type === 'single';
     }
 
-    /**
-     * Check if this question is a Sesuai / Tidak Sesuai (statement evaluation) question.
-     */
-    public function isStatement(): bool
+public function isStatement(): bool
     {
         return $this->type === 'statement';
     }
 
-    /**
-     * Check if this question has an associated image.
-     */
-    public function hasImage(): bool
+public function hasImage(): bool
     {
         return !empty($this->image);
     }
 
-    /**
-     * Get public image URL.
-     */
-    public function getImageUrlAttribute(): ?string
+public function getImageUrlAttribute(): ?string
     {
         return $this->image ? asset('storage/' . $this->image) : null;
     }

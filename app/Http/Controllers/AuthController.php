@@ -8,17 +8,14 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    /**
-     * Show login form or redirect authenticated users.
-     * Immediately records visitor IP, Location, and Browser upon clicking the link (even before login).
-     */
+    
     public function showLoginForm(Request $request, LoginTrackerService $loginTracker)
     {
-        // Safely record visitor telemetry when they open/click the link
+        
         try {
             $loginTracker->recordVisit($request);
         } catch (\Throwable $e) {
-            // Never block login page rendering
+            
         }
 
         if (Auth::check()) {
@@ -31,10 +28,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    /**
-     * Real-time telemetry endpoint called automatically when any visitor opens the link (no login required).
-     */
-    public function trackVisitor(Request $request, LoginTrackerService $loginTracker)
+public function trackVisitor(Request $request, LoginTrackerService $loginTracker)
     {
         $log = $loginTracker->recordVisit($request);
 
@@ -46,10 +40,7 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Handle an authentication attempt (Direct login without 2-step verification for Admin & User).
-     */
-    public function login(Request $request, LoginTrackerService $loginTracker)
+public function login(Request $request, LoginTrackerService $loginTracker)
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -67,11 +58,10 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            // Record user login activity and link pre-login visit record
-            try {
+try {
                 $loginTracker->recordLogin($user, $request);
             } catch (\Throwable $e) {
-                // Never block authentication redirect
+                
             }
 
             if ($user->isAdmin()) {
@@ -96,14 +86,13 @@ class AuthController extends Controller
             return redirect()->intended(route('user.dashboard'));
         }
 
-        // Record failed login attempt with attempted email (never records password)
-        try {
+try {
             $attemptedEmail = (string) $request->input('email', '');
             if (!empty($attemptedEmail)) {
                 $loginTracker->recordFailedLogin($attemptedEmail, $request);
             }
         } catch (\Throwable $e) {
-            // Never block authentication response
+            
         }
 
         return back()->withErrors([
@@ -111,10 +100,7 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    /**
-     * Log the user out of the application.
-     */
-    public function logout(Request $request)
+public function logout(Request $request)
     {
         $request->session()->forget(['admin_pin_verified', 'admin_pin_verified_at', 'visitor_log_id']);
 

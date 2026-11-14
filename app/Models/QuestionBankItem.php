@@ -22,18 +22,12 @@ class QuestionBankItem extends Model
         'order' => 'integer',
     ];
 
-    /**
-     * The question bank this item belongs to.
-     */
-    public function questionBank(): BelongsTo
+public function questionBank(): BelongsTo
     {
         return $this->belongsTo(QuestionBank::class);
     }
 
-    /**
-     * Get the public URL for the item image.
-     */
-    public function getImageUrlAttribute(): string
+public function getImageUrlAttribute(): string
     {
         if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
             return $this->image;

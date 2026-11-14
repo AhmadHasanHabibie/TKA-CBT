@@ -5,8 +5,7 @@
 @section('content')
 <div class="space-y-7">
 
-    {{-- ── Hero Banner ──────────────────────────────── --}}
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 sm:p-10 text-white shadow-xl shadow-indigo-950/10">
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 sm:p-10 text-white shadow-xl shadow-indigo-950/10">
         <div class="absolute -right-16 -top-16 w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute -left-8 -bottom-8 w-56 h-56 bg-violet-500/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="relative z-10 max-w-2xl space-y-3">
@@ -23,8 +22,7 @@
         </div>
     </div>
 
-    {{-- ── Filter & Search ─────────────────────────── --}}
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
             <a href="{{ route('user.question-banks.index') }}"
                class="px-3.5 py-2 rounded-xl font-bold transition-all duration-150 whitespace-nowrap
@@ -58,8 +56,7 @@
         </form>
     </div>
 
-    {{-- ── Cards Grid ───────────────────────────────── --}}
-    @if ($banks->isEmpty())
+@if ($banks->isEmpty())
         <div class="card p-16 text-center">
             <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-400 flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -77,7 +74,7 @@
                 @endphp
                 <div class="card-hover flex flex-col justify-between overflow-hidden group">
                     <div>
-                        {{-- Cover Preview --}}
+                        
                         <a href="{{ route('user.question-banks.show', $bank) }}" class="block relative aspect-16/10 bg-slate-900 overflow-hidden">
                             @if ($coverItem)
                                 <img src="{{ $coverItem->image_url }}"
@@ -104,8 +101,7 @@
                             </div>
                         </a>
 
-                        {{-- Title & Description --}}
-                        <div class="p-5 space-y-2">
+<div class="p-5 space-y-2">
                             <h3 class="text-sm font-extrabold text-slate-900 leading-snug group-hover:text-indigo-600 transition-colors duration-200">
                                 {{ $bank->title }}
                             </h3>

@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =====================================================
-   TKA-CBT Global Design System
-   ===================================================== */
-
 @layer base {
     * {
         -webkit-font-smoothing: antialiased;
@@ -27,7 +23,6 @@
         outline-offset: 2px;
     }
 
-    /* Custom scrollbar */
     ::-webkit-scrollbar {
         width: 6px;
         height: 6px;
@@ -45,8 +40,6 @@
 }
 
 @layer components {
-
-    /* ── Buttons ─────────────────────────────────────── */
     .btn,
     .btn-primary,
     .btn-secondary,
@@ -83,7 +76,6 @@
         @apply p-2 rounded-xl;
     }
 
-    /* ── Form Inputs ──────────────────────────────────── */
     .form-input {
         @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400
                shadow-sm transition-all duration-150
@@ -106,7 +98,6 @@
         @apply mt-1 text-xs text-slate-400;
     }
 
-    /* ── Cards ───────────────────────────────────────── */
     .card,
     .card-hover {
         @apply bg-white rounded-2xl border border-slate-200/80 shadow-sm;
@@ -116,7 +107,6 @@
         @apply hover:shadow-md hover:border-slate-300/80 transition-all duration-200;
     }
 
-    /* ── Badges ──────────────────────────────────────── */
     .badge,
     .badge-indigo,
     .badge-emerald,
@@ -134,7 +124,6 @@
     .badge-slate    { @apply bg-slate-100 text-slate-600 border-slate-200; }
     .badge-purple   { @apply bg-purple-50 text-purple-700 border-purple-200/60; }
 
-    /* ── Alert / Flash Messages ───────────────────────── */
     .alert,
     .alert-success,
     .alert-error,
@@ -148,7 +137,6 @@
     .alert-warning  { @apply bg-amber-50 text-amber-800 border-amber-200; }
     .alert-info     { @apply bg-indigo-50 text-indigo-800 border-indigo-200; }
 
-    /* ── Table ───────────────────────────────────────── */
     .table-wrapper  { @apply overflow-hidden rounded-2xl border border-slate-200/80 shadow-sm; }
     .table-base     { @apply w-full text-sm text-left; }
     .table-head     { @apply bg-slate-50 border-b border-slate-100; }
@@ -156,21 +144,18 @@
     .table-row      { @apply hover:bg-slate-50/60 transition-colors duration-100 border-b border-slate-100 last:border-0; }
     .table-td       { @apply py-4 px-5 text-slate-700; }
 
-    /* ── Modal ───────────────────────────────────────── */
     .modal-backdrop { @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm; }
     .modal-panel    { @apply bg-white rounded-2xl w-full shadow-2xl border border-slate-200/80 overflow-hidden; }
     .modal-header   { @apply flex items-center justify-between p-6 border-b border-slate-100; }
     .modal-body     { @apply p-6; }
     .modal-footer   { @apply flex items-center justify-end gap-3 p-6 bg-slate-50 border-t border-slate-100; }
 
-    /* ── Page Header ─────────────────────────────────── */
     .page-header {
         @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6;
     }
     .page-title     { @apply text-xl font-extrabold text-slate-900 tracking-tight; }
     .page-subtitle  { @apply text-sm text-slate-500 mt-0.5; }
 
-    /* ── Stat Card ───────────────────────────────────── */
     .stat-card {
         @apply bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex items-center justify-between gap-4;
     }
@@ -178,7 +163,6 @@
         @apply w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0;
     }
 
-    /* ── Sidebar Nav Link ────────────────────────────── */
     .nav-item,
     .nav-item-active,
     .nav-item-inactive {
@@ -191,7 +175,6 @@
         @apply text-slate-400 hover:text-white hover:bg-white/8;
     }
 
-    /* ── Upload Drop Zone ────────────────────────────── */
     .drop-zone {
         @apply border-2 border-dashed border-slate-300 rounded-2xl p-10 text-center cursor-pointer
                transition-all duration-200
@@ -201,7 +184,6 @@
         @apply border-indigo-500 bg-indigo-50/50 scale-[1.01];
     }
 
-    /* ── Pagination (custom) ─────────────────────────── */
     .pagination-wrapper nav {
         @apply flex items-center justify-center gap-1;
     }
@@ -222,7 +204,6 @@
 }
 
 @layer utilities {
-    /* Frosted glass effect */
     .glass {
         background: rgba(255, 255, 255, 0.75);
         backdrop-filter: blur(12px);
@@ -236,12 +217,10 @@
         border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    /* Gradient text */
     .gradient-text {
         @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600;
     }
 
-    /* Smooth entry animations */
     .fade-in {
         animation: fadeIn 0.3s ease-out;
     }
@@ -252,25 +231,21 @@
         animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Hover lift effect */
     .hover-lift {
         @apply transition-transform duration-200 hover:-translate-y-0.5;
     }
 
-    /* Shine shimmer for loading */
     .shimmer {
         background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
     }
 
-    /* Text overflow helpers */
     .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
     .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 }
 
-/* ── Keyframe Animations ────────────────────────────── */
 @keyframes fadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
@@ -292,7 +267,6 @@
     50%       { opacity: 0.65; }
 }
 
-/* ── Flash message auto-dismiss ─────────────────────── */
 .flash-message {
     animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1),
                fadeOut 0.5s ease 4s forwards;
@@ -302,21 +276,17 @@
     to   { opacity: 0; max-height: 0; padding: 0; margin: 0; overflow: hidden; }
 }
 
-/* ── Drag-and-drop visual ───────────────────────────── */
 #pdf_file:focus + .drop-zone,
 .drop-zone:focus-within {
     @apply border-indigo-500 ring-2 ring-indigo-500/20;
 }
 
-/* ── Alpine.js x-cloak hide ─────────────────────────── */
 [x-cloak] { display: none !important; }
 
-/* ── Custom checkbox & radio reset ─────────────────── */
 input[type="checkbox"], input[type="radio"] {
     cursor: pointer;
 }
 
-/* ── Lightbox image zoom ────────────────────────────── */
 .lightbox-img {
     cursor: zoom-in;
     transition: transform 0.15s ease, box-shadow 0.15s ease;

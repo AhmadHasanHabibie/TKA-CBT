@@ -22,8 +22,7 @@
     }
 }">
 
-    {{-- ── Page Header ──────────────────────────────── --}}
-    <div class="page-header">
+<div class="page-header">
         <div>
             <h2 class="page-title">Daftar Siswa &amp; Pengelola</h2>
             <p class="page-subtitle">Kelola akun siswa dan administrator yang memiliki akses ke Portal Dokumentasi Foto Siswa</p>
@@ -43,8 +42,7 @@
         </div>
     </div>
 
-    {{-- ── Table Card ───────────────────────────────── --}}
-    <div class="table-wrapper bg-white">
+<div class="table-wrapper bg-white">
         <div class="overflow-x-auto">
             <table class="table-base">
                 <thead class="table-head">
@@ -180,8 +178,7 @@
         @endif
     </div>
 
-    {{-- ══════════ MODAL: Tambah Pengguna ══════════ --}}
-    <div x-show="createModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="createModalOpen = false">
+<div x-show="createModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="createModalOpen = false">
         <div class="modal-panel max-w-md w-full scale-in" @click.away="createModalOpen = false">
             <div class="modal-header">
                 <div class="flex items-center gap-3">
@@ -200,11 +197,11 @@
                 @csrf
                 <div>
                     <label class="form-label">Nama Lengkap Siswa <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" required placeholder="Contoh: Budi Santoso" class="form-input">
+                    <input type="text" name="name" required placeholder="Nama Lengkap" class="form-input">
                 </div>
                 <div>
                     <label class="form-label">Email <span class="text-rose-500">*</span></label>
-                    <input type="email" name="email" required placeholder="budi@siswa.sch.id" class="form-input">
+                    <input type="email" name="email" required placeholder="user@example.com" class="form-input">
                 </div>
                 <div>
                     <label class="form-label">Password <span class="text-rose-500">*</span></label>
@@ -225,8 +222,7 @@
         </div>
     </div>
 
-    {{-- ══════════ MODAL: Edit Pengguna ══════════ --}}
-    <div x-show="editModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="editModalOpen = false">
+<div x-show="editModalOpen" x-cloak class="modal-backdrop" @keydown.escape.window="editModalOpen = false">
         <div class="modal-panel max-w-md w-full scale-in" @click.away="editModalOpen = false">
             <div class="modal-header">
                 <div class="flex items-center gap-3">

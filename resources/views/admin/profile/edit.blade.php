@@ -6,8 +6,7 @@
 @section('content')
 <div class="max-w-4xl space-y-6">
 
-    {{-- Breadcrumb / Header --}}
-    <div class="flex items-center justify-between">
+<div class="flex items-center justify-between">
         <div>
             <h2 class="text-xl font-black text-slate-900 tracking-tight">Profil Administrator</h2>
             <p class="text-xs text-slate-500 mt-0.5">Kelola identitas akun dan perbarui kata sandi secara langsung</p>
@@ -20,8 +19,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        {{-- Card 1: Ganti Nama Administrator --}}
-        <div class="card p-6 sm:p-7 space-y-5 border border-slate-200/80 shadow-sm slide-up">
+<div class="card p-6 sm:p-7 space-y-5 border border-slate-200/80 shadow-sm slide-up">
             <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
                 <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,8 +60,7 @@
             </form>
         </div>
 
-        {{-- Card 2: Ganti Password Administrator --}}
-        <div class="card p-6 sm:p-7 space-y-5 border border-slate-200/80 shadow-sm slide-up"
+<div class="card p-6 sm:p-7 space-y-5 border border-slate-200/80 shadow-sm slide-up"
              x-data="{ showNew: false, showConfirm: false }">
             <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
                 <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black">

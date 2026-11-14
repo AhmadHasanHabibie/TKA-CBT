@@ -12,9 +12,7 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of all users.
-     */
+    
     public function index(Request $request, LoginTrackerService $loginTracker)
     {
         $loginTracker->ensureSchemaExists();
@@ -33,10 +31,7 @@ class UserController extends Controller
         return view('admin.users.index', compact('users', 'search'));
     }
 
-    /**
-     * Store a newly created user in storage.
-     */
-    public function store(Request $request)
+public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -58,10 +53,7 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Pengguna baru berhasil ditambahkan.');
     }
 
-    /**
-     * Update the specified user in storage.
-     */
-    public function update(Request $request, User $user)
+public function update(Request $request, User $user)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -85,10 +77,7 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Data pengguna berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified user from storage.
-     */
-    public function destroy(User $user)
+public function destroy(User $user)
     {
         if ($user->id === Auth::id()) {
             return redirect()->route('admin.users.index')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');

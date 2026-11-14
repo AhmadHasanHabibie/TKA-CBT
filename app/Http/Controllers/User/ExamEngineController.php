@@ -21,10 +21,7 @@ class ExamEngineController extends Controller
         $this->gradingService = $gradingService;
     }
 
-    /**
-     * Start or Resume an Exam Session for a Subtest.
-     */
-    public function start(Subtest $subtest)
+public function start(Subtest $subtest)
     {
         if (!$subtest->is_active || $subtest->questions()->count() === 0) {
             return redirect()->route('user.dashboard')
@@ -41,19 +38,16 @@ class ExamEngineController extends Controller
                 return redirect()->route('user.exam.result', $subtest);
             }
 
-            // If session is ongoing, check server time guard
-            if ($session->isExpired()) {
+if ($session->isExpired()) {
                 $this->gradeSession($session);
                 return redirect()->route('user.exam.result', $subtest)
                     ->with('info', 'Waktu ujian telah berakhir. Jawaban Anda telah otomatis dikumpulkan.');
             }
 
-            // Resume ongoing session
-            return redirect()->route('user.exam.board', $subtest);
+return redirect()->route('user.exam.board', $subtest);
         }
 
-        // Create new server-authoritative exam session
-        $now = now();
+$now = now();
         $endsAt = $now->copy()->addMinutes($subtest->duration_minutes);
 
         $session = ExamSession::create([
@@ -68,10 +62,7 @@ class ExamEngineController extends Controller
         return redirect()->route('user.exam.board', $subtest);
     }
 
-    /**
-     * Display the Exam Board Interface.
-     */
-    public function board(Subtest $subtest)
+public function board(Subtest $subtest)
     {
         $userId = Auth::id();
         $session = ExamSession::where('user_id', $userId)
@@ -86,23 +77,20 @@ class ExamEngineController extends Controller
             return redirect()->route('user.exam.result', $subtest);
         }
 
-        // Server time expiration guard
-        if ($session->isExpired()) {
+if ($session->isExpired()) {
             $this->gradeSession($session);
             return redirect()->route('user.exam.result', $subtest)
                 ->with('info', 'Waktu ujian telah berakhir. Jawaban Anda telah otomatis dikumpulkan.');
         }
 
-        // Preload questions with options ordered by label
-        $questions = $subtest->questions()
+$questions = $subtest->questions()
             ->with(['options' => function ($query) {
                 $query->orderBy('label');
             }])
             ->orderBy('number')
             ->get();
 
-        // Preload student's saved answers formatted with option_ids and statement_values
-        $savedAnswers = $session->userAnswers()
+$savedAnswers = $session->userAnswers()
             ->with(['options', 'userAnswerOptions'])
             ->get()
             ->keyBy('question_id')
@@ -116,8 +104,7 @@ class ExamEngineController extends Controller
                 ];
             });
 
-        // Remaining seconds for client-side visual counter
-        $remainingSeconds = $session->remainingSeconds();
+$remainingSeconds = $session->remainingSeconds();
         $endsAtIso = $session->ends_at->toIso8601String();
 
         return view('user.exam.board', compact(
@@ -130,24 +117,18 @@ class ExamEngineController extends Controller
         ));
     }
 
-    /**
-     * AJAX Endpoint: Auto-save or update student answer.
-     * Supports single (1 option), multiple PGK (array of options), and statement (per-statement boolean toggle).
-     */
-    public function saveAnswer(Request $request, ExamSession $session)
+public function saveAnswer(Request $request, ExamSession $session)
     {
-        // 1. Session ownership validation
+        
         if ($session->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized session.'], 403);
         }
 
-        // 2. Status validation
-        if ($session->status !== 'ongoing') {
+if ($session->status !== 'ongoing') {
             return response()->json(['message' => 'Ujian telah selesai. Jawaban tidak dapat diubah.'], 400);
         }
 
-        // 3. Server-authoritative time guard
-        if ($session->isExpired()) {
+if ($session->isExpired()) {
             $this->gradeSession($session);
             return response()->json([
                 'expired' => true,
@@ -178,7 +159,7 @@ class ExamEngineController extends Controller
         $question = Question::find($validated['question_id']);
 
         if ($question && $question->isStatement()) {
-            // Statement question: upsert value for this specific statement option
+            
             if ($request->filled('option_id') && $request->has('value')) {
                 UserAnswerOption::updateOrCreate(
                     [
@@ -191,7 +172,7 @@ class ExamEngineController extends Controller
                 );
             }
         } else {
-            // Single or multiple choice question: sync option IDs
+            
             $optionIds = $request->input('option_ids', []);
             if ($request->filled('option_id') && empty($optionIds)) {
                 $optionIds = [$request->input('option_id')];
@@ -212,10 +193,7 @@ class ExamEngineController extends Controller
         ]);
     }
 
-    /**
-     * AJAX Endpoint: Record tab switch or window blur anti-cheat violation.
-     */
-    public function recordViolation(ExamSession $session)
+public function recordViolation(ExamSession $session)
     {
         if ($session->user_id !== Auth::id() || $session->status !== 'ongoing') {
             return response()->json(['message' => 'Invalid session.'], 403);
@@ -229,10 +207,7 @@ class ExamEngineController extends Controller
         ]);
     }
 
-    /**
-     * Explicit Finish Exam Request by student.
-     */
-    public function finish(ExamSession $session)
+public function finish(ExamSession $session)
     {
         if ($session->user_id !== Auth::id()) {
             abort(403);
@@ -246,10 +221,7 @@ class ExamEngineController extends Controller
             ->with('success', 'Ujian berhasil diselesaikan dan dinilai!');
     }
 
-    /**
-     * Display Exam Result & Full Discussion/Review.
-     */
-    public function result(Subtest $subtest)
+public function result(Subtest $subtest)
     {
         $userId = Auth::id();
         $session = ExamSession::where('user_id', $userId)
@@ -262,8 +234,7 @@ class ExamEngineController extends Controller
                 ->with('error', 'Sesi ujian belum diselesaikan.');
         }
 
-        // Load all questions with options and student answers
-        $questions = $subtest->questions()
+$questions = $subtest->questions()
             ->with(['options' => function ($query) {
                 $query->orderBy('label');
             }])
@@ -277,9 +248,8 @@ class ExamEngineController extends Controller
 
         $totalQuestions = $questions->count();
         $correctCount = $session->correct_count ?? 0;
-        
-        // Count questions with answers
-        $answeredCount = $savedAnswers->filter(function ($ans) {
+
+$answeredCount = $savedAnswers->filter(function ($ans) {
             return $ans->userAnswerOptions->count() > 0 || $ans->options->count() > 0;
         })->count();
 
@@ -298,10 +268,7 @@ class ExamEngineController extends Controller
         ));
     }
 
-    /**
-     * Centralized grading engine calculation using ExamGradingService.
-     */
-    protected function gradeSession(ExamSession $session): void
+protected function gradeSession(ExamSession $session): void
     {
         $subtest = $session->subtest;
         $questions = $subtest->questions()->with('options')->get();

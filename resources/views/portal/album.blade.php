@@ -92,8 +92,7 @@
      @keydown.right.window="if(viewerOpen && zoomLevel === 1) nextSlide()"
      @keydown.escape.window="if(viewerOpen) closeViewer()">
 
-    {{-- Top Back Nav & School Header --}}
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
         <a href="{{ route('home') }}"
            class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition group">
             <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,8 +111,7 @@
         @endif
     </div>
 
-    {{-- Album Info Banner --}}
-    <div class="relative overflow-hidden rounded-3xl bg-slate-800/80 border border-slate-700/80 p-6 sm:p-8 backdrop-blur-xl">
+<div class="relative overflow-hidden rounded-3xl bg-slate-800/80 border border-slate-700/80 p-6 sm:p-8 backdrop-blur-xl">
         <div class="space-y-3 max-w-3xl">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600/30 text-indigo-300 border border-indigo-500/30">
@@ -136,8 +134,7 @@
         </div>
     </div>
 
-    {{-- Gallery Grid --}}
-    @if($questionBank->items->isEmpty())
+@if($questionBank->items->isEmpty())
         <div class="rounded-3xl border border-slate-800 bg-slate-800/40 p-12 text-center space-y-3">
             <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-800 flex items-center justify-center text-slate-500">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,8 +165,7 @@
         </div>
     @endif
 
-    {{-- Fullscreen Modal Slideshow Viewer --}}
-    <div x-show="viewerOpen"
+<div x-show="viewerOpen"
          x-cloak
          class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-xl select-none"
          x-transition:enter="transition ease-out duration-200"
@@ -179,8 +175,7 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
 
-        {{-- Top Bar in Viewer --}}
-        <div class="absolute top-0 inset-x-0 h-16 px-4 sm:px-6 flex items-center justify-between z-20 bg-gradient-to-b from-slate-950/90 to-transparent">
+<div class="absolute top-0 inset-x-0 h-16 px-4 sm:px-6 flex items-center justify-between z-20 bg-gradient-to-b from-slate-950/90 to-transparent">
             <div class="flex items-center gap-3">
                 <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600/80 text-white"
                       x-text="(currentIndex + 1) + ' / ' + items.length"></span>
@@ -216,8 +211,7 @@
             </div>
         </div>
 
-        {{-- Main Viewer Photo --}}
-        <div class="relative w-full h-full flex items-center justify-center p-4 sm:p-12 overflow-hidden"
+<div class="relative w-full h-full flex items-center justify-center p-4 sm:p-12 overflow-hidden"
              @touchstart="handleTouchStart($event)"
              @touchend="handleTouchEnd($event)">
             <template x-if="currentItem.image_url">
@@ -229,8 +223,7 @@
             </template>
         </div>
 
-        {{-- Left & Right Buttons --}}
-        <button type="button"
+<button type="button"
                 @click="prevSlide()"
                 x-show="items.length > 1"
                 class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-900/70 hover:bg-indigo-600 text-white backdrop-blur-md transition shadow-xl z-20 border border-white/10">
@@ -247,8 +240,7 @@
             </svg>
         </button>
 
-        {{-- Notes Overlay if any --}}
-        <div x-show="currentItem.notes"
+<div x-show="currentItem.notes"
              class="absolute bottom-4 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 max-w-xl px-4 py-2 rounded-xl bg-slate-900/80 backdrop-blur-md border border-white/10 text-center text-xs text-slate-300 z-20">
             <span x-text="currentItem.notes"></span>
         </div>

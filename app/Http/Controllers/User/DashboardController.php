@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    /**
-     * Display the Student / User Photo Documentation Gallery Dashboard.
-     */
+    
     public function index()
     {
         $userId = Auth::id();
@@ -46,11 +44,10 @@ class DashboardController extends Controller
                 ->take(8)
                 ->get();
         } catch (\Throwable $e) {
-            // Fallback gracefully
+            
         }
 
-        // Keep legacy variables for backward-compatibility with any existing tests
-        $subtests = Subtest::where('is_active', true)->withCount('questions')->orderBy('id')->get();
+$subtests = Subtest::where('is_active', true)->withCount('questions')->orderBy('id')->get();
         $sessions = ExamSession::where('user_id', $userId)->get()->keyBy('subtest_id');
         $totalSubtests = $subtests->count();
         $completedSessions = $sessions->where('status', 'finished');

@@ -12,18 +12,15 @@
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans select-none">
 
-    {{-- ── Background Ambient Lights ───────────────────── --}}
-    <div class="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none"></div>
+<div class="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none"></div>
     <div class="absolute bottom-[-100px] right-[-100px] w-[500px] h-[500px] rounded-full bg-violet-600/20 blur-[120px] pointer-events-none"></div>
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-indigo-950/40 blur-[140px] pointer-events-none"></div>
 
-    {{-- Grid pattern overlay --}}
-    <div class="absolute inset-0 opacity-[0.035] pointer-events-none"
+<div class="absolute inset-0 opacity-[0.035] pointer-events-none"
          style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;">
     </div>
 
-    {{-- ── Main PIN Card ───────────────────────────────── --}}
-    <div class="relative z-10 w-full max-w-md bg-slate-900/85 backdrop-blur-2xl border border-slate-800/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-black/80 slide-up"
+<div class="relative z-10 w-full max-w-md bg-slate-900/85 backdrop-blur-2xl border border-slate-800/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-black/80 slide-up"
          x-data="{
              digits: ['', '', '', '', '', ''],
              showPin: false,
@@ -91,8 +88,7 @@
              }
          }">
 
-        {{-- Top Shield Icon Badge --}}
-        <div class="flex flex-col items-center text-center mb-6">
+<div class="flex flex-col items-center text-center mb-6">
             <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 flex items-center justify-center text-white shadow-xl shadow-indigo-600/30 mb-4 ring-4 ring-indigo-500/10">
                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -110,8 +106,7 @@
             </p>
         </div>
 
-        {{-- Detected Admin User Info Banner --}}
-        @if (Auth::check())
+@if (Auth::check())
             <div class="mb-6 py-2.5 px-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/70 flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/25 flex items-center justify-center flex-shrink-0 text-indigo-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,8 +126,7 @@
             </div>
         @endif
 
-        {{-- Flash / Error Messages --}}
-        @if ($errors->has('pin'))
+@if ($errors->has('pin'))
             <div class="mb-5 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold flex items-center gap-2.5 animate-pulse" id="pin-error-alert">
                 <svg class="w-4 h-4 flex-shrink-0 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -141,14 +135,12 @@
             </div>
         @endif
 
-        {{-- PIN Verification Form --}}
-        <form method="POST" action="{{ route('admin.pin.verify') }}" x-ref="form" id="admin-pin-form">
+<form method="POST" action="{{ route('admin.pin.verify') }}" x-ref="form" id="admin-pin-form">
             @csrf
 
             <input type="hidden" name="pin" :value="fullPin" id="hidden-pin-input">
 
-            {{-- 6-Digit Individual Input Grid --}}
-            <div class="mb-6">
+<div class="mb-6">
                 <div class="flex items-center justify-between mb-3 px-1">
                     <label class="text-xs font-bold text-slate-300 tracking-wide uppercase">Masukkan 6 Digit PIN</label>
                     <button type="button" @click="showPin = !showPin"
@@ -181,9 +173,7 @@
                 </div>
             </div>
 
-            {{-- Submit Button --}}
-
-            <button type="submit"
+<button type="submit"
                     id="verify-pin-btn"
                     :disabled="fullPin.length !== 6 || submitting"
                     class="w-full py-3.5 px-4 rounded-2xl text-sm font-bold tracking-wide transition-all duration-200 flex items-center justify-center gap-2 shadow-lg"
@@ -205,8 +195,7 @@
             </button>
         </form>
 
-        {{-- Cancel / Logout Option --}}
-        <div class="mt-6 pt-5 border-t border-slate-800/80 flex items-center justify-between text-xs">
+<div class="mt-6 pt-5 border-t border-slate-800/80 flex items-center justify-between text-xs">
             <span class="text-slate-500">Bukan akun Anda?</span>
             <form method="POST" action="{{ route('logout') }}" id="logout-pin-form">
                 @csrf
@@ -222,8 +211,7 @@
 
     </div>
 
-    {{-- System Footer --}}
-    <div class="relative z-10 mt-6 text-center text-[11px] text-slate-500">
+<div class="relative z-10 mt-6 text-center text-[11px] text-slate-500">
         © {{ date('Y') }} TKA-CBT Platform · Protected with Step-Up Security
     </div>
 

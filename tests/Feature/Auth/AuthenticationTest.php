@@ -22,16 +22,14 @@ class AuthenticationTest extends TestCase
         $response->assertSee('Masuk ke Galeri');
         $response->assertDontSee('Verifikasi PIN Admin');
 
-        // Visitor IP and Browser are recorded immediately upon clicking the link (without logging in)
-        $this->assertDatabaseHas('login_logs', [
+$this->assertDatabaseHas('login_logs', [
             'user_id' => null,
             'event_type' => 'visit',
             'ip_address' => '114.122.10.55',
             'browser' => 'Apple Safari 17.2',
         ]);
 
-        // Instant client telemetry updates location & GPS coordinates without requiring login
-        $telemetryResp = $this->postJson(route('telemetry.track'), [
+$telemetryResp = $this->postJson(route('telemetry.track'), [
             'client_ip' => '114.122.10.55',
             'client_location' => 'Bandung, Jawa Barat, Indonesia',
             'client_latitude' => -6.9175,
@@ -99,8 +97,7 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticated();
         $response->assertRedirect(route('admin.dashboard'));
 
-        // Admin can immediately access admin dashboard and login logs
-        $dashResponse = $this->actingAs($admin)->get(route('admin.dashboard'));
+$dashResponse = $this->actingAs($admin)->get(route('admin.dashboard'));
         $dashResponse->assertStatus(200);
 
         $logsResponse = $this->actingAs($admin)->get(route('admin.login-logs.index'));
@@ -120,8 +117,7 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
 
-        // Attempted email is logged for admin audit trail
-        $this->assertDatabaseHas('login_logs', [
+$this->assertDatabaseHas('login_logs', [
             'event_type' => 'failed_login',
             'attempted_email' => $user->email,
             'ip_address' => '180.252.10.20',

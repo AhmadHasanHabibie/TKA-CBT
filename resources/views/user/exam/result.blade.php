@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="space-y-8" x-data="{ filter: 'all' }">
-    <!-- Back to Dashboard Navigation -->
+    
     <div>
         <a href="{{ route('user.dashboard') }}"
            class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 transition group">
@@ -13,8 +13,7 @@
         </a>
     </div>
 
-    <!-- Score & Performance Hero Card -->
-    <div class="card p-7 sm:p-10 text-center max-w-2xl mx-auto">
+<div class="card p-7 sm:p-10 text-center max-w-2xl mx-auto">
         <span class="badge badge-emerald mx-auto mb-5 text-xs px-3 py-1.5">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Selesai Dinilai
@@ -23,8 +22,7 @@
         <h1 class="text-xl font-black text-slate-900">Hasil Simulasi: {{ $subtest->name }}</h1>
         <p class="text-xs text-slate-500 mt-1.5">Diselesaikan pada {{ $session->finished_at ? $session->finished_at->format('d M Y, H:i') : now()->format('d M Y, H:i') }}</p>
 
-        <!-- Big Score Number -->
-        <div class="my-8">
+<div class="my-8">
             <div class="inline-flex items-baseline gap-1">
                 <span class="text-7xl font-black tracking-tight {{ $session->score >= 70 ? 'text-emerald-600' : ($session->score >= 50 ? 'text-indigo-600' : 'text-amber-500') }}">
                     {{ number_format($session->score, 2) }}
@@ -33,8 +31,7 @@
             </div>
         </div>
 
-        <!-- Breakdown Statistics -->
-        <div class="grid grid-cols-3 gap-3 p-5 rounded-2xl bg-slate-50 border border-slate-100">
+<div class="grid grid-cols-3 gap-3 p-5 rounded-2xl bg-slate-50 border border-slate-100">
             <div class="p-2">
                 <span class="block text-[11px] font-bold uppercase tracking-wider text-emerald-600 mb-1">Benar</span>
                 <span class="text-3xl font-black text-slate-900">{{ $correctCount }}</span>
@@ -53,8 +50,7 @@
         </div>
     </div>
 
-    <!-- Review Section Header & Filter Tabs -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-slate-200">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-slate-200">
         <div>
             <h2 class="text-lg font-extrabold text-slate-900">Pembahasan &amp; Tinjauan Soal</h2>
             <p class="text-xs text-slate-500 mt-0.5">Evaluasi jawaban Anda dengan kunci jawaban dan pembahasan terstandar</p>
@@ -74,8 +70,7 @@
         </div>
     </div>
 
-    <!-- Questions Review Cards -->
-    <div class="space-y-6">
+<div class="space-y-6">
         @foreach ($questions as $index => $q)
             @php
                 $userAns = $savedAnswers->get($q->id);
@@ -109,8 +104,7 @@
                 x-show="filter === 'all' || (filter === 'wrong' && {{ $isCorrect ? 'false' : 'true' }})"
                 x-transition>
 
-                <!-- Card Header (Responsive, Never squished or gepeng) -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
                     <div class="flex items-center justify-between w-full sm:w-auto gap-3">
                         <div class="flex items-center gap-3 min-w-0">
                             <span class="w-9 h-9 min-w-[2.25rem] min-h-[2.25rem] rounded-xl font-bold text-xs flex items-center justify-center font-mono shrink-0 aspect-square shadow-2xs {{ $isCorrect ? 'bg-emerald-500 text-white' : ($isWrong ? 'bg-rose-500 text-white' : 'bg-slate-200 text-slate-600') }}">
@@ -132,8 +126,7 @@
                             </div>
                         </div>
 
-                        {{-- Mobile result badge --}}
-                        <div class="sm:hidden shrink-0">
+<div class="sm:hidden shrink-0">
                             @if ($isCorrect)
                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                     <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
@@ -152,8 +145,7 @@
                         </div>
                     </div>
 
-                    {{-- Desktop result badge --}}
-                    <div class="hidden sm:block shrink-0">
+<div class="hidden sm:block shrink-0">
                         @if ($isCorrect)
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                 <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
@@ -172,8 +164,7 @@
                     </div>
                 </div>
 
-                <!-- Question Text / Stimulus -->
-                @if ($isStatement)
+@if ($isStatement)
                     <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-sm leading-relaxed whitespace-pre-line font-normal">
                         <div class="flex items-center gap-2 mb-2 pb-2 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
                             <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -204,7 +195,7 @@
                 @endif
 
                 @if ($isStatement)
-                    <!-- Desktop Statement Evaluation Table -->
+                    
                     <div class="hidden sm:block overflow-x-auto rounded-2xl border border-slate-200 shadow-2xs">
                         <table class="w-full text-left text-xs border-collapse">
                             <thead>
@@ -259,8 +250,7 @@
                         </table>
                     </div>
 
-                    <!-- Mobile Statement Cards (No awkward scrolling) -->
-                    <div class="sm:hidden space-y-3">
+<div class="sm:hidden space-y-3">
                         @foreach ($q->options as $opt)
                             @php
                                 $val = $userStmtVals[$opt->id] ?? null;
@@ -295,7 +285,7 @@
                         @endforeach
                     </div>
                 @else
-                    <!-- Options List with Status Highlighting (Structured & Mobile Friendly) -->
+                    
                     <div class="space-y-3 pt-1">
                         @foreach ($q->options as $opt)
                             @php
@@ -308,7 +298,7 @@
                             @endphp
 
                             @if ($isHit)
-                                <!-- Chosen and Correct -->
+                                
                                 <div class="rounded-2xl p-4 sm:p-5 border-2 border-emerald-500 bg-emerald-50/60 transition-all space-y-3 shadow-2xs">
                                     <div class="flex items-start gap-3 sm:gap-3.5">
                                         <span class="w-8 h-8 min-w-[2rem] min-h-[2rem] rounded-xl text-xs font-black flex items-center justify-center shrink-0 aspect-square bg-emerald-600 text-white shadow-xs mt-0.5">
@@ -332,7 +322,7 @@
                                 </div>
 
                             @elseif ($isMistake)
-                                <!-- Chosen but Wrong -->
+                                
                                 <div class="rounded-2xl p-4 sm:p-5 border-2 border-rose-300 bg-rose-50/60 transition-all space-y-3 shadow-2xs">
                                     <div class="flex items-start gap-3 sm:gap-3.5">
                                         <span class="w-8 h-8 min-w-[2rem] min-h-[2rem] rounded-xl text-xs font-black flex items-center justify-center shrink-0 aspect-square bg-rose-500 text-white shadow-xs mt-0.5">
@@ -356,7 +346,7 @@
                                 </div>
 
                             @elseif ($isMissed)
-                                <!-- Omitted Correct Key -->
+                                
                                 <div class="rounded-2xl p-4 sm:p-5 border-2 {{ $q->type === 'multiple' ? 'border-amber-400 bg-amber-50/60' : 'border-emerald-400 bg-emerald-50/60' }} transition-all space-y-3 shadow-2xs">
                                     <div class="flex items-start gap-3 sm:gap-3.5">
                                         <span class="w-8 h-8 min-w-[2rem] min-h-[2rem] rounded-xl text-xs font-black flex items-center justify-center shrink-0 aspect-square {{ $q->type === 'multiple' ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white' }} shadow-xs mt-0.5">
@@ -387,7 +377,7 @@
                                 </div>
 
                             @else
-                                <!-- Unchosen Neutral Option -->
+                                
                                 <div class="rounded-2xl p-4 sm:p-5 border border-slate-200 bg-white transition-all shadow-2xs">
                                     <div class="flex items-start gap-3 sm:gap-3.5">
                                         <span class="w-8 h-8 min-w-[2rem] min-h-[2rem] rounded-xl text-xs font-black flex items-center justify-center shrink-0 aspect-square bg-slate-100 text-slate-600 border border-slate-200 shadow-2xs mt-0.5">
@@ -403,8 +393,7 @@
                     </div>
                 @endif
 
-                <!-- Explanation Box (PEMBAHASAN) -->
-                @if ($q->explanation)
+@if ($q->explanation)
                     <div class="p-4 sm:p-5 rounded-2xl bg-indigo-50/70 border border-indigo-100/90 text-xs sm:text-sm leading-relaxed space-y-2">
                         <div class="flex items-center gap-2 text-indigo-800 font-bold uppercase tracking-wider text-xs">
                             <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">

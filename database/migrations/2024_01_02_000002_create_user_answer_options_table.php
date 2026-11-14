@@ -7,12 +7,10 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
-        // 1. Create user_answer_options pivot table if not exists
+        
         if (!Schema::hasTable('user_answer_options')) {
             Schema::create('user_answer_options', function (Blueprint $table) {
                 $table->id();
@@ -24,8 +22,7 @@ return new class extends Migration
             });
         }
 
-        // 2. Migrate existing data from user_answers.option_id to user_answer_options
-        if (Schema::hasColumn('user_answers', 'option_id')) {
+if (Schema::hasColumn('user_answers', 'option_id')) {
             $existingAnswers = DB::table('user_answers')
                 ->whereNotNull('option_id')
                 ->get(['id', 'option_id', 'created_at', 'updated_at']);
@@ -44,8 +41,7 @@ return new class extends Migration
                 DB::table('user_answer_options')->insert($rowsToInsert);
             }
 
-            // 3. Drop option_id column cleanly across SQLite and MySQL
-            if (DB::getDriverName() === 'sqlite') {
+if (DB::getDriverName() === 'sqlite') {
                 Schema::disableForeignKeyConstraints();
 
                 Schema::create('user_answers_new', function (Blueprint $table) {
@@ -73,18 +69,14 @@ return new class extends Migration
         }
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+public function down(): void
     {
         if (!Schema::hasColumn('user_answers', 'option_id')) {
             Schema::table('user_answers', function (Blueprint $table) {
                 $table->foreignId('option_id')->nullable()->after('question_id')->constrained('options')->cascadeOnDelete();
             });
 
-            // Migrate data back
-            $options = DB::table('user_answer_options')->get();
+$options = DB::table('user_answer_options')->get();
             foreach ($options as $opt) {
                 DB::table('user_answers')
                     ->where('id', $opt->user_answer_id)

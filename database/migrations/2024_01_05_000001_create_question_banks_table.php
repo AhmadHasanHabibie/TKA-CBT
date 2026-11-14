@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
         Schema::create('question_banks', function (Blueprint $table) {
@@ -16,7 +14,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('school_name')->nullable()->index();
             $table->string('slug')->unique();
-            $table->string('category')->nullable(); // misal: Matematika, Penalaran Umum, TPS
+            $table->string('category')->nullable(); 
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
@@ -24,10 +22,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+public function down(): void
     {
         Schema::dropIfExists('question_banks');
     }

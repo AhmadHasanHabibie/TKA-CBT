@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,12 +12,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
+protected $fillable = [
         'name',
         'email',
         'password',
@@ -32,22 +26,12 @@ class User extends Authenticatable
         'last_login_longitude',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
+protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
+protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'last_login_at' => 'datetime',
@@ -55,34 +39,22 @@ class User extends Authenticatable
         'last_login_longitude' => 'float',
     ];
 
-    /**
-     * User's exam sessions.
-     */
-    public function examSessions(): HasMany
+public function examSessions(): HasMany
     {
         return $this->hasMany(ExamSession::class);
     }
 
-    /**
-     * User's login logs.
-     */
-    public function loginLogs(): HasMany
+public function loginLogs(): HasMany
     {
         return $this->hasMany(LoginLog::class);
     }
 
-    /**
-     * Check if user is an administrator.
-     */
-    public function isAdmin(): bool
+public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
-    /**
-     * Check if user is a regular examinee.
-     */
-    public function isUser(): bool
+public function isUser(): bool
     {
         return $this->role === 'user';
     }

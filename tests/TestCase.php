@@ -10,10 +10,7 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
-    /**
-     * Set the currently logged in user for the application.
-     */
-    public function actingAs(Authenticatable $user, $guard = null)
+public function actingAs(Authenticatable $user, $guard = null)
     {
         if ($user instanceof User && $user->isAdmin()) {
             $this->withSession(['admin_pin_verified' => true]);

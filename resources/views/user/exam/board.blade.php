@@ -31,12 +31,10 @@
     x-init="initEngine()"
     x-cloak>
 
-    {{-- ── Top Floating Responsive Header ──────────────────────── --}}
-    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shadow-2xs">
-        
-        {{-- Desktop / Tablet Header (>= sm) --}}
-        <div class="hidden sm:flex max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 items-center justify-between gap-4">
-            {{-- Left: Brand & Subtest Title --}}
+<header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shadow-2xs">
+
+<div class="hidden sm:flex max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 items-center justify-between gap-4">
+            
             <div class="flex items-center gap-3 min-w-0 flex-1">
                 <span class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-xs flex-shrink-0">
                     T
@@ -47,8 +45,7 @@
                 </div>
             </div>
 
-            {{-- Center: Prominent Centered Countdown Timer ("Kolom Waktu") --}}
-            <div class="flex-shrink-0">
+<div class="flex-shrink-0">
                 <div class="flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs sm:text-sm font-mono font-bold tracking-wider shadow-xs transition"
                     :class="remainingSeconds < 300 ? 'bg-rose-600 border-rose-500 text-white animate-pulse ring-2 ring-rose-500/20' : 'bg-slate-900 border-slate-800 text-white'">
                     <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,16 +56,14 @@
                 </div>
             </div>
 
-            {{-- Right: Controls --}}
-            <div class="flex items-center justify-end gap-2.5 flex-1">
-                {{-- Auto-Save Status Pill --}}
+<div class="flex items-center justify-end gap-2.5 flex-1">
+                
                 <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200/60">
                     <span class="w-2 h-2 rounded-full" :class="saving ? 'bg-amber-400 animate-ping' : 'bg-emerald-500'"></span>
                     <span x-text="saving ? 'Menyimpan...' : 'Tersimpan'">Tersimpan</span>
                 </div>
 
-                {{-- Question Drawer Button --}}
-                <button type="button" @click="mobileNavOpen = true"
+<button type="button" @click="mobileNavOpen = true"
                     class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-indigo-200/90 bg-indigo-50/90 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition active:scale-95 shadow-2xs"
                     title="Buka Navigasi Soal">
                     <div class="flex flex-col justify-center items-center w-4 h-4 gap-[3px]">
@@ -80,17 +75,15 @@
                     <span class="font-mono text-indigo-950 font-extrabold bg-indigo-200/70 px-1.5 py-0.5 rounded-md text-[11px]" x-text="(currentIndex + 1) + '/' + questions.length"></span>
                 </button>
 
-                {{-- Finish Button --}}
-                <button type="button" @click="confirmFinishModal = true"
+<button type="button" @click="confirmFinishModal = true"
                     class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition active:scale-95 whitespace-nowrap">
                     <span>Selesaikan</span>
                 </button>
             </div>
         </div>
 
-        {{-- Mobile Header (< sm) --}}
-        <div class="sm:hidden">
-            {{-- Row 1: Subtest Title & Actions --}}
+<div class="sm:hidden">
+            
             <div class="h-14 px-4 flex items-center justify-between gap-2 border-b border-slate-100">
                 <div class="flex items-center gap-2.5 min-w-0 flex-1">
                     <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-xs flex-shrink-0">
@@ -103,7 +96,7 @@
                 </div>
 
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    {{-- Nav Button --}}
+                    
                     <button type="button" @click="mobileNavOpen = true"
                         class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition active:scale-95 shadow-2xs"
                         title="Buka Navigasi Soal">
@@ -115,24 +108,21 @@
                         <span class="font-mono text-indigo-950 font-black bg-indigo-200/70 px-1 py-0.5 rounded text-[10px]" x-text="(currentIndex + 1) + '/' + questions.length"></span>
                     </button>
 
-                    {{-- Finish Button --}}
-                    <button type="button" @click="confirmFinishModal = true"
+<button type="button" @click="confirmFinishModal = true"
                         class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition active:scale-95 whitespace-nowrap">
                         <span>Selesaikan</span>
                     </button>
                 </div>
             </div>
 
-            {{-- Row 2: Status & Spacious Kolom Waktu (Never berdempetan) --}}
-            <div class="h-10 px-4 flex items-center justify-between bg-slate-50/90 border-b border-slate-200/60">
-                {{-- Auto-save status --}}
+<div class="h-10 px-4 flex items-center justify-between bg-slate-50/90 border-b border-slate-200/60">
+                
                 <div class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
                     <span class="w-2 h-2 rounded-full" :class="saving ? 'bg-amber-400 animate-ping' : 'bg-emerald-500'"></span>
                     <span x-text="saving ? 'Menyimpan...' : 'Tersimpan'">Tersimpan</span>
                 </div>
 
-                {{-- Countdown Timer ("Kolom Waktu") --}}
-                <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-mono font-bold tracking-wider shadow-xs transition"
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-mono font-bold tracking-wider shadow-xs transition"
                     :class="remainingSeconds < 300 ? 'bg-rose-600 border border-rose-500 text-white animate-pulse' : 'bg-slate-900 border border-slate-800 text-white'">
                     <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -144,16 +134,13 @@
         </div>
     </header>
 
-    {{-- ── Main Exam Board Container ───────────────────────────── --}}
-    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-7 pb-12 sm:pt-9 sm:pb-16">
+<main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-7 pb-12 sm:pt-9 sm:pb-16">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
-            
-            {{-- Left: Main Question Area (col-span-3) --}}
-            <div class="lg:col-span-3 space-y-4 sm:space-y-6">
+
+<div class="lg:col-span-3 space-y-4 sm:space-y-6">
                 <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm sm:shadow-md p-5 sm:p-8 md:p-9 transition-all">
-                    
-                    {{-- Question Header: Number indicator & Badges --}}
-                    <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 sm:mb-6 border-b border-slate-100">
+
+<div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 sm:mb-6 border-b border-slate-100">
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="px-3 py-1 rounded-xl bg-slate-900 text-white text-xs font-bold font-mono shadow-xs">
                                 Soal <span x-text="currentIndex + 1"></span> dari <span x-text="questions.length"></span>
@@ -179,8 +166,7 @@
                             </template>
                         </div>
 
-                        {{-- Doubt Toggle Button --}}
-                        <button type="button" @click="toggleDoubt()"
+<button type="button" @click="toggleDoubt()"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition active:scale-95 shadow-2xs"
                             :class="currentAnswer.is_doubt ? 'bg-amber-500 border-amber-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,8 +176,7 @@
                         </button>
                     </div>
 
-                    {{-- Statement Type: Stimulus Reading Container & Notice --}}
-                    <template x-if="currentQuestion.type === 'statement'">
+<template x-if="currentQuestion.type === 'statement'">
                         <div>
                             <div class="mb-5 p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-sm leading-relaxed whitespace-pre-line font-normal shadow-2xs">
                                 <div class="flex items-center gap-2 mb-2.5 pb-2 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -202,8 +187,7 @@
                                 </div>
                                 <div x-text="currentQuestion.text" class="break-words"></div>
 
-                                {{-- Stimulus Image Attachment if exists --}}
-                                <template x-if="currentQuestion.image">
+<template x-if="currentQuestion.image">
                                     <div class="mt-4 flex flex-col items-center sm:items-start">
                                         <div class="relative group cursor-pointer inline-block rounded-2xl overflow-hidden border border-slate-200 bg-white p-2 shadow-2xs hover:shadow-md transition"
                                             @click="openImageModal('/storage/' + currentQuestion.image)">
@@ -225,8 +209,7 @@
                                 <span>Tentukan apakah setiap pernyataan berikut <strong>Sesuai</strong> atau <strong>Tidak Sesuai</strong> berdasarkan stimulus di atas.</span>
                             </div>
 
-                            {{-- Statements List with Dual Toggles --}}
-                            <div class="space-y-3">
+<div class="space-y-3">
                                 <template x-for="option in currentQuestion.options" :key="option.id">
                                     <div class="p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-2xs">
                                         <div class="flex items-start gap-3 flex-1 min-w-0">
@@ -236,7 +219,7 @@
                                             <p class="text-sm font-medium text-slate-800 leading-relaxed break-words pt-1" x-text="option.text"></p>
                                         </div>
                                         <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0 pt-1 sm:pt-0">
-                                            {{-- Sesuai Button --}}
+                                            
                                             <button type="button"
                                                 @click="setStatementValue(option.id, true)"
                                                 class="px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 active:scale-95"
@@ -247,8 +230,7 @@
                                                 <span>Sesuai</span>
                                             </button>
 
-                                            {{-- Tidak Sesuai Button --}}
-                                            <button type="button"
+<button type="button"
                                                 @click="setStatementValue(option.id, false)"
                                                 class="px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 active:scale-95"
                                                 :class="getStatementValue(option.id) === false ? 'bg-rose-600 border-rose-600 text-white shadow-xs' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'">
@@ -264,16 +246,14 @@
                         </div>
                     </template>
 
-                    {{-- Standard (Single & Multiple PGK) Type --}}
-                    <template x-if="currentQuestion.type !== 'statement'">
+<template x-if="currentQuestion.type !== 'statement'">
                         <div>
-                            {{-- Question Content Text --}}
+                            
                             <div class="prose prose-slate max-w-none text-sm sm:text-base text-slate-900 leading-relaxed font-medium mb-4 whitespace-pre-line break-words"
                                 x-text="currentQuestion.text">
                             </div>
 
-                            {{-- Question Image Attachment if exists --}}
-                            <template x-if="currentQuestion.image">
+<template x-if="currentQuestion.image">
                                 <div class="mb-5 flex flex-col items-center sm:items-start">
                                     <div class="relative group cursor-pointer inline-block rounded-2xl overflow-hidden border border-slate-200 bg-white p-2 shadow-2xs hover:shadow-md transition"
                                         @click="openImageModal('/storage/' + currentQuestion.image)">
@@ -287,8 +267,7 @@
                                 </div>
                             </template>
 
-                            {{-- PGK Multiple Choice Notice Banner --}}
-                            <template x-if="currentQuestion.type === 'multiple'">
+<template x-if="currentQuestion.type === 'multiple'">
                                 <div class="mb-4 flex items-center gap-2.5 p-3.5 rounded-2xl bg-indigo-50/90 border border-indigo-200 text-indigo-900 text-xs font-semibold leading-normal">
                                     <svg class="w-4 h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -297,8 +276,7 @@
                                 </div>
                             </template>
 
-                            {{-- Options Cards (Single Radio vs Multi Checkbox) --}}
-                            <div class="space-y-3">
+<div class="space-y-3">
                                 <template x-for="option in currentQuestion.options" :key="option.id">
                                     <label class="flex items-start gap-3 sm:gap-3.5 p-3.5 sm:p-4 rounded-2xl border-2 transition cursor-pointer group select-none shadow-2xs"
                                         :class="isOptionSelected(option.id) ? 'border-indigo-600 bg-indigo-50/50 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'">
@@ -316,8 +294,7 @@
                                                 class="hidden">
                                         </template>
 
-                                        {{-- Multi-select Checkbox Square Indicator --}}
-                                        <template x-if="currentQuestion.type === 'multiple'">
+<template x-if="currentQuestion.type === 'multiple'">
                                             <div class="w-5 h-5 min-w-[1.25rem] min-h-[1.25rem] mt-1.5 rounded-md border flex items-center justify-center shrink-0 aspect-square transition"
                                                 :class="isOptionSelected(option.id) ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 bg-white group-hover:border-slate-400'">
                                                 <svg x-show="isOptionSelected(option.id)" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,15 +302,13 @@
                                                 </svg>
                                             </div>
                                         </template>
-                                        
-                                        {{-- Option Label Pill (A, B, C, D, E) --}}
-                                        <div class="w-8 h-8 min-w-[2rem] min-h-[2rem] rounded-xl font-bold text-xs flex items-center justify-center shrink-0 aspect-square transition shadow-2xs"
+
+<div class="w-8 h-8 min-w-[2rem] min-h-[2rem] rounded-xl font-bold text-xs flex items-center justify-center shrink-0 aspect-square transition shadow-2xs"
                                             :class="isOptionSelected(option.id) ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200'"
                                             x-text="option.label">
                                         </div>
 
-                                        {{-- Option Text Content --}}
-                                        <div class="text-sm text-slate-800 pt-1 font-medium leading-relaxed flex-1 break-words"
+<div class="text-sm text-slate-800 pt-1 font-medium leading-relaxed flex-1 break-words"
                                             x-text="option.text">
                                         </div>
                                     </label>
@@ -343,8 +318,7 @@
                     </template>
                 </div>
 
-                {{-- Bottom Navigation Action Buttons (Clean Left & Right Only) --}}
-                <div class="flex items-center justify-between pt-4 sm:pt-6 gap-3">
+<div class="flex items-center justify-between pt-4 sm:pt-6 gap-3">
                     <button type="button" @click="prevQuestion()" :disabled="currentIndex === 0"
                         class="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-2xs active:scale-95">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
@@ -369,27 +343,24 @@
                 </div>
             </div>
 
-            {{-- Right: Question Number Grid Desktop Sidebar (lg:col-span-1) --}}
-            <div class="hidden lg:block lg:col-span-1 sticky top-20">
+<div class="hidden lg:block lg:col-span-1 sticky top-20">
                 <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 space-y-4">
-                    
-                    {{-- Sidebar Header --}}
-                    <div>
+
+<div>
                         <div class="flex items-center justify-between mb-2">
                             <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900">Navigasi Soal</h2>
                             <span class="text-xs font-bold text-indigo-600 font-mono">
                                 <span x-text="answeredCount"></span>/<span x-text="questions.length"></span>
                             </span>
                         </div>
-                        {{-- Clean Progress Bar --}}
+                        
                         <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                             <div class="bg-indigo-600 h-full rounded-full transition-all duration-300"
                                 :style="'width: ' + ((answeredCount / Math.max(questions.length, 1)) * 100) + '%'"></div>
                         </div>
                     </div>
 
-                    {{-- Legend Grid --}}
-                    <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-500 pb-3 border-b border-slate-100">
+<div class="grid grid-cols-2 gap-2 text-[11px] text-slate-500 pb-3 border-b border-slate-100">
                         <div class="flex items-center gap-1.5">
                             <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 flex-shrink-0"></span>
                             <span>Lengkap</span>
@@ -408,8 +379,7 @@
                         </div>
                     </div>
 
-                    {{-- Grid Numbers Container (Clean, Rounded-2xl, Zero Black Artifacts) --}}
-                    <div class="p-1 max-h-72 overflow-y-auto pr-1">
+<div class="p-1 max-h-72 overflow-y-auto pr-1">
                         <div class="grid grid-cols-5 gap-2.5">
                             <template x-for="(q, idx) in questions" :key="q.id">
                                 <button type="button" @click="goToQuestion(idx)"
@@ -425,8 +395,7 @@
                         </div>
                     </div>
 
-                    {{-- Finish CTA Button --}}
-                    <div class="pt-2 border-t border-slate-100">
+<div class="pt-2 border-t border-slate-100">
                         <button type="button" @click="confirmFinishModal = true"
                             class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition active:scale-95">
                             Kumpulkan Jawaban
@@ -438,13 +407,11 @@
         </div>
     </main>
 
-    {{-- ── Navigation Slide-Over Drawer (Smooth Slide-In From Right for All Viewports) ── --}}
-    <div x-show="mobileNavOpen" style="display: none;"
+<div x-show="mobileNavOpen" style="display: none;"
         class="fixed inset-0 z-50 overflow-hidden"
         aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-        
-        {{-- Backdrop with smooth fade --}}
-        <div x-show="mobileNavOpen"
+
+<div x-show="mobileNavOpen"
             x-transition:enter="transition-opacity ease-linear duration-300"
             x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100"
@@ -455,7 +422,7 @@
             @click="mobileNavOpen = false"></div>
 
         <div class="fixed inset-y-0 right-0 max-w-full flex pl-10 z-50">
-            {{-- Slide-Over Panel with smooth slide-in from right --}}
+            
             <div x-show="mobileNavOpen"
                 x-transition:enter="transform transition ease-out duration-300"
                 x-transition:enter-start="translate-x-full"
@@ -464,9 +431,8 @@
                 x-transition:leave-start="translate-x-0"
                 x-transition:leave-end="translate-x-full"
                 class="w-screen max-w-xs sm:max-w-sm bg-white shadow-2xl flex flex-col overflow-hidden">
-                
-                {{-- Drawer Top Bar --}}
-                <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+
+<div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
                     <div class="flex items-center gap-2.5">
                         <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
                             <div class="flex flex-col justify-center items-center w-3.5 h-3.5 gap-[2px]">
@@ -491,16 +457,14 @@
                     </button>
                 </div>
 
-                {{-- Progress Bar --}}
-                <div class="px-4 sm:px-5 pt-3">
+<div class="px-4 sm:px-5 pt-3">
                     <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                         <div class="bg-indigo-600 h-full rounded-full transition-all duration-300"
                             :style="'width: ' + ((answeredCount / Math.max(questions.length, 1)) * 100) + '%'"></div>
                     </div>
                 </div>
 
-                {{-- Legend Grid --}}
-                <div class="px-4 sm:px-5 py-3 border-b border-slate-100">
+<div class="px-4 sm:px-5 py-3 border-b border-slate-100">
                     <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-600 font-medium">
                         <div class="flex items-center gap-1.5">
                             <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 flex-shrink-0"></span>
@@ -521,8 +485,7 @@
                     </div>
                 </div>
 
-                {{-- Question Numbers Grid (Smooth Scroll, Rounded-2xl, Zero Black Artifacts) --}}
-                <div class="flex-1 overflow-y-auto p-4 sm:p-5">
+<div class="flex-1 overflow-y-auto p-4 sm:p-5">
                     <div class="grid grid-cols-5 gap-2.5">
                         <template x-for="(q, idx) in questions" :key="q.id">
                             <button type="button" @click="goToQuestion(idx); mobileNavOpen = false;"
@@ -538,8 +501,7 @@
                     </div>
                 </div>
 
-                {{-- Drawer Footer CTA --}}
-                <div class="p-4 border-t border-slate-100 bg-slate-50/70">
+<div class="p-4 border-t border-slate-100 bg-slate-50/70">
                     <button type="button" @click="confirmFinishModal = true; mobileNavOpen = false;"
                         class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition active:scale-95">
                         Kumpulkan Jawaban
@@ -549,8 +511,7 @@
         </div>
     </div>
 
-    {{-- Anti-Cheat Violation Toast Notification --}}
-    <div x-show="violationToast" style="display: none;"
+<div x-show="violationToast" style="display: none;"
         class="fixed bottom-5 right-5 z-50 p-4 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-xl flex items-center gap-3 border border-rose-500 max-w-sm"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 translate-y-2"
@@ -567,8 +528,7 @@
         </div>
     </div>
 
-    {{-- Confirm Submit Modal --}}
-    <div x-show="confirmFinishModal" style="display: none;"
+<div x-show="confirmFinishModal" style="display: none;"
         class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0"
@@ -589,8 +549,7 @@
                 Apakah Anda yakin ingin menyelesaikan simulasi subtest <span class="font-bold text-slate-700">{{ $subtest->name }}</span>?
             </p>
 
-            {{-- Summary Chips --}}
-            <div class="my-5 p-4 rounded-2xl bg-slate-50 border border-slate-100 grid grid-cols-3 gap-2 text-xs">
+<div class="my-5 p-4 rounded-2xl bg-slate-50 border border-slate-100 grid grid-cols-3 gap-2 text-xs">
                 <div>
                     <span class="block text-[10px] font-bold uppercase text-slate-400">Terjawab</span>
                     <span class="text-base font-extrabold text-indigo-600" x-text="answeredCount">0</span>
@@ -619,8 +578,7 @@
         </div>
     </div>
 
-    {{-- Time's Up Modal --}}
-    <div x-show="timeUpModal" style="display: none;"
+<div x-show="timeUpModal" style="display: none;"
         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-center animate-bounce-short">
             <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center mx-auto mb-4">
@@ -642,8 +600,7 @@
         </div>
     </div>
 
-    {{-- Image Lightbox Modal --}}
-    <div x-show="showImageModal" style="display: none;"
+<div x-show="showImageModal" style="display: none;"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"
@@ -662,8 +619,7 @@
         </div>
     </div>
 
-    {{-- Alpine.js Exam Engine Component Logic --}}
-    <script>
+<script>
         function examEngine(config) {
             return {
                 sessionId: config.sessionId,
@@ -781,18 +737,15 @@
                 },
 
                 initEngine() {
-                    // Update countdown timer every second
                     this.updateTimer();
                     this.timerInterval = setInterval(() => {
                         this.updateTimer();
                     }, 1000);
 
-                    // Anti-Cheat Window Blur detection
                     window.addEventListener('blur', () => {
                         this.recordTabViolation();
                     });
 
-                    // Disable standard copy-paste keyboard shortcuts
                     window.addEventListener('keydown', (e) => {
                         if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'u')) {
                             e.preventDefault();
@@ -808,7 +761,6 @@
                         clearInterval(this.timerInterval);
                         this.remainingSeconds = 0;
                         this.timerDisplay = '00:00:00';
-                        // Auto-submit when server end time is reached
                         window.location.href = this.finishUrl;
                         return;
                     }
@@ -850,7 +802,6 @@
                     const isDoubt = this.currentAnswer.is_doubt;
                     const newOptionIds = [optionId];
 
-                    // Optimistic UI update
                     this.answers[qId] = {
                         option_ids: newOptionIds,
                         statement_values: {},
@@ -871,7 +822,6 @@
                         currentIds.push(optionId);
                     }
 
-                    // Optimistic UI update
                     this.answers[qId] = {
                         option_ids: currentIds,
                         statement_values: {},
@@ -928,7 +878,6 @@
                             }, 1800);
                         }
                     } catch (err) {
-                        console.error('Auto-save error:', err);
                     } finally {
                         this.saving = false;
                     }
@@ -961,7 +910,6 @@
                             }, 1800);
                         }
                     } catch (err) {
-                        console.error('Auto-save statement error:', err);
                     } finally {
                         this.saving = false;
                     }
@@ -996,7 +944,6 @@
                     const isFull = this.isQuestionAnsweredFully(q);
                     const isPartial = this.isQuestionAnsweredPartially(q);
 
-                    // ZERO black borders or clipping - 100% harmonious, clean palette
                     if (isDoubt) {
                         if (isCurrent) {
                             return 'bg-amber-500 text-white border-2 border-amber-300 shadow-md shadow-amber-500/25 font-black';
@@ -1018,7 +965,6 @@
                         return 'bg-sky-500 text-white border border-sky-500 hover:bg-sky-600 font-bold shadow-2xs';
                     }
 
-                    // Belum Terjawab (Unanswered)
                     if (isCurrent) {
                         return 'bg-indigo-50/90 text-indigo-700 border-2 border-indigo-600 shadow-sm shadow-indigo-600/15 font-black';
                     }

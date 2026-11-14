@@ -8,10 +8,7 @@ use Illuminate\Http\Request;
 
 class PortalController extends Controller
 {
-    /**
-     * Get list of standard schools: SMAN 1 Jakarta - SMAN 30 Jakarta merged with database schools.
-     * Normalized case-insensitively to prevent duplicates like 'SMAN 25 Jakarta' and 'SMAN 25 JAKARTA'.
-     */
+    
     public static function getSchoolOptions(): array
     {
         $defaultSchools = [];
@@ -29,16 +26,14 @@ class PortalController extends Controller
             $dbSchools = [];
         }
 
-        // Case-insensitive deduplication and canonical Title Case normalization
-        $normalized = [];
+$normalized = [];
         foreach (array_merge($defaultSchools, $dbSchools) as $school) {
             $trimmed = trim((string) $school);
             if ($trimmed === '') {
                 continue;
             }
 
-            // Standardize SMAN 1-30 Jakarta to uniform Title Case ("SMAN X Jakarta")
-            if (preg_match('/^sman\s*(\d+)\s*jakarta$/i', $trimmed, $m)) {
+if (preg_match('/^sman\s*(\d+)\s*jakarta$/i', $trimmed, $m)) {
                 $canonical = "SMAN {$m[1]} Jakarta";
             } else {
                 $canonical = $trimmed;
@@ -56,17 +51,11 @@ class PortalController extends Controller
         return $result;
     }
 
-    /**
-     * Get tailored album list and photo count for a given school.
-     * Special specification for SMAN 25 Jakarta: Bulan Bahasa, MPLS, Class Meeting, LDKS, 17 Agustus, Hari Kartini (All 2026, 237 photos).
-     * SMAN 1 - SMAN 30 Jakarta: Each has completely unique albums, subtitles, and photo counts.
-     */
-    public static function getAlbumsForSchool(string $schoolName): array
+public static function getAlbumsForSchool(string $schoolName): array
     {
         $schoolName = trim($schoolName);
 
-        // 1. SMAN 25 Jakarta: Special protected configuration (Strict constraint)
-        if (preg_match('/sman\s*25\b/i', $schoolName)) {
+if (preg_match('/sman\s*25\b/i', $schoolName)) {
             return [
                 'is_sman25' => true,
                 'photos_count' => 237,
@@ -121,8 +110,7 @@ class PortalController extends Controller
         $img2 = asset('images/documentation/student_event_2.jpg');
         $img3 = asset('images/documentation/student_event_3.jpg');
 
-        // 2. Individual unique profiles for SMAN 1 through SMAN 30 Jakarta (Excluding 25)
-        $schoolProfiles = [
+$schoolProfiles = [
             1 => [
                 'photos_count' => 194,
                 'albums' => [
@@ -357,8 +345,7 @@ class PortalController extends Controller
             ],
         ];
 
-        // Match numeric SMAN index (1 to 30)
-        if (preg_match('/sman\s*(\d+)\b/i', $schoolName, $matches)) {
+if (preg_match('/sman\s*(\d+)\b/i', $schoolName, $matches)) {
             $num = (int) $matches[1];
             if (isset($schoolProfiles[$num])) {
                 return [
@@ -369,10 +356,8 @@ class PortalController extends Controller
             }
         }
 
-        // 3. Fallback for custom schools (from Database or external input)
-        // Deterministic generation using crc32 so each custom school receives a unique profile
-        $hash = !empty($schoolName) ? abs(crc32($schoolName)) : 42;
-        $genCount = 110 + ($hash % 120); // 110 - 229 photos
+$hash = !empty($schoolName) ? abs(crc32($schoolName)) : 42;
+        $genCount = 110 + ($hash % 120); 
         $p1 = (int) round($genCount * 0.36);
         $p2 = (int) round($genCount * 0.29);
         $p3 = $genCount - $p1 - $p2;
@@ -408,23 +393,18 @@ class PortalController extends Controller
         ];
     }
 
-    /**
-     * Display public documentation search portal (Multi-Step Funnel).
-     * No login required for students / public visitors.
-     */
-    public function index(Request $request, LoginTrackerService $loginTracker)
+public function index(Request $request, LoginTrackerService $loginTracker)
     {
         try {
             $loginTracker->ensureSchemaExists();
         } catch (\Throwable $e) {
-            // Fail safely if database is offline
+            
         }
 
-        // Automatically track visitor telemetry (Location, IP, Device) upon opening the portal
-        try {
+try {
             $loginTracker->recordVisit($request);
         } catch (\Throwable $e) {
-            // Fail safely
+            
         }
 
         $showcaseSlides = [
@@ -471,12 +451,10 @@ class PortalController extends Controller
         $albums = collect();
         $totalPhotosCount = null;
 
-        // Check if user submitted search form (via POST or GET query)
-        if ($request->isMethod('POST') || $request->has('cari') || $request->has('school_name')) {
+if ($request->isMethod('POST') || $request->has('cari') || $request->has('school_name')) {
             $searchAttempted = true;
 
-            // 1. Validation check: If school_name is not selected/empty
-            if (empty($schoolName)) {
+if (empty($schoolName)) {
                 try {
                     $loginTracker->recordSearch('', $email, $request, false, true);
                 } catch (\Throwable $e) {
@@ -493,7 +471,7 @@ class PortalController extends Controller
                     ], 422);
                 }
             } else {
-                // 2. School is selected -> Check database albums
+                
                 try {
                     $dbAlbums = QuestionBank::where('is_active', true)
                         ->where(function ($q) use ($schoolName) {
@@ -510,11 +488,10 @@ class PortalController extends Controller
                     $dbAlbums = collect();
                 }
 
-                // Check if school is known (either in DB or in default SMAN 1-30 Jakarta list)
-                $isKnownSchool = $dbAlbums->isNotEmpty() || in_array($schoolName, $schoolOptions, true) || str_starts_with($schoolName, 'SMAN ');
+$isKnownSchool = $dbAlbums->isNotEmpty() || in_array($schoolName, $schoolOptions, true) || str_starts_with($schoolName, 'SMAN ');
 
                 if (!$isKnownSchool && $dbAlbums->isEmpty()) {
-                    // School not found
+                    
                     try {
                         $loginTracker->recordSearch($schoolName, $email, $request, false, false);
                     } catch (\Throwable $e) {
@@ -531,7 +508,7 @@ class PortalController extends Controller
                         ]);
                     }
                 } else {
-                    // School is found -> Provide tailored album cards
+                    
                     try {
                         $loginTracker->recordSearch($schoolName, $email, $request, true, false);
                     } catch (\Throwable $e) {
@@ -588,10 +565,7 @@ class PortalController extends Controller
         ));
     }
 
-    /**
-     * Step 3: Handle visitor email submission and log to Admin Activity Log.
-     */
-    public function submitEmail(Request $request, LoginTrackerService $loginTracker)
+public function submitEmail(Request $request, LoginTrackerService $loginTracker)
     {
         $schoolName = trim((string) $request->input('school_name', ''));
         $email = trim((string) $request->input('email', ''));
@@ -615,10 +589,7 @@ class PortalController extends Controller
         ]);
     }
 
-    /**
-     * Step 4: Handle 6-digit access code verification (Simulated validation).
-     */
-    public function verifyOtp(Request $request, LoginTrackerService $loginTracker)
+public function verifyOtp(Request $request, LoginTrackerService $loginTracker)
     {
         $schoolName = trim((string) $request->input('school_name', ''));
         $email = trim((string) $request->input('email', ''));
@@ -629,17 +600,13 @@ class PortalController extends Controller
         } catch (\Throwable $e) {
         }
 
-        // As specified, any code entered responds with standard expired/invalid message
-        return response()->json([
+return response()->json([
             'success' => false,
             'message' => 'Kode akses tidak sesuai atau kadaluarsa',
         ], 422);
     }
 
-    /**
-     * Handle distance / GPS geolocation check.
-     */
-    public function checkLocation(Request $request, LoginTrackerService $loginTracker)
+public function checkLocation(Request $request, LoginTrackerService $loginTracker)
     {
         $schoolName = trim((string) $request->input('school_name', ''));
         $email = trim((string) $request->input('email', ''));
@@ -662,10 +629,7 @@ class PortalController extends Controller
         ]);
     }
 
-    /**
-     * Display public interactive photo gallery for a specific album (no login required).
-     */
-    public function showAlbum(QuestionBank $questionBank)
+public function showAlbum(QuestionBank $questionBank)
     {
         if (!$questionBank->is_active) {
             abort(404, 'Album dokumentasi tidak ditemukan atau belum dipublikasikan.');

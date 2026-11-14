@@ -1,15 +1,4 @@
-{{--
-    Custom Confirm Modal Component (Full Custom, Global, Accessible)
-    Usage anywhere:
-    window.showConfirm({
-        title: 'Hapus Subtest',
-        message: 'Apakah Anda yakin?',
-        type: 'danger', // danger | warning | info | success
-        confirmText: 'Ya, Hapus Sekarang',
-        cancelText: 'Batal',
-        action: () => document.getElementById('my-form').submit()
-    });
---}}
+
 <div x-data="{
     open: false,
     type: 'danger',
@@ -47,8 +36,7 @@ x-transition:leave-end="opacity-0"
 class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md"
 @keydown.escape.window="open = false">
 
-    {{-- Modal Box with scale transition --}}
-    <div x-show="open"
+<div x-show="open"
          x-transition:enter="transition ease-out duration-250"
          x-transition:enter-start="opacity-0 scale-95 translate-y-2"
          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -58,8 +46,7 @@ class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/7
          @click.away="open = false"
          class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
 
-        {{-- Top Accent Bar --}}
-        <div class="h-1.5 w-full"
+<div class="h-1.5 w-full"
              :class="type === 'danger'
                 ? 'bg-gradient-to-r from-rose-500 to-rose-600'
                 : type === 'warning'
@@ -69,10 +56,9 @@ class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/7
                 : 'bg-gradient-to-r from-indigo-500 to-indigo-600'">
         </div>
 
-        {{-- Content Area --}}
-        <div class="p-6 sm:p-7">
+<div class="p-6 sm:p-7">
             <div class="flex items-start gap-4">
-                {{-- Icon Badge --}}
+                
                 <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm"
                      :class="type === 'danger'
                         ? 'bg-rose-50 text-rose-600 border border-rose-100'
@@ -82,32 +68,28 @@ class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/7
                         ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                         : 'bg-indigo-50 text-indigo-600 border border-indigo-100'">
 
-                    {{-- Danger Icon --}}
-                    <template x-if="type === 'danger'">
+<template x-if="type === 'danger'">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </template>
 
-                    {{-- Warning Icon --}}
-                    <template x-if="type === 'warning'">
+<template x-if="type === 'warning'">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                     </template>
 
-                    {{-- Success Icon --}}
-                    <template x-if="type === 'success'">
+<template x-if="type === 'success'">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </template>
 
-                    {{-- Info Icon --}}
-                    <template x-if="type !== 'danger' && type !== 'warning' && type !== 'success'">
+<template x-if="type !== 'danger' && type !== 'warning' && type !== 'success'">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -122,8 +104,7 @@ class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/7
             </div>
         </div>
 
-        {{-- Footer Actions --}}
-        <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
+<div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 border-t border-slate-100">
             <button type="button"
                     @click="open = false"
                     class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition">

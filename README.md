@@ -67,7 +67,7 @@ PEMBAHASAN: [teks pembahasan atau rumus cara penyelesaian, dapat multi-baris]
 
 ### 1. Clone atau Buka Folder Project
 ```bash
-cd c:\laragon\www\TKA-CBT
+cd tka-cbt
 ```
 
 ### 2. Konfigurasi Environment (`.env`)
@@ -100,10 +100,10 @@ Buka peramban (browser) di: **`http://127.0.0.1:8000`**
 
 | Peran | Email | Kata Sandi | Akses Halaman |
 |---|---|---|---|
-| **Administrator** | `admin@tka.test` | `password` | `/admin/dashboard` |
-| **Peserta 1** | `budi@tka.test` | `password` | `/user/dashboard` |
-| **Peserta 2** | `siti@tka.test` | `password` | `/user/dashboard` |
-| **Peserta 3** | `ahmad@tka.test` | `password` | `/user/dashboard` |
+| **Administrator** | `admin@example.com` | `password` | `/admin/dashboard` |
+| **Peserta 1** | `student1@example.com` | `password` | `/user/dashboard` |
+| **Peserta 2** | `student2@example.com` | `password` | `/user/dashboard` |
+| **Peserta 3** | `student3@example.com` | `password` | `/user/dashboard` |
 
 ---
 
