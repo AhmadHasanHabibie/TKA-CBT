@@ -14,8 +14,251 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @endif
+    <style>
+        body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+        .blur-thumb {
+            filter: blur(8px);
+            -webkit-filter: blur(8px);
+            transform: scale(1.05);
+        }
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
-<body class="min-h-screen antialiased bg-slate-900 text-slate-100 flex flex-col justify-between selection:bg-indigo-600 selection:text-white">
+<body class="min-h-screen antialiased bg-slate-900 text-slate-100 flex flex-col justify-between selection:bg-indigo-600 selection:text-white"
+      x-data="{
+        step: {{ ($status === 'found') ? 2 : 1 }},
+        selectedSchool: '{{ old('school_name', $schoolName) }}',
+        email: '{{ old('email', $email) }}',
+        otpCode: '',
+        selectedAlbumYear: '2026',
+        selectedAlbumTitle: 'Album Dokumentasi 2026',
+        searchLoading: false,
+        emailLoading: false,
+        otpLoading: false,
+        locationLoading: false,
+        stepErrorMessage: '{{ $errorMessage ?? '' }}',
+        notFoundAlert: '{{ $notFoundMessage ?? '' }}',
+        otpError: '',
+        locationMessage: '',
+        totalPhotos: {{ $totalPhotosCount ?? 67 }},
+
+        init() {
+            if ('{{ $status }}' === 'validation_error') {
+                this.step = 1;
+                this.stepErrorMessage = '{{ $errorMessage }}';
+            } else if ('{{ $status }}' === 'not_found') {
+                this.step = 1;
+                this.notFoundAlert = '{{ $notFoundMessage }}';
+            } else if ('{{ $status }}' === 'found') {
+                this.step = 2;
+            }
+        },
+
+        submitSearch() {
+            if (!this.selectedSchool || this.selectedSchool.trim() === '') {
+                this.stepErrorMessage = 'Harap pilih sekolah terlebih dahulu';
+                this.notFoundAlert = '';
+                // Background log
+                fetch('{{ route('portal.search') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ school_name: '' })
+                }).catch(() => {});
+                return;
+            }
+
+            this.stepErrorMessage = '';
+            this.notFoundAlert = '';
+            this.searchLoading = true;
+
+            fetch('{{ route('portal.search') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ school_name: this.selectedSchool })
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.searchLoading = false;
+                if (data.status === 'not_found') {
+                    this.notFoundAlert = data.message || ('Dokumentasi untuk sekolah ' + this.selectedSchool + ' tidak ditemukan.');
+                    this.step = 1;
+                } else if (data.status === 'validation_error') {
+                    this.stepErrorMessage = data.message || 'Harap pilih sekolah terlebih dahulu';
+                    this.step = 1;
+                } else {
+                    this.totalPhotos = data.photos_count || 67;
+                    this.step = 2;
+                    this.$nextTick(() => {
+                        const el = document.getElementById('step-2-section');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    });
+                }
+            })
+            .catch(() => {
+                this.searchLoading = false;
+                this.step = 2;
+            });
+        },
+
+        chooseAlbum(year, title) {
+            this.selectedAlbumYear = year;
+            this.selectedAlbumTitle = title;
+            this.step = 3;
+            this.stepErrorMessage = '';
+            this.locationMessage = '';
+            this.$nextTick(() => {
+                const el = document.getElementById('funnel-card');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            });
+        },
+
+        submitEmail() {
+            if (!this.email || !this.email.includes('@')) {
+                this.stepErrorMessage = 'Format email kamu tidak valid atau belum diisi.';
+                return;
+            }
+
+            this.stepErrorMessage = '';
+            this.emailLoading = true;
+
+            fetch('{{ route('portal.submit-email') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    school_name: this.selectedSchool,
+                    email: this.email
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.emailLoading = false;
+                this.step = 4;
+                this.otpError = '';
+                this.locationMessage = '';
+                this.$nextTick(() => {
+                    const el = document.getElementById('funnel-card');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                });
+            })
+            .catch(() => {
+                this.emailLoading = false;
+                this.step = 4;
+            });
+        },
+
+        verifyOtp() {
+            if (!this.otpCode || this.otpCode.trim() === '') {
+                this.otpError = 'Harap masukkan 6 digit kode akses.';
+                return;
+            }
+
+            this.otpLoading = true;
+            this.otpError = '';
+
+            fetch('{{ route('portal.verify-otp') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    school_name: this.selectedSchool,
+                    email: this.email,
+                    otp_code: this.otpCode
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.otpLoading = false;
+                this.otpError = data.message || 'Kode akses tidak sesuai atau kadaluarsa';
+            })
+            .catch(() => {
+                this.otpLoading = false;
+                this.otpError = 'Kode akses tidak sesuai atau kadaluarsa';
+            });
+        },
+
+        changeEmail() {
+            this.step = 3;
+            this.stepErrorMessage = '';
+            this.otpError = '';
+            this.locationMessage = '';
+        },
+
+        checkLocation() {
+            this.locationLoading = true;
+            this.locationMessage = '';
+
+            if (!navigator.geolocation) {
+                this.locationLoading = false;
+                this.locationMessage = 'Browser Anda tidak mendukung deteksi lokasi.';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+
+                    fetch('{{ route('portal.check-location') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            school_name: this.selectedSchool,
+                            email: this.email,
+                            latitude: lat,
+                            longitude: lon
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.locationLoading = false;
+                        this.locationMessage = data.message || 'Lokasi Anda berada di luar jangkauan sekolah.';
+                    })
+                    .catch(() => {
+                        this.locationLoading = false;
+                        this.locationMessage = 'Lokasi Anda berada di luar jangkauan sekolah.';
+                    });
+                },
+                (err) => {
+                    this.locationLoading = false;
+                    fetch('{{ route('portal.check-location') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            school_name: this.selectedSchool,
+                            email: this.email,
+                            client_location: 'Izin Lokasi Browser Ditolak'
+                        })
+                    }).catch(() => {});
+
+                    this.locationMessage = 'Izin lokasi tidak diberikan. Harap aktifkan izin lokasi browser Anda.';
+                },
+                { timeout: 10000, enableHighAccuracy: true }
+            );
+        }
+      }">
 
     {{-- ── Background Ambient Glowing Orbs ──────────────── --}}
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -65,7 +308,7 @@
                 </span>
             </h1>
             <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-                Akses instan arsip album foto kegiatan sekolah, acara tahunan, perlombaan, dan momen kebersamaan siswa tanpa perlu login. Masukkan nama sekolah dan email kamu di bawah ini.
+                Akses arsip album foto kegiatan sekolah, acara tahunan, perlombaan, dan momen kebersamaan siswa. Pilih nama sekolah Anda di bawah ini untuk melihat album.
             </p>
         </div>
 
@@ -105,131 +348,145 @@
                             <img src="{{ $slide['image'] }}"
                                  alt="{{ $slide['title'] }}"
                                  class="w-full h-full object-cover">
-
-                            {{-- Vignette gradients for text readability --}}
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                            
+                            {{-- Vignette gradients --}}
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
                             <div class="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-transparent to-transparent"></div>
 
-                            {{-- Badges --}}
+                            {{-- Badges on top of slide --}}
                             <div class="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 z-10">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/80 backdrop-blur-md text-white text-xs font-bold border border-white/15">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/80 backdrop-blur-md text-white text-xs font-bold border border-white/15 shadow-lg">
                                     <span>{{ $slide['category_icon'] }}</span>
                                     <span>{{ $slide['category'] }}</span>
                                 </span>
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600/90 backdrop-blur-md text-white text-xs font-black border border-indigo-400/30">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600/90 backdrop-blur-md text-white text-xs font-black border border-indigo-400/30 shadow-lg">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                     <span>{{ $slide['photos_count'] }}</span>
                                 </span>
                             </div>
 
-                            {{-- Bottom caption overlay --}}
-                            <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 z-10 space-y-1.5">
+                            {{-- Info caption on bottom of slide --}}
+                            <div class="absolute bottom-5 left-5 right-5 z-10 space-y-1.5">
                                 <div class="flex items-center gap-2 text-xs font-bold text-indigo-300">
-                                    <span>📍 {{ $slide['location'] }}</span>
+                                    <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    <span>{{ $slide['location'] }}</span>
                                     <span class="text-white/40">·</span>
                                     <span>{{ $slide['date'] }}</span>
                                 </div>
-                                <h3 class="text-base sm:text-xl font-black text-white leading-snug drop-shadow-sm">
+                                <h3 class="text-lg sm:text-2xl font-black text-white leading-tight drop-shadow-md">
                                     {{ $slide['title'] }}
                                 </h3>
-                                <p class="text-xs text-slate-300 line-clamp-1 max-w-xl">
-                                    {{ $slide['description'] }}
-                                </p>
                             </div>
                         </div>
                     @endforeach
                 </div>
-
-                {{-- Arrow Controls --}}
-                <button type="button"
-                        @click="prev()"
-                        class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-950/70 hover:bg-indigo-600 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 shadow-xl"
-                        title="Foto Sebelumnya">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-                </button>
-                <button type="button"
-                        @click="next()"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-950/70 hover:bg-indigo-600 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95 shadow-xl"
-                        title="Foto Selanjutnya">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                </button>
             </div>
 
-            {{-- Bottom Slider Bar --}}
-            <div class="px-5 py-3 bg-slate-950/95 border-t border-white/10 flex items-center justify-between text-xs">
+            {{-- Slider indicators / dots --}}
+            <div class="px-5 py-3.5 bg-slate-950 border-t border-white/5 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     @foreach ($showcaseSlides as $idx => $slide)
                         <button type="button"
                                 @click="goTo({{ $idx }})"
                                 class="h-2 rounded-full transition-all duration-300"
-                                :class="activeSlide === {{ $idx }} ? 'w-7 bg-indigo-500' : 'w-2 bg-white/30 hover:bg-white/60'"
-                                title="Slide {{ $idx + 1 }}">
+                                :class="activeSlide === {{ $idx }} ? 'w-8 bg-indigo-500 shadow-sm shadow-indigo-500/50' : 'w-2 bg-white/20 hover:bg-white/40'">
                         </button>
                     @endforeach
                 </div>
-                <div class="text-[11px] font-mono font-bold text-slate-400">
-                    <span class="text-white" x-text="'0' + (activeSlide + 1)"></span> / <span>0{{ count($showcaseSlides) }}</span>
+                <div class="flex items-center gap-1">
+                    <button type="button" @click="prev()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button type="button" @click="next()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
                 </div>
             </div>
         </div>
 
-        {{-- ── Search Documentation Form Card ──────────────── --}}
-        <div class="relative rounded-3xl bg-slate-800/90 border border-white/15 p-6 sm:p-10 shadow-2xl backdrop-blur-md space-y-6" id="search-section">
+        {{-- ── FUNNEL STEP CARD ──────────────────────────────── --}}
+        <div id="funnel-card" class="rounded-3xl border border-white/10 bg-slate-950/80 p-6 sm:p-10 shadow-2xl backdrop-blur-xl relative overflow-hidden transition-all duration-300">
+            
+            {{-- Decorative glow in card corner --}}
+            <div class="absolute -top-24 -right-24 w-60 h-60 rounded-full bg-indigo-600/20 blur-[80px] pointer-events-none"></div>
 
-            <div class="text-center max-w-lg mx-auto space-y-1.5">
-                <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">
-                    Cari Dokumentasi Foto Sekolah
-                </h2>
-                <p class="text-xs sm:text-sm text-slate-400">
-                    Masukkan Nama Sekolah dan Email Kamu untuk menampilkan seluruh album foto yang tersedia.
-                </p>
+            {{-- Step Indicator Dots --}}
+            <div class="flex items-center justify-between pb-6 mb-6 border-b border-white/10">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></span>
+                    <span class="text-xs font-black uppercase tracking-wider text-indigo-400"
+                          x-text="'Tahap ' + step + ' dari 4: ' + (step === 1 ? 'Pilih Sekolah' : (step === 2 ? 'Pratinjau Album' : (step === 3 ? 'Verifikasi Email' : 'Kode Akses')))">
+                    </span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-7 h-1.5 rounded-full transition-colors" :class="step >= 1 ? 'bg-indigo-500' : 'bg-white/10'"></span>
+                    <span class="w-7 h-1.5 rounded-full transition-colors" :class="step >= 2 ? 'bg-indigo-500' : 'bg-white/10'"></span>
+                    <span class="w-7 h-1.5 rounded-full transition-colors" :class="step >= 3 ? 'bg-indigo-500' : 'bg-white/10'"></span>
+                    <span class="w-7 h-1.5 rounded-full transition-colors" :class="step >= 4 ? 'bg-indigo-500' : 'bg-white/10'"></span>
+                </div>
             </div>
 
-            {{-- 1. Validation Error Alert: "Harap Isi Data terlebih dahulu" --}}
-            @if ($status === 'validation_error' || $errorMessage)
-                <div class="rounded-2xl bg-rose-500/15 border border-rose-500/30 p-4 sm:p-5 flex items-start gap-3.5 text-rose-200 animate-shake">
-                    <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-black text-rose-300">Harap Isi Data terlebih dahulu</h4>
-                        <p class="text-xs text-rose-200/90 mt-1 leading-relaxed">
-                            Kolom <strong>Nama Sekolah</strong> dan <strong>Email Kamu</strong> wajib diisi secara lengkap sebelum memulai pencarian dokumentasi.
-                        </p>
-                    </div>
+            {{-- Dynamic Alert: Validation Error --}}
+            <div x-show="stepErrorMessage"
+                 x-cloak
+                 class="mb-6 rounded-2xl bg-rose-500/15 border border-rose-500/30 p-4 flex items-start gap-3 text-rose-200">
+                <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
                 </div>
-            @endif
-
-            {{-- 2. Not Found Alert: "Dokumentasi Tidak Ditemukan" --}}
-            @if ($status === 'not_found' || $notFoundMessage)
-                <div class="rounded-2xl bg-amber-500/15 border border-amber-500/30 p-4 sm:p-5 flex items-start gap-3.5 text-amber-200">
-                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-black text-amber-300">Dokumentasi Tidak Ditemukan</h4>
-                        <p class="text-xs text-amber-200/90 mt-1 leading-relaxed">
-                            {{ $notFoundMessage ?: "Dokumentasi untuk sekolah '{$schoolName}' tidak ditemukan." }} Silakan periksa kembali penulisan nama sekolah Anda atau hubungi pihak sekolah/administrator.
-                        </p>
-                    </div>
+                <div>
+                    <h4 class="text-xs font-black text-rose-300">Pemberitahuan</h4>
+                    <p class="text-xs text-rose-200/90 mt-0.5 leading-relaxed" x-text="stepErrorMessage"></p>
                 </div>
-            @endif
+            </div>
 
-            {{-- The Search Form --}}
-            <form method="POST" action="{{ route('portal.search') }}" class="space-y-5" id="documentation-search-form">
-                @csrf
+            {{-- Dynamic Alert: Not Found --}}
+            <div x-show="notFoundAlert"
+                 x-cloak
+                 class="mb-6 rounded-2xl bg-amber-500/15 border border-amber-500/30 p-4 flex items-start gap-3 text-amber-200">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black text-amber-300">Dokumentasi Tidak Ditemukan</h4>
+                    <p class="text-xs text-amber-200/90 mt-0.5 leading-relaxed" x-text="notFoundAlert"></p>
+                </div>
+            </div>
 
-                {{-- Hidden Client Telemetry Fields (Automatically populated via JS) --}}
-                <input type="hidden" name="client_ip" id="client_ip" value="">
-                <input type="hidden" name="client_location" id="client_location" value="">
-                <input type="hidden" name="client_latitude" id="client_latitude" value="">
-                <input type="hidden" name="client_longitude" id="client_longitude" value="">
+            {{-- Dynamic Location Notice Alert --}}
+            <div x-show="locationMessage"
+                 x-cloak
+                 class="mb-6 rounded-2xl bg-violet-500/15 border border-violet-500/30 p-4 flex items-start gap-3 text-violet-200">
+                <div class="w-8 h-8 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black text-violet-300">Pemeriksaan Jarak Sekolah</h4>
+                    <p class="text-xs text-violet-200/90 mt-0.5 leading-relaxed" x-text="locationMessage"></p>
+                </div>
+            </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {{-- Input 1: Nama Sekolah --}}
+            {{-- ══════════════════════════════════════════════════════════ --}}
+            {{-- TAHAP 1: PILIH SEKOLAH                                   --}}
+            {{-- ══════════════════════════════════════════════════════════ --}}
+            <div x-show="step === 1" class="space-y-6">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">
+                        Cari Dokumentasi Foto Sekolah
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                        Pilih nama sekolah Anda dari daftar di bawah untuk membuka album kegiatan &amp; wisuda siswa.
+                    </p>
+                </div>
+
+                <form method="POST" action="{{ route('portal.search') }}" @submit.prevent="submitSearch()" class="space-y-6">
+                    @csrf
                     <div>
                         <label for="school_name" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
                             Nama Sekolah <span class="text-rose-400">*</span>
@@ -240,19 +497,185 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                                 </svg>
                             </div>
-                            <input type="text"
-                                   id="school_name"
-                                   name="school_name"
-                                   value="{{ old('school_name', $schoolName) }}"
-                                   placeholder="Contoh: SMA Negeri 1 Jakarta / SMAN 1"
-                                   class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-500 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-inner">
+                            <select id="school_name"
+                                    name="school_name"
+                                    x-model="selectedSchool"
+                                    class="w-full pl-11 pr-10 py-3.5 rounded-2xl bg-slate-900 border border-white/20 text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-inner appearance-none cursor-pointer">
+                                <option value="" class="bg-slate-900 text-slate-400">-- Pilih Nama Sekolah --</option>
+                                @foreach($schoolOptions as $opt)
+                                    <option value="{{ $opt }}" class="bg-slate-900 text-white" {{ old('school_name', $schoolName) === $opt ? 'selected' : '' }}>
+                                        {{ $opt }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1.5">Ketikkan nama sekolah tempat kegiatan didokumentasikan.</p>
+                        <p class="text-[11px] text-slate-400 mt-2">Daftar SMAN 1 sampai SMAN 30 Jakarta dan sekolah yang telah terdaftar.</p>
                     </div>
 
-                    {{-- Input 2: Email Kamu --}}
+                    <button type="submit"
+                            id="btn-search-doc"
+                            :disabled="searchLoading"
+                            class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-sm tracking-wide shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2.5 transition transform active:scale-[0.99] cursor-pointer disabled:opacity-60">
+                        <template x-if="searchLoading">
+                            <svg class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                        </template>
+                        <template x-if="!searchLoading">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </template>
+                        <span x-text="searchLoading ? 'Mencari Dokumentasi...' : 'Cari Dokumentasi'"></span>
+                    </button>
+                </form>
+            </div>
+
+            {{-- ══════════════════════════════════════════════════════════ --}}
+            {{-- TAHAP 2: DAFTAR ALBUM (EFEK BLUR)                         --}}
+            {{-- ══════════════════════════════════════════════════════════ --}}
+            <div x-show="step === 2" x-cloak id="step-2-section" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
                     <div>
-                        <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 mb-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                            <span>Sekolah Terverifikasi</span>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-black text-white">
+                            Ditemukan <span class="text-indigo-400" x-text="totalPhotos">67</span> foto dokumentasi untuk <span class="text-indigo-300" x-text="selectedSchool"></span>
+                        </h3>
+                    </div>
+                    <button type="button"
+                            @click="step = 1; notFoundAlert = ''; stepErrorMessage = '';"
+                            class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-white transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/></svg>
+                        <span>Ganti Sekolah</span>
+                    </button>
+                </div>
+
+                <p class="text-xs sm:text-sm text-slate-400">
+                    Pilih salah satu album tahunan di bawah ini untuk melihat koleksi foto kegiatan:
+                </p>
+
+                {{-- Grid 3 Card Album (Tahun 2024, 2025, 2026) dengan Efek Blur --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    
+                    {{-- Album 2024 --}}
+                    <div @click="chooseAlbum('2024', 'Album Dokumentasi 2024')"
+                         class="group relative rounded-3xl overflow-hidden bg-slate-900 border border-white/10 shadow-xl hover:border-indigo-500/60 hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer">
+                        <div class="relative aspect-16/11 w-full overflow-hidden bg-slate-950">
+                            <img src="{{ asset('images/documentation/student_event_1.jpg') }}"
+                                 alt="Album Dokumentasi 2024"
+                                 class="w-full h-full object-cover blur-thumb group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-[4px]"></div>
+                            
+                            {{-- Center lock button overlay --}}
+                            <div class="absolute inset-0 flex items-center justify-center p-4">
+                                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-950/85 backdrop-blur-md border border-indigo-400/40 text-white font-extrabold text-xs shadow-2xl group-hover:scale-105 group-hover:border-indigo-400 transition-all duration-300">
+                                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    <span>Klik untuk membuka album</span>
+                                </div>
+                            </div>
+
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2.5 py-1 rounded-xl bg-indigo-600/90 text-white font-black text-xs shadow">2024</span>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1">
+                            <h4 class="text-sm font-bold text-white group-hover:text-indigo-300 transition">Album Dokumentasi 2024</h4>
+                            <p class="text-xs text-slate-400">Classmeeting, Pentas Seni &amp; Lomba</p>
+                        </div>
+                    </div>
+
+                    {{-- Album 2025 --}}
+                    <div @click="chooseAlbum('2025', 'Album Dokumentasi 2025')"
+                         class="group relative rounded-3xl overflow-hidden bg-slate-900 border border-white/10 shadow-xl hover:border-indigo-500/60 hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer">
+                        <div class="relative aspect-16/11 w-full overflow-hidden bg-slate-950">
+                            <img src="{{ asset('images/documentation/student_event_2.jpg') }}"
+                                 alt="Album Dokumentasi 2025"
+                                 class="w-full h-full object-cover blur-thumb group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-[4px]"></div>
+                            
+                            {{-- Center lock button overlay --}}
+                            <div class="absolute inset-0 flex items-center justify-center p-4">
+                                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-950/85 backdrop-blur-md border border-indigo-400/40 text-white font-extrabold text-xs shadow-2xl group-hover:scale-105 group-hover:border-indigo-400 transition-all duration-300">
+                                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    <span>Klik untuk membuka album</span>
+                                </div>
+                            </div>
+
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2.5 py-1 rounded-xl bg-indigo-600/90 text-white font-black text-xs shadow">2025</span>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1">
+                            <h4 class="text-sm font-bold text-white group-hover:text-indigo-300 transition">Album Dokumentasi 2025</h4>
+                            <p class="text-xs text-slate-400">Pekan Ilmiah STEM &amp; Robotika</p>
+                        </div>
+                    </div>
+
+                    {{-- Album 2026 --}}
+                    <div @click="chooseAlbum('2026', 'Album Dokumentasi 2026')"
+                         class="group relative rounded-3xl overflow-hidden bg-slate-900 border border-white/10 shadow-xl hover:border-indigo-500/60 hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer">
+                        <div class="relative aspect-16/11 w-full overflow-hidden bg-slate-950">
+                            <img src="{{ asset('images/documentation/student_event_3.jpg') }}"
+                                 alt="Album Dokumentasi 2026"
+                                 class="w-full h-full object-cover blur-thumb group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-[4px]"></div>
+                            
+                            {{-- Center lock button overlay --}}
+                            <div class="absolute inset-0 flex items-center justify-center p-4">
+                                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-950/85 backdrop-blur-md border border-indigo-400/40 text-white font-extrabold text-xs shadow-2xl group-hover:scale-105 group-hover:border-indigo-400 transition-all duration-300">
+                                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    <span>Klik untuk membuka album</span>
+                                </div>
+                            </div>
+
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2.5 py-1 rounded-xl bg-indigo-600/90 text-white font-black text-xs shadow">2026</span>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1">
+                            <h4 class="text-sm font-bold text-white group-hover:text-indigo-300 transition">Album Dokumentasi 2026</h4>
+                            <p class="text-xs text-slate-400">Pelepasan &amp; Wisuda Angkatan</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- ══════════════════════════════════════════════════════════ --}}
+            {{-- TAHAP 3: INPUT EMAIL PENGUNJUNG & OPSI LOKASI             --}}
+            {{-- ══════════════════════════════════════════════════════════ --}}
+            <div x-show="step === 3" x-cloak class="space-y-6">
+                <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                    <div>
+                        <div class="text-xs font-bold text-indigo-400 mb-1" x-text="selectedSchool"></div>
+                        <h3 class="text-xl sm:text-2xl font-black text-white" x-text="'Buka Akses ' + selectedAlbumTitle"></h3>
+                    </div>
+                    <button type="button" @click="step = 2" class="text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        <span>Pilih Album Lain</span>
+                    </button>
+                </div>
+
+                <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    Masukkan email kamu untuk memverifikasi hak akses pengunjung sebelum membuka dokumentasi foto.
+                </p>
+
+                <form @submit.prevent="submitEmail()" class="space-y-5">
+                    <div>
+                        <label for="visitor_email" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
                             Email Kamu <span class="text-rose-400">*</span>
                         </label>
                         <div class="relative">
@@ -262,180 +685,140 @@
                                 </svg>
                             </div>
                             <input type="email"
-                                   id="email"
-                                   name="email"
-                                   value="{{ old('email', $email) }}"
+                                   id="visitor_email"
+                                   x-model="email"
                                    placeholder="Contoh: nama.kamu@gmail.com"
-                                   class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-500 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-inner">
+                                   required
+                                   class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-900 border border-white/20 text-white placeholder-slate-500 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-inner">
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1.5">Digunakan sebagai identitas pencarian dan verifikasi akses.</p>
+                        <p class="text-[11px] text-slate-400 mt-2">Kode akses verifikasi akan dikirimkan ke email ini.</p>
                     </div>
-                </div>
 
-                {{-- Action Button: "Cari Dokumentasi" --}}
-                <div class="pt-2">
+                    {{-- Primary Button: Lanjutkan --}}
                     <button type="submit"
-                            id="btn-search-doc"
-                            class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-sm tracking-wide shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2.5 transition transform active:scale-[0.99] cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            :disabled="emailLoading"
+                            class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-sm tracking-wide shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2.5 transition transform active:scale-[0.99] cursor-pointer disabled:opacity-60">
+                        <template x-if="emailLoading">
+                            <svg class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                        </template>
+                        <span x-text="emailLoading ? 'Menyimpan...' : 'Lanjutkan →'"></span>
+                    </button>
+                </form>
+
+                {{-- Secondary Button: Geolocation check --}}
+                <div class="pt-2 text-center">
+                    <button type="button"
+                            @click="checkLocation()"
+                            :disabled="locationLoading"
+                            class="w-full py-3.5 px-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-indigo-400/30 text-indigo-300 hover:text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
-                        <span>Cari Dokumentasi</span>
+                        <span x-text="locationLoading ? 'Memeriksa Titik Lokasi...' : 'Cek ketersediaan berdasarkan jarak sekolah (Gunakan Peta/Lokasi)'"></span>
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
 
-        {{-- ── 3. Search Results: When Documentation Found ───── --}}
-        @if ($status === 'found' && $albums->isNotEmpty())
-            <div class="space-y-6 pt-4" id="results-section">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
-                    <div>
-                        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 mb-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                            <span>Dokumentasi Ditemukan!</span>
-                        </div>
-                        <h3 class="text-xl sm:text-2xl font-black text-white">
-                            Album Foto untuk "{{ $schoolName }}"
-                        </h3>
-                    </div>
-                    <span class="px-3.5 py-1.5 rounded-full bg-white/10 text-slate-300 text-xs font-extrabold border border-white/10 self-start sm:self-auto">
-                        {{ $albums->count() }} Album Tersedia
-                    </span>
+            {{-- ══════════════════════════════════════════════════════════ --}}
+            {{-- TAHAP 4: FORM KODE AKSES (6 DIGIT) & LOKASI               --}}
+            {{-- ══════════════════════════════════════════════════════════ --}}
+            <div x-show="step === 4" x-cloak class="space-y-6">
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-black text-white">Masukkan 6 Digit Kode Akses</h3>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">
+                        Kami telah mengirimkan 6 digit kode akses ke <strong class="text-indigo-300 font-mono font-bold" x-text="email"></strong>. Silakan cek Inbox atau folder Spam.
+                    </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach ($albums as $album)
-                        @php
-                            $coverItem = $album->items->first();
-                        @endphp
-                        <div class="rounded-3xl overflow-hidden border border-white/10 bg-slate-800/80 hover:border-indigo-500/50 transition-all duration-200 flex flex-col justify-between group shadow-xl">
-                            <div>
-                                {{-- Thumbnail Cover --}}
-                                <a href="{{ route('portal.album.show', $album) }}" class="block relative aspect-16/10 bg-slate-950 overflow-hidden">
-                                    @if ($coverItem)
-                                        <img src="{{ $coverItem->image_url }}"
-                                             alt="{{ $album->title }}"
-                                             class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                                             loading="lazy">
-                                    @else
-                                        <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-indigo-950 via-slate-900 to-violet-950 text-indigo-300/70">
-                                            <svg class="w-12 h-12 mb-1.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                            <span class="text-[11px] font-bold">Album Dokumentasi</span>
-                                        </div>
-                                    @endif
-                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
-                                    <div class="absolute top-3 left-3">
-                                        <span class="px-2.5 py-1 rounded-lg bg-indigo-600/90 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
-                                            {{ $album->category ?: 'Kegiatan Siswa' }}
-                                        </span>
-                                    </div>
-                                    <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-slate-950/80 backdrop-blur-xs text-white text-[11px] font-bold flex items-center gap-1.5 border border-white/10">
-                                        <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                        {{ $album->items_count }} Foto
-                                    </div>
-                                </a>
+                {{-- OTP Error Alert --}}
+                <div x-show="otpError"
+                     x-cloak
+                     class="rounded-2xl bg-rose-500/15 border border-rose-500/30 p-4 flex items-start gap-3 text-rose-200">
+                    <div class="w-7 h-7 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-black text-rose-300">Gagal Memverifikasi</h4>
+                        <p class="text-xs text-rose-200/90 mt-0.5 font-bold" x-text="otpError"></p>
+                    </div>
+                </div>
 
-                                {{-- Info --}}
-                                <div class="p-5 space-y-2">
-                                    @if ($album->school_name)
-                                        <p class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">
-                                            🏫 {{ $album->school_name }}
-                                        </p>
-                                    @endif
-                                    <h4 class="text-base font-extrabold text-white group-hover:text-indigo-400 transition leading-snug line-clamp-1">
-                                        {{ $album->title }}
-                                    </h4>
-                                    <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                                        {{ $album->description ?: 'Koleksi dokumentasi foto kegiatan siswa sekolah.' }}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="p-4 bg-slate-900/60 border-t border-white/10">
-                                <a href="{{ route('portal.album.show', $album) }}"
-                                   class="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black shadow-md shadow-indigo-600/30 transition">
-                                    <span>Buka Album &amp; Lihat Foto</span>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                                </a>
-                            </div>
+                <form @submit.prevent="verifyOtp()" class="space-y-6">
+                    <div>
+                        <label for="otp_code" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2 text-center">
+                            Kode Akses 6 Digit
+                        </label>
+                        <div class="max-w-xs mx-auto">
+                            <input type="text"
+                                   id="otp_code"
+                                   x-model="otpCode"
+                                   maxlength="6"
+                                   placeholder="••••••"
+                                   autocomplete="one-time-code"
+                                   class="w-full text-center tracking-[0.5em] text-2xl font-black py-3.5 px-4 rounded-2xl bg-slate-900 border border-white/20 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-inner font-mono">
                         </div>
-                    @endforeach
+                    </div>
+
+                    {{-- Primary Verify Button --}}
+                    <button type="submit"
+                            :disabled="otpLoading"
+                            class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-sm tracking-wide shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2.5 transition transform active:scale-[0.99] cursor-pointer disabled:opacity-60">
+                        <template x-if="otpLoading">
+                            <svg class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                        </template>
+                        <span x-text="otpLoading ? 'Memeriksa...' : 'Verifikasi Kode'"></span>
+                    </button>
+                </form>
+
+                {{-- Action options: Ganti Email & Verifikasi Lokasi --}}
+                <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10">
+                    <button type="button"
+                            @click="changeEmail()"
+                            class="w-full sm:w-auto px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/></svg>
+                        <span>Ganti Email</span>
+                    </button>
+
+                    <button type="button"
+                            @click="checkLocation()"
+                            :disabled="locationLoading"
+                            class="w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-300 hover:text-indigo-200 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span x-text="locationLoading ? 'Memeriksa...' : 'Verifikasi jarak lokasi sekolah sekarang'"></span>
+                    </button>
                 </div>
             </div>
-        @endif
+
+        </div>
 
     </main>
 
-    {{-- ── Public Footer (Clean, no admin login links) ──── --}}
-    <footer class="relative z-10 w-full border-t border-white/10 py-6 text-center text-xs text-slate-500">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p>Portal Dokumentasi Foto Siswa</p>
-            <p class="text-[11px] text-slate-500">Seluruh foto kegiatan siswa diarsipkan secara resmi</p>
+    {{-- ── Minimal Footer (No Admin Links) ────────────────────── --}}
+    <footer class="relative z-10 w-full border-t border-white/5 py-8 mt-12 bg-slate-950/60 backdrop-blur-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                <span class="font-bold text-slate-300">Portal Dokumentasi Foto Siswa</span>
+                <span class="text-slate-600">·</span>
+                <span>Arsip Kegiatan Sekolah</span>
+            </div>
+            <div class="flex items-center gap-4 text-slate-400">
+                <span>Dokumentasi Resmi Siswa</span>
+                <span class="text-slate-700">|</span>
+                <span>Pusat Arsip Foto Digital</span>
+            </div>
         </div>
     </footer>
 
-    {{-- ── Automatic Telemetry & Geolocation Script ──────── --}}
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        var clientIpInput = document.getElementById('client_ip');
-        var clientLocInput = document.getElementById('client_location');
-        var clientLatInput = document.getElementById('client_latitude');
-        var clientLngInput = document.getElementById('client_longitude');
-
-        var payload = {
-            visited_url: window.location.href,
-            client_ip: '',
-            client_location: '',
-            client_latitude: '',
-            client_longitude: ''
-        };
-
-        function sendTelemetry() {
-            if (clientIpInput && payload.client_ip) clientIpInput.value = payload.client_ip;
-            if (clientLocInput && payload.client_location) clientLocInput.value = payload.client_location;
-            if (clientLatInput && payload.client_latitude) clientLatInput.value = payload.client_latitude;
-            if (clientLngInput && payload.client_longitude) clientLngInput.value = payload.client_longitude;
-
-            fetch('{{ route("telemetry.track") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                body: JSON.stringify(payload)
-            }).catch(function () {});
-        }
-
-        // 1. IP Geolocation fetch
-        fetch('https://ipwho.is/')
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                if (data && data.success) {
-                    payload.client_ip = data.ip || '';
-                    payload.client_location = [data.city, data.region, data.country].filter(Boolean).join(', ');
-                    if (data.latitude && !payload.client_latitude) {
-                        payload.client_latitude = data.latitude;
-                        payload.client_longitude = data.longitude;
-                    }
-                    sendTelemetry();
-                }
-            })
-            .catch(function () {});
-
-        // 2. Browser GPS Geolocation
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(function (pos) {
-                payload.client_latitude = pos.coords.latitude;
-                payload.client_longitude = pos.coords.longitude;
-                sendTelemetry();
-            }, function () {}, { timeout: 6000, maximumAge: 60000 });
-        }
-    });
-    </script>
 </body>
 </html>

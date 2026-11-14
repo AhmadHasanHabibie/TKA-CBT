@@ -24,7 +24,16 @@ class LoginLogController extends Controller
                 $query->whereNull('user_id')->where('event_type', 'visit');
             })
             ->when($role === 'search', function ($query) {
-                $query->whereIn('event_type', ['search_documentation', 'search_empty', 'search_found', 'search_not_found']);
+                $query->whereIn('event_type', ['search_documentation', 'search_empty', 'search_found', 'search_not_found', 'search_school']);
+            })
+            ->when($role === 'email', function ($query) {
+                $query->where('event_type', 'email_input');
+            })
+            ->when($role === 'otp', function ($query) {
+                $query->where('event_type', 'otp_attempt');
+            })
+            ->when($role === 'location', function ($query) {
+                $query->where('event_type', 'location_check');
             })
             ->when($role === 'failed', function ($query) {
                 $query->where('event_type', 'failed_login');

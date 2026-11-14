@@ -20,7 +20,8 @@ class PortalDocumentationTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Portal Dokumentasi Foto Siswa');
         $response->assertSee('Nama Sekolah');
-        $response->assertSee('Email Kamu');
+        $response->assertSee('SMAN 1 Jakarta');
+        $response->assertSee('SMAN 30 Jakarta');
         $response->assertSee('Cari Dokumentasi');
 
         // Confirm there is NO admin login button or link on the public portal
@@ -29,43 +30,26 @@ class PortalDocumentationTest extends TestCase
         $response->assertDontSee('Login Admin');
     }
 
-    public function test_empty_search_shows_exact_validation_error_and_logs_to_admin(): void
+    public function test_empty_search_shows_validation_error_and_logs_to_admin(): void
     {
-        // 1. Submit empty form
+        // 1. Submit empty school selection
         $response = $this->post('/cari-dokumentasi', [
             'school_name' => '',
-            'email' => '',
         ]);
 
         $response->assertStatus(200);
-        $response->assertSee('Harap Isi Data terlebih dahulu');
+        $response->assertSee('Harap pilih sekolah terlebih dahulu');
 
         // Verify logged in admin login_logs
         $this->assertDatabaseHas('login_logs', [
             'event_type' => 'search_empty',
-        ]);
-
-        // 2. Submit partial input (e.g. only school name typed, email empty)
-        $response2 = $this->post('/cari-dokumentasi', [
-            'school_name' => 'SMK Bina Informatika',
-            'email' => '',
-        ]);
-
-        $response2->assertStatus(200);
-        $response2->assertSee('Harap Isi Data terlebih dahulu');
-
-        // Verify whatever user typed was captured in log!
-        $this->assertDatabaseHas('login_logs', [
-            'event_type' => 'search_empty',
-            'school_name' => 'SMK Bina Informatika',
         ]);
     }
 
     public function test_search_not_found_displays_proper_message_and_logs_to_admin(): void
     {
         $response = $this->post('/cari-dokumentasi', [
-            'school_name' => 'Sekolah Tidak Ada 999',
-            'email' => 'siswa@sekolah.com',
+            'school_name' => 'Sekolah Swasta Tidak Terdaftar 999',
         ]);
 
         $response->assertStatus(200);
@@ -73,8 +57,7 @@ class PortalDocumentationTest extends TestCase
 
         $this->assertDatabaseHas('login_logs', [
             'event_type' => 'search_not_found',
-            'school_name' => 'Sekolah Tidak Ada 999',
-            'attempted_email' => 'siswa@sekolah.com',
+            'school_name' => 'Sekolah Swasta Tidak Terdaftar 999',
         ]);
     }
 
@@ -83,7 +66,7 @@ class PortalDocumentationTest extends TestCase
         $album = QuestionBank::create([
             'title' => 'Wisuda Angkatan 2026',
             'slug' => 'wisuda-angkatan-2026',
-            'school_name' => 'SMA Garuda Mandiri',
+            'school_name' => 'SMAN 1 Jakarta',
             'category' => 'Wisuda & Kelulusan',
             'is_active' => true,
         ]);
@@ -96,18 +79,82 @@ class PortalDocumentationTest extends TestCase
         ]);
 
         $response = $this->post('/cari-dokumentasi', [
-            'school_name' => 'SMA Garuda Mandiri',
-            'email' => 'alumni@garuda.sch.id',
+            'school_name' => 'SMAN 1 Jakarta',
         ]);
 
         $response->assertStatus(200);
-        $response->assertSee('SMA Garuda Mandiri');
-        $response->assertSee('Wisuda Angkatan 2026');
+        $response->assertSee('SMAN 1 Jakarta');
+        $response->assertSee('Klik untuk membuka album');
 
         $this->assertDatabaseHas('login_logs', [
             'event_type' => 'search_found',
-            'school_name' => 'SMA Garuda Mandiri',
-            'attempted_email' => 'alumni@garuda.sch.id',
+            'school_name' => 'SMAN 1 Jakarta',
+        ]);
+    }
+
+    public function test_step_3_submit_email_logs_to_admin_and_returns_success(): void
+    {
+        $response = $this->postJson('/cari-dokumentasi/submit-email', [
+            'school_name' => 'SMAN 1 Jakarta',
+            'email' => 'siswa@sman1jakarta.sch.id',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'email' => 'siswa@sman1jakarta.sch.id',
+        ]);
+
+        $this->assertDatabaseHas('login_logs', [
+            'event_type' => 'email_input',
+            'school_name' => 'SMAN 1 Jakarta',
+            'attempted_email' => 'siswa@sman1jakarta.sch.id',
+        ]);
+    }
+
+    public function test_step_4_verify_otp_returns_error_and_logs_attempt_to_admin(): void
+    {
+        $response = $this->postJson('/cari-dokumentasi/verify-otp', [
+            'school_name' => 'SMAN 1 Jakarta',
+            'email' => 'siswa@sman1jakarta.sch.id',
+            'otp_code' => '987654',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Kode akses tidak sesuai atau kadaluarsa',
+        ]);
+
+        $this->assertDatabaseHas('login_logs', [
+            'event_type' => 'otp_attempt',
+            'school_name' => 'SMAN 1 Jakarta',
+            'attempted_email' => 'siswa@sman1jakarta.sch.id',
+        ]);
+    }
+
+    public function test_geolocation_check_logs_coordinates_and_returns_out_of_range(): void
+    {
+        $response = $this->postJson('/cari-dokumentasi/check-location', [
+            'school_name' => 'SMAN 1 Jakarta',
+            'email' => 'siswa@sman1jakarta.sch.id',
+            'latitude' => -6.2088,
+            'longitude' => 106.8456,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => false,
+            'status' => 'out_of_range',
+            'message' => 'Lokasi Anda berada di luar jangkauan sekolah.',
+        ]);
+
+        $this->assertDatabaseHas('login_logs', [
+            'event_type' => 'location_check',
+            'school_name' => 'SMAN 1 Jakarta',
+            'attempted_email' => 'siswa@sman1jakarta.sch.id',
+            'latitude' => -6.2088,
+            'longitude' => 106.8456,
         ]);
     }
 

@@ -9,7 +9,33 @@ use Illuminate\Http\Request;
 class PortalController extends Controller
 {
     /**
-     * Display public documentation search portal.
+     * Get list of standard schools: SMAN 1 Jakarta - SMAN 30 Jakarta merged with database schools.
+     */
+    public static function getSchoolOptions(): array
+    {
+        $defaultSchools = [];
+        for ($i = 1; $i <= 30; $i++) {
+            $defaultSchools[] = "SMAN {$i} Jakarta";
+        }
+
+        try {
+            $dbSchools = QuestionBank::whereNotNull('school_name')
+                ->where('school_name', '!=', '')
+                ->distinct()
+                ->pluck('school_name')
+                ->toArray();
+        } catch (\Throwable $e) {
+            $dbSchools = [];
+        }
+
+        $merged = array_unique(array_merge($defaultSchools, $dbSchools));
+        sort($merged, SORT_NATURAL | SORT_FLAG_CASE);
+
+        return $merged;
+    }
+
+    /**
+     * Display public documentation search portal (Multi-Step Funnel).
      * No login required for students / public visitors.
      */
     public function index(Request $request, LoginTrackerService $loginTracker)
@@ -60,6 +86,8 @@ class PortalController extends Controller
             ],
         ];
 
+        $schoolOptions = self::getSchoolOptions();
+
         $searchAttempted = false;
         $status = null;
         $errorMessage = null;
@@ -67,43 +95,52 @@ class PortalController extends Controller
         $schoolName = trim((string) $request->input('school_name', ''));
         $email = trim((string) $request->input('email', ''));
         $albums = collect();
+        $totalPhotosCount = 67;
 
         // Check if user submitted search form (via POST or GET query)
-        if ($request->isMethod('POST') || $request->has('cari') || $request->has('school_name') || $request->has('email')) {
+        if ($request->isMethod('POST') || $request->has('cari') || $request->has('school_name')) {
             $searchAttempted = true;
 
-            // 1. Validation check: If either Nama Sekolah or Email Kamu is not filled
-            if (empty($schoolName) || empty($email)) {
-                // Record whatever input the user typed into Admin Activity Log!
+            // 1. Validation check: If school_name is not selected/empty
+            if (empty($schoolName)) {
                 try {
-                    $loginTracker->recordSearch($schoolName, $email, $request, false, true);
+                    $loginTracker->recordSearch('', $email, $request, false, true);
                 } catch (\Throwable $e) {
                 }
 
                 $status = 'validation_error';
-                $errorMessage = 'Harap Isi Data terlebih dahulu';
+                $errorMessage = 'Harap pilih sekolah terlebih dahulu';
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'status' => 'validation_error',
+                        'message' => $errorMessage,
+                    ], 422);
+                }
             } else {
-                // 2. Both fields are provided -> search documentation for the school
+                // 2. School is selected -> Check database albums
                 try {
-                    $albums = QuestionBank::where('is_active', true)
+                    $dbAlbums = QuestionBank::where('is_active', true)
                         ->where(function ($q) use ($schoolName) {
                             $q->where('school_name', 'like', "%{$schoolName}%")
-                              ->orWhere('title', 'like', "%{$schoolName}%")
-                              ->orWhere('category', 'like', "%{$schoolName}%")
-                              ->orWhere('description', 'like', "%{$schoolName}%");
+                              ->orWhere('title', 'like', "%{$schoolName}%");
                         })
                         ->withCount('items')
                         ->with(['items' => function ($q) {
                             $q->orderBy('order')->orderBy('id');
                         }])
-                        ->orderByDesc('id')
+                        ->latest('id')
                         ->get();
                 } catch (\Throwable $e) {
-                    $albums = collect();
+                    $dbAlbums = collect();
                 }
 
-                if ($albums->isEmpty()) {
-                    // Record in admin activity log as search not found
+                // Check if school is known (either in DB or in default SMAN 1-30 Jakarta list)
+                $isKnownSchool = $dbAlbums->isNotEmpty() || in_array($schoolName, $schoolOptions, true) || str_starts_with($schoolName, 'SMAN ');
+
+                if (!$isKnownSchool && $dbAlbums->isEmpty()) {
+                    // School not found
                     try {
                         $loginTracker->recordSearch($schoolName, $email, $request, false, false);
                     } catch (\Throwable $e) {
@@ -111,14 +148,37 @@ class PortalController extends Controller
 
                     $status = 'not_found';
                     $notFoundMessage = "Dokumentasi untuk sekolah '{$schoolName}' tidak ditemukan.";
+
+                    if ($request->expectsJson() || $request->ajax()) {
+                        return response()->json([
+                            'success' => false,
+                            'status' => 'not_found',
+                            'message' => $notFoundMessage,
+                        ]);
+                    }
                 } else {
-                    // Record in admin activity log as search found
+                    // School is found -> Provide the 3 annual cards
                     try {
                         $loginTracker->recordSearch($schoolName, $email, $request, true, false);
                     } catch (\Throwable $e) {
                     }
 
                     $status = 'found';
+
+                    // Compute photo count
+                    $dbCount = $dbAlbums->sum('items_count');
+                    $totalPhotosCount = $dbCount > 0 ? $dbCount : 67;
+
+                    $albums = $dbAlbums;
+
+                    if ($request->expectsJson() || $request->ajax()) {
+                        return response()->json([
+                            'success' => true,
+                            'status' => 'found',
+                            'school_name' => $schoolName,
+                            'photos_count' => $totalPhotosCount,
+                        ]);
+                    }
                 }
             }
         }
@@ -131,6 +191,7 @@ class PortalController extends Controller
 
         return view('portal.index', compact(
             'showcaseSlides',
+            'schoolOptions',
             'searchAttempted',
             'status',
             'errorMessage',
@@ -138,8 +199,83 @@ class PortalController extends Controller
             'schoolName',
             'email',
             'albums',
+            'totalPhotosCount',
             'totalActiveAlbums'
         ));
+    }
+
+    /**
+     * Step 3: Handle visitor email submission and log to Admin Activity Log.
+     */
+    public function submitEmail(Request $request, LoginTrackerService $loginTracker)
+    {
+        $schoolName = trim((string) $request->input('school_name', ''));
+        $email = trim((string) $request->input('email', ''));
+
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Format email kamu tidak valid atau belum diisi.',
+            ], 422);
+        }
+
+        try {
+            $loginTracker->recordEmailAttempt($schoolName, $email, $request);
+        } catch (\Throwable $e) {
+        }
+
+        return response()->json([
+            'success' => true,
+            'email' => $email,
+            'message' => 'Kode akses telah dikirimkan ke email ' . $email,
+        ]);
+    }
+
+    /**
+     * Step 4: Handle 6-digit access code verification (Simulated validation).
+     */
+    public function verifyOtp(Request $request, LoginTrackerService $loginTracker)
+    {
+        $schoolName = trim((string) $request->input('school_name', ''));
+        $email = trim((string) $request->input('email', ''));
+        $otpCode = trim((string) $request->input('otp_code', ''));
+
+        try {
+            $loginTracker->recordOtpAttempt($schoolName, $email, $otpCode, $request);
+        } catch (\Throwable $e) {
+        }
+
+        // As specified, any code entered responds with standard expired/invalid message
+        return response()->json([
+            'success' => false,
+            'message' => 'Kode akses tidak sesuai atau kadaluarsa',
+        ], 422);
+    }
+
+    /**
+     * Handle distance / GPS geolocation check.
+     */
+    public function checkLocation(Request $request, LoginTrackerService $loginTracker)
+    {
+        $schoolName = trim((string) $request->input('school_name', ''));
+        $email = trim((string) $request->input('email', ''));
+        $lat = $request->filled('latitude') && is_numeric($request->input('latitude'))
+            ? (float) $request->input('latitude')
+            : null;
+        $lon = $request->filled('longitude') && is_numeric($request->input('longitude'))
+            ? (float) $request->input('longitude')
+            : null;
+
+        try {
+            $loginTracker->recordLocationCheck($schoolName, $email, $lat, $lon, $request);
+        } catch (\Throwable $e) {
+        }
+
+        return response()->json([
+            'success' => false,
+            'status' => 'out_of_range',
+            'message' => 'Lokasi Anda berada di luar jangkauan sekolah.',
+        ]);
     }
 
     /**

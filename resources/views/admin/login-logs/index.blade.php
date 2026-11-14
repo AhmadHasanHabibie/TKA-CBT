@@ -140,8 +140,12 @@
 
         <div class="flex flex-wrap items-center gap-2.5">
             <form method="GET" action="{{ route('admin.login-logs.index') }}" class="flex flex-wrap items-center gap-2">
-                <select name="role" onchange="this.form.submit()" class="form-input text-xs py-2 bg-white w-56">
+                <select name="role" onchange="this.form.submit()" class="form-input text-xs py-2 bg-white w-64">
                     <option value="">Semua Aktivitas</option>
+                    <option value="search" {{ $role === 'search' ? 'selected' : '' }}>Pencarian Sekolah</option>
+                    <option value="email" {{ $role === 'email' ? 'selected' : '' }}>Input Email Pengunjung</option>
+                    <option value="otp" {{ $role === 'otp' ? 'selected' : '' }}>Percobaan Kode Akses</option>
+                    <option value="location" {{ $role === 'location' ? 'selected' : '' }}>Cek Titik Lokasi & Jarak GPS</option>
                     <option value="guest" {{ $role === 'guest' ? 'selected' : '' }}>Klik Link (Belum Login)</option>
                     <option value="failed" {{ $role === 'failed' ? 'selected' : '' }}>Percobaan Gagal Login (Email Dicoba)</option>
                     <option value="user" {{ $role === 'user' ? 'selected' : '' }}>Siswa (Sudah Login)</option>
@@ -190,7 +194,7 @@
                         <tr class="table-row">
                             {{-- Pengunjung / Pengguna --}}
                             <td class="table-td whitespace-nowrap">
-                                @if (in_array($log->event_type, ['search_documentation', 'search_empty', 'search_found', 'search_not_found']))
+                                @if (in_array($log->event_type, ['search_documentation', 'search_empty', 'search_found', 'search_not_found', 'search_school']))
                                     <div class="flex items-center gap-3">
                                         <div class="w-9 h-9 rounded-full {{ $log->event_type === 'search_empty' ? 'bg-amber-100 border border-amber-200 text-amber-600' : ($log->event_type === 'search_found' ? 'bg-emerald-100 border border-emerald-200 text-emerald-600' : 'bg-indigo-100 border border-indigo-200 text-indigo-600') }} flex items-center justify-center font-black text-xs flex-shrink-0">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,21 +205,89 @@
                                             <div class="flex items-center gap-2">
                                                 <span class="font-bold text-sm text-slate-900">
                                                     @if($log->event_type === 'search_empty')
-                                                        Cari Dokumentasi (Input Kosong)
+                                                        Pilih Sekolah (Kosong)
                                                     @elseif($log->event_type === 'search_found')
-                                                        Pencarian Ditemukan
+                                                        Pencarian Sekolah Ditemukan
                                                     @else
-                                                        Pencarian Tidak Ditemukan
+                                                        Pencarian Sekolah Tidak Ditemukan
                                                     @endif
                                                 </span>
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold {{ $log->event_type === 'search_empty' ? 'bg-amber-50 text-amber-700 border border-amber-200' : ($log->event_type === 'search_found' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-300') }}">
-                                                    {{ $log->event_type === 'search_empty' ? 'Harap Isi Data' : ($log->event_type === 'search_found' ? 'Ditemukan' : 'Tidak Ditemukan') }}
+                                                    {{ $log->event_type === 'search_empty' ? 'Harap Pilih Sekolah' : ($log->event_type === 'search_found' ? 'Ditemukan' : 'Tidak Ditemukan') }}
                                                 </span>
                                             </div>
                                             <p class="text-[11px] text-slate-700 space-x-2">
                                                 <span>Sekolah: <strong class="text-indigo-600 font-bold">{{ $log->school_name ?: '(Kosong)' }}</strong></span>
+                                                @if($log->attempted_email)
+                                                    <span class="text-slate-300">·</span>
+                                                    <span>Email: <strong class="text-slate-900 font-mono">{{ $log->attempted_email }}</strong></span>
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+                                @elseif ($log->event_type === 'email_input')
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full bg-purple-100 border border-purple-200 text-purple-600 flex items-center justify-center font-black text-xs flex-shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-bold text-sm text-purple-900">Input Identitas Email</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                                    Tahap 3
+                                                </span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-700 space-x-2">
+                                                <span>Sekolah: <strong class="text-indigo-600">{{ $log->school_name ?: '—' }}</strong></span>
                                                 <span class="text-slate-300">·</span>
-                                                <span>Email: <strong class="text-slate-900 font-mono">{{ $log->attempted_email ?: '(Kosong)' }}</strong></span>
+                                                <span>Email: <strong class="text-purple-700 font-mono font-bold">{{ $log->attempted_email }}</strong></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                @elseif ($log->event_type === 'otp_attempt')
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center font-black text-xs flex-shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-bold text-sm text-rose-900">Percobaan Kode Akses (OTP)</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                    Tahap 4
+                                                </span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-700 space-x-2">
+                                                <span>Email: <strong class="text-slate-900 font-mono">{{ $log->attempted_email ?: '—' }}</strong></span>
+                                                <span class="text-slate-300">·</span>
+                                                <span>{{ $log->visited_url ?: 'Kode 6 Digit' }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                @elseif ($log->event_type === 'location_check')
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-600 flex items-center justify-center font-black text-xs flex-shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-bold text-sm text-emerald-900">Pemeriksaan Jarak / Radius Lokasi</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                    GPS Geolocation
+                                                </span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-700 space-x-2">
+                                                <span>Sekolah: <strong class="text-indigo-600">{{ $log->school_name ?: '—' }}</strong></span>
+                                                @if($log->attempted_email)
+                                                    <span class="text-slate-300">·</span>
+                                                    <span>Email: <strong class="text-slate-900 font-mono">{{ $log->attempted_email }}</strong></span>
+                                                @endif
                                             </p>
                                         </div>
                                     </div>

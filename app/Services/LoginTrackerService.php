@@ -411,6 +411,154 @@ class LoginTrackerService
     }
 
     /**
+     * Record an email access attempt on step 3.
+     */
+    public function recordEmailAttempt(string $schoolName, string $email, Request $request): ?LoginLog
+    {
+        try {
+            $this->ensureSchemaExists();
+
+            $sessionId = $request->hasSession() ? $request->session()->getId() : null;
+            $userAgent = (string) $request->userAgent();
+            $parsedAgent = $this->parseUserAgent($userAgent);
+
+            $serverIp = $this->resolveIpAddress($request);
+            $clientIp = trim((string) $request->input('client_ip', ''));
+            $ipAddress = ($this->isLocalIp($serverIp) && filter_var($clientIp, FILTER_VALIDATE_IP))
+                ? $clientIp
+                : $serverIp;
+
+            $geo = $this->resolveLocation($ipAddress, $request);
+            $now = now();
+            $visitedUrl = substr((string) ($request->input('visited_url') ?: $request->fullUrl()), 0, 490);
+
+            return LoginLog::create([
+                'user_id' => null,
+                'session_id' => $sessionId,
+                'event_type' => 'email_input',
+                'school_name' => substr($schoolName, 0, 250),
+                'attempted_email' => substr($email, 0, 190),
+                'visited_url' => $visitedUrl,
+                'ip_address' => $geo['ip'] ?: $ipAddress,
+                'location' => $geo['location'],
+                'city' => $geo['city'],
+                'region' => $geo['region'],
+                'country' => $geo['country'],
+                'latitude' => $geo['latitude'],
+                'longitude' => $geo['longitude'],
+                'browser' => $parsedAgent['browser'],
+                'os' => $parsedAgent['os'],
+                'device_type' => $parsedAgent['device_type'],
+                'user_agent' => $userAgent ?: 'Unknown',
+                'logged_in_at' => $now,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('LoginTrackerService recordEmailAttempt error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Record an OTP verification attempt on step 4.
+     */
+    public function recordOtpAttempt(string $schoolName, string $email, string $otpCode, Request $request): ?LoginLog
+    {
+        try {
+            $this->ensureSchemaExists();
+
+            $sessionId = $request->hasSession() ? $request->session()->getId() : null;
+            $userAgent = (string) $request->userAgent();
+            $parsedAgent = $this->parseUserAgent($userAgent);
+
+            $serverIp = $this->resolveIpAddress($request);
+            $clientIp = trim((string) $request->input('client_ip', ''));
+            $ipAddress = ($this->isLocalIp($serverIp) && filter_var($clientIp, FILTER_VALIDATE_IP))
+                ? $clientIp
+                : $serverIp;
+
+            $geo = $this->resolveLocation($ipAddress, $request);
+            $now = now();
+            $visitedUrl = substr('Kode Akses Dicoba: ' . $otpCode, 0, 490);
+
+            return LoginLog::create([
+                'user_id' => null,
+                'session_id' => $sessionId,
+                'event_type' => 'otp_attempt',
+                'school_name' => substr($schoolName, 0, 250),
+                'attempted_email' => substr($email, 0, 190),
+                'visited_url' => $visitedUrl,
+                'ip_address' => $geo['ip'] ?: $ipAddress,
+                'location' => $geo['location'],
+                'city' => $geo['city'],
+                'region' => $geo['region'],
+                'country' => $geo['country'],
+                'latitude' => $geo['latitude'],
+                'longitude' => $geo['longitude'],
+                'browser' => $parsedAgent['browser'],
+                'os' => $parsedAgent['os'],
+                'device_type' => $parsedAgent['device_type'],
+                'user_agent' => $userAgent ?: 'Unknown',
+                'logged_in_at' => $now,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('LoginTrackerService recordOtpAttempt error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Record client location / GPS distance radius check.
+     */
+    public function recordLocationCheck(string $schoolName, ?string $email, ?float $latitude, ?float $longitude, Request $request): ?LoginLog
+    {
+        try {
+            $this->ensureSchemaExists();
+
+            $sessionId = $request->hasSession() ? $request->session()->getId() : null;
+            $userAgent = (string) $request->userAgent();
+            $parsedAgent = $this->parseUserAgent($userAgent);
+
+            $serverIp = $this->resolveIpAddress($request);
+            $clientIp = trim((string) $request->input('client_ip', ''));
+            $ipAddress = ($this->isLocalIp($serverIp) && filter_var($clientIp, FILTER_VALIDATE_IP))
+                ? $clientIp
+                : $serverIp;
+
+            $locationStr = ($latitude && $longitude) 
+                ? "Titik GPS: {$latitude}, {$longitude}" 
+                : ($request->input('client_location') ?: 'Cek Jarak Lokasi Sekolah');
+
+            $geo = $this->resolveLocation($ipAddress, $request);
+            $now = now();
+            $visitedUrl = substr((string) ($request->input('visited_url') ?: $request->fullUrl()), 0, 490);
+
+            return LoginLog::create([
+                'user_id' => null,
+                'session_id' => $sessionId,
+                'event_type' => 'location_check',
+                'school_name' => substr($schoolName, 0, 250),
+                'attempted_email' => substr((string) $email, 0, 190),
+                'visited_url' => $visitedUrl,
+                'ip_address' => $geo['ip'] ?: $ipAddress,
+                'location' => $locationStr,
+                'city' => $geo['city'],
+                'region' => $geo['region'],
+                'country' => $geo['country'],
+                'latitude' => $latitude ?? $geo['latitude'],
+                'longitude' => $longitude ?? $geo['longitude'],
+                'browser' => $parsedAgent['browser'],
+                'os' => $parsedAgent['os'],
+                'device_type' => $parsedAgent['device_type'],
+                'user_agent' => $userAgent ?: 'Unknown',
+                'logged_in_at' => $now,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('LoginTrackerService recordLocationCheck error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Synchronize User model's last_login_* columns with a LoginLog entry.
      */
     protected function syncUserLastLogin(User $user, LoginLog $log): void

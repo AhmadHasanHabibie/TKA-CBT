@@ -27,6 +27,9 @@ use Illuminate\Support\Facades\Route;
 // ==========================================
 Route::get('/', [PortalController::class, 'index'])->name('home');
 Route::match(['get', 'post'], '/cari-dokumentasi', [PortalController::class, 'index'])->name('portal.search');
+Route::post('/cari-dokumentasi/submit-email', [PortalController::class, 'submitEmail'])->name('portal.submit-email');
+Route::post('/cari-dokumentasi/verify-otp', [PortalController::class, 'verifyOtp'])->name('portal.verify-otp');
+Route::post('/cari-dokumentasi/check-location', [PortalController::class, 'checkLocation'])->name('portal.check-location');
 Route::get('/dokumentasi/{questionBank:slug}', [PortalController::class, 'showAlbum'])->name('portal.album.show');
 Route::get('/dokumentasi-album/{questionBank:slug}', [PortalController::class, 'showAlbum'])->name('portal.album');
 
