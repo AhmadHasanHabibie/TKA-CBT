@@ -431,7 +431,7 @@ class PortalController extends Controller
             [
                 'title' => 'Momen Pelepasan & Wisuda Siswa Angkatan',
                 'category' => 'Wisuda & Kelulusan Angkatan',
-                'category_icon' => '🎓',
+                'category_icon' => 'academic',
                 'location' => 'Lapangan Utama Sekolah',
                 'photos_count' => '148 Foto',
                 'date' => 'Angkatan 2026',
@@ -441,7 +441,7 @@ class PortalController extends Controller
             [
                 'title' => 'Proyek Sains & Kolaborasi Robotika Siswa',
                 'category' => 'Pembelajaran Kreatif & STEM',
-                'category_icon' => '🔬',
+                'category_icon' => 'science',
                 'location' => 'Laboratorium Sains & Inovasi',
                 'photos_count' => '92 Foto',
                 'date' => 'Semester Genap',
@@ -451,7 +451,7 @@ class PortalController extends Controller
             [
                 'title' => 'Keseruan Pekan Olahraga & Pentas Seni Siswa',
                 'category' => 'Classmeeting & Olahraga',
-                'category_icon' => '🏆',
+                'category_icon' => 'trophy',
                 'location' => 'Gelanggang Olahraga Siswa',
                 'photos_count' => '210 Foto',
                 'date' => 'Pekan Olahraga Tahunan',

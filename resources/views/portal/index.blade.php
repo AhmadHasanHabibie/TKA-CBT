@@ -287,34 +287,42 @@
         }
       }">
 
-    {{-- ── Background Ambient Glowing Orbs ──────────────── --}}
+    {{-- ── Background Ambient Eye-Friendly Subtle Glow & Micro Grid ──── --}}
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div class="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-indigo-600/20 rounded-full blur-[130px]"></div>
-        <div class="absolute bottom-[-150px] right-[-100px] w-[500px] h-[500px] bg-violet-600/15 rounded-full blur-[140px]"></div>
-        <div class="absolute top-1/3 left-[-150px] w-[450px] h-[450px] bg-blue-600/10 rounded-full blur-[120px]"></div>
+        {{-- Subtle geometric micro grid pattern (Apple/Linear aesthetic) --}}
+        <div class="absolute inset-0 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:28px_28px] opacity-[0.035]"></div>
+        {{-- Softer, eye-friendly ambient gradient blooms (no harsh oversaturation) --}}
+        <div class="absolute top-[-120px] left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-indigo-950/25 rounded-full blur-[160px]"></div>
+        <div class="absolute bottom-[-100px] right-[-60px] w-[550px] h-[550px] bg-violet-950/20 rounded-full blur-[170px]"></div>
+        <div class="absolute top-1/2 left-[-150px] w-[500px] h-[500px] bg-slate-900/40 rounded-full blur-[140px]"></div>
     </div>
 
     {{-- ── Public Header (Strictly NO Login button for safety) ── --}}
-    <header class="relative z-10 w-full border-b border-white/10 bg-slate-950/70 backdrop-blur-md">
+    <header class="relative z-10 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             {{-- Brand Identity --}}
-            <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 border border-white/10 group-hover:scale-105 transition-transform duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="{{ route('home') }}" class="flex items-center gap-3.5 group">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/25 border border-white/15 group-hover:scale-105 transition-transform duration-200">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
                 </div>
                 <div>
-                    <span class="block font-black text-white text-base tracking-wide">GALERI SISWA</span>
-                    <span class="block text-[11px] text-indigo-400 font-semibold tracking-wider uppercase">Portal Dokumentasi Foto</span>
+                    <div class="flex items-center gap-2">
+                        <span class="font-black text-white text-base tracking-wide">GALERI SISWA</span>
+                        <span class="hidden sm:inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">RESMI</span>
+                    </div>
+                    <span class="block text-[11px] text-indigo-400/90 font-semibold tracking-wider uppercase">Portal Dokumentasi Foto Siswa</span>
                 </div>
             </a>
 
-            {{-- Status Badge --}}
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/5 border border-white/10 text-slate-300 backdrop-blur-sm">
+            {{-- Institutional Security & Status Badge --}}
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-slate-300 backdrop-blur-md">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>Arsip Digital Terbuka</span>
+                <span class="text-white/20 hidden sm:inline">|</span>
+                <span class="text-[11px] text-indigo-300 font-mono hidden sm:inline">30+ SMAN Aktif</span>
             </div>
         </div>
     </header>
@@ -324,9 +332,12 @@
 
         {{-- ── Hero Section & Live Sliding Photo Showcase ── --}}
         <div class="space-y-6 text-center">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-extrabold bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 shadow-sm">
-                <span>📸</span>
-                <span>Dokumentasi Kegiatan, Kenangan &amp; Wisuda Siswa</span>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 shadow-sm backdrop-blur-md">
+                <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span>Portal Arsip Dokumentasi Resmi Siswa</span>
             </div>
             <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
                 Temukan Dokumentasi Foto<br>
@@ -335,8 +346,48 @@
                 </span>
             </h1>
             <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-                Akses arsip album foto kegiatan sekolah, acara tahunan, perlombaan, dan momen kebersamaan siswa. Pilih nama sekolah Anda di bawah ini untuk melihat album.
+                Akses arsip album foto kegiatan sekolah, acara tahunan, perlombaan, dan momen kebersamaan siswa terverifikasi se-DKI Jakarta. Pilih nama sekolah Anda di bawah ini untuk melihat album.
             </p>
+
+            {{-- ── Institutional Trust & Metrics Bar (Fills empty space elegantly) ── --}}
+            <div class="pt-2 max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="p-3 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-md flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-xs sm:text-sm font-extrabold text-white">30+ SMAN</div>
+                        <div class="text-[10px] text-slate-400">Terdaftar Resmi</div>
+                    </div>
+                </div>
+                <div class="p-3 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-md flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-xs sm:text-sm font-extrabold text-white">2.400+ Foto</div>
+                        <div class="text-[10px] text-slate-400">Resolusi HD Asli</div>
+                    </div>
+                </div>
+                <div class="p-3 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-md flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-xs sm:text-sm font-extrabold text-white">Akses Aman</div>
+                        <div class="text-[10px] text-slate-400">Proteksi Siswa</div>
+                    </div>
+                </div>
+                <div class="p-3 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-md flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-xs sm:text-sm font-extrabold text-white">2024 - 2026</div>
+                        <div class="text-[10px] text-slate-400">Periode Arsip</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {{-- ── Sliding Photo Carousel (Bergerak Slide ke Samping) ── --}}
@@ -380,10 +431,16 @@
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
                             <div class="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-transparent to-transparent"></div>
 
-                            {{-- Badges on top of slide --}}
+                            {{-- Badges on top of slide (No raw emojis, crisp SVG vector icons) --}}
                             <div class="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 z-10">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/80 backdrop-blur-md text-white text-xs font-bold border border-white/15 shadow-lg">
-                                    <span>{{ $slide['category_icon'] }}</span>
+                                    @if(($slide['category_icon'] ?? '') === 'academic' || ($slide['category_icon'] ?? '') === '🎓')
+                                        <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14v7"/></svg>
+                                    @elseif(($slide['category_icon'] ?? '') === 'science' || ($slide['category_icon'] ?? '') === '🔬')
+                                        <svg class="w-3.5 h-3.5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                                    @else
+                                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2 0h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                                    @endif
                                     <span>{{ $slide['category'] }}</span>
                                 </span>
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600/90 backdrop-blur-md text-white text-xs font-black border border-indigo-400/30 shadow-lg">
@@ -421,13 +478,33 @@
                     @endforeach
                 </div>
                 <div class="flex items-center gap-1">
-                    <button type="button" @click="prev()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition">
+                    <button type="button" @click="prev()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </button>
-                    <button type="button" @click="next()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition">
+                    <button type="button" @click="next()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        {{-- ── Quick School Selector Strip (Fills the gap between Slider & Funnel) ── --}}
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3.5 rounded-2xl bg-slate-950/70 border border-white/10 backdrop-blur-md shadow-lg">
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-300">
+                <svg class="w-4 h-4 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                <span class="text-indigo-300">Pencarian Cepat:</span>
+                <span class="text-slate-400 hidden sm:inline">Pilih langsung sekolah populer</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+                @foreach(['SMAN 1 Jakarta', 'SMAN 3 Jakarta', 'SMAN 8 Jakarta', 'SMAN 25 Jakarta', 'SMAN 28 Jakarta', 'SMAN 30 Jakarta'] as $quickSchool)
+                    <button type="button"
+                            @click="selectedSchool = '{{ $quickSchool }}'; submitSearch()"
+                            class="px-2.5 py-1 rounded-xl text-xs font-semibold bg-white/5 hover:bg-indigo-600/25 hover:text-indigo-200 border border-white/10 hover:border-indigo-400/40 text-slate-300 transition-all cursor-pointer">
+                        {{ $quickSchool }}
+                    </button>
+                @endforeach
             </div>
         </div>
 
@@ -771,6 +848,53 @@
                 </div>
             </div>
 
+        </div>
+
+        {{-- ── Institutional Trust Pillars (Fills bottom void with authoritative details) ── --}}
+        <div class="pt-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-5 rounded-3xl bg-slate-950/60 border border-white/10 backdrop-blur-md shadow-xl hover:border-indigo-500/30 transition-all duration-300 space-y-3">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-indigo-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h4 class="text-sm font-bold text-white tracking-tight">Arsip Terkurasi Resmi</h4>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Dokumentasi dihimpun melalui koordinasi panitia wisuda, OSIS, dan unit kesiswaan sekolah yang terverifikasi resmi.
+                </p>
+            </div>
+
+            <div class="p-5 rounded-3xl bg-slate-950/60 border border-white/10 backdrop-blur-md shadow-xl hover:border-indigo-500/30 transition-all duration-300 space-y-3">
+                <div class="w-10 h-10 rounded-2xl bg-violet-500/10 border border-violet-500/25 flex items-center justify-center text-violet-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <h4 class="text-sm font-bold text-white tracking-tight">Proteksi &amp; Privasi Siswa</h4>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Setiap akses dilindungi sistem verifikasi bertahap dan audit logging aktivitas untuk menjaga keamanan data privasi siswa.
+                </p>
+            </div>
+
+            <div class="p-5 rounded-3xl bg-slate-950/60 border border-white/10 backdrop-blur-md shadow-xl hover:border-indigo-500/30 transition-all duration-300 space-y-3">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <h4 class="text-sm font-bold text-white tracking-tight">Kualitas Resolusi Tinggi</h4>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    File foto original tersimpan dalam resolusi tinggi tanpa kompresi berlebih untuk menjaga keaslian momen berharga.
+                </p>
+            </div>
+        </div>
+
+        {{-- ── Advisory Notice Band ── --}}
+        <div class="px-5 py-3.5 rounded-2xl bg-indigo-950/30 border border-indigo-500/20 text-center flex flex-col sm:flex-row items-center justify-center gap-2 text-xs text-indigo-300">
+            <svg class="w-4 h-4 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Arsip ini diperbarui secara berkala bersama perwakilan sekolah resmi di wilayah DKI Jakarta.</span>
         </div>
 
     </main>

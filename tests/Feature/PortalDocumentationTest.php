@@ -296,8 +296,8 @@ class PortalDocumentationTest extends TestCase
         $response = $this->get('/');
         $response->assertStatus(200);
         $content = $response->getContent();
-        preg_match_all('/>\s*SMAN 25 Jakarta\s*</i', $content, $matches);
-        $this->assertCount(1, $matches[0], 'Rendered page should contain SMAN 25 Jakarta option exactly once');
+        preg_match_all('/<option[^>]*>\s*SMAN 25 Jakarta\s*<\/option>/i', $content, $matches);
+        $this->assertCount(1, $matches[0], 'Select dropdown should contain SMAN 25 Jakarta option exactly once');
         $this->assertStringNotContainsString('SMAN 25 JAKARTA', $content);
     }
 }
