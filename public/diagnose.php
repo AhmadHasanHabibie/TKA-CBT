@@ -84,6 +84,11 @@ if ($dbConnection === 'sqlite') {
             $dbIsOk = true;
             $dbStatus = 'Terhubung';
             $dbMessage = "Berhasil terhubung ke database `{$dbname}` di {$host}!";
+
+            // Auto-normalisasi nama sekolah di tabel question_banks agar tidak ada duplikat huruf besar/kecil
+            try {
+                $pdo->exec("UPDATE question_banks SET school_name = 'SMAN 25 Jakarta' WHERE LOWER(TRIM(school_name)) = 'sman 25 jakarta'");
+            } catch (\Throwable $e) {}
         } catch (\Throwable $e) {
             $dbIsOk = false;
             $dbStatus = 'Gagal';
@@ -123,6 +128,12 @@ if (file_exists($configCache)) {
 $routesCache = $basePath . '/bootstrap/cache/routes-v7.php';
 if (file_exists($routesCache)) {
     @unlink($routesCache); // Bersihkan route cache
+}
+$viewFiles = glob($basePath . '/storage/framework/views/*.php');
+if ($viewFiles) {
+    foreach ($viewFiles as $vf) {
+        @unlink($vf); // Bersihkan view cache Blade
+    }
 }
 ?>
 <!DOCTYPE html>

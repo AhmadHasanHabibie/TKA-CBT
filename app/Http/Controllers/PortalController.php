@@ -10,6 +10,7 @@ class PortalController extends Controller
 {
     /**
      * Get list of standard schools: SMAN 1 Jakarta - SMAN 30 Jakarta merged with database schools.
+     * Normalized case-insensitively to prevent duplicates like 'SMAN 25 Jakarta' and 'SMAN 25 JAKARTA'.
      */
     public static function getSchoolOptions(): array
     {
@@ -28,10 +29,31 @@ class PortalController extends Controller
             $dbSchools = [];
         }
 
-        $merged = array_unique(array_merge($defaultSchools, $dbSchools));
-        sort($merged, SORT_NATURAL | SORT_FLAG_CASE);
+        // Case-insensitive deduplication and canonical Title Case normalization
+        $normalized = [];
+        foreach (array_merge($defaultSchools, $dbSchools) as $school) {
+            $trimmed = trim((string) $school);
+            if ($trimmed === '') {
+                continue;
+            }
 
-        return $merged;
+            // Standardize SMAN 1-30 Jakarta to uniform Title Case ("SMAN X Jakarta")
+            if (preg_match('/^sman\s*(\d+)\s*jakarta$/i', $trimmed, $m)) {
+                $canonical = "SMAN {$m[1]} Jakarta";
+            } else {
+                $canonical = $trimmed;
+            }
+
+            $lowerKey = strtolower(preg_replace('/\s+/', ' ', $canonical));
+            if (!isset($normalized[$lowerKey])) {
+                $normalized[$lowerKey] = $canonical;
+            }
+        }
+
+        $result = array_values($normalized);
+        sort($result, SORT_NATURAL | SORT_FLAG_CASE);
+
+        return $result;
     }
 
     /**

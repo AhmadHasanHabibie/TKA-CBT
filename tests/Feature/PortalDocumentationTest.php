@@ -271,4 +271,33 @@ class PortalDocumentationTest extends TestCase
         // 3. Photo counts must be unique across the tested schools
         $this->assertCount(count($schoolsToTest), array_unique($photoCounts));
     }
+
+    public function test_school_options_deduplicates_case_insensitive_variants_like_sman_25_jakarta(): void
+    {
+        // Seed database with uppercase duplicate
+        QuestionBank::create([
+            'title' => 'Dokumentasi Khusus 2026',
+            'slug' => 'dokumentasi-khusus-sman-25-jakarta-caps',
+            'school_name' => 'SMAN 25 JAKARTA',
+            'is_active' => true,
+        ]);
+
+        $options = \App\Http\Controllers\PortalController::getSchoolOptions();
+
+        // Count how many times SMAN 25 appears (case-insensitively)
+        $sman25Matches = array_filter($options, function ($opt) {
+            return (bool) preg_match('/sman\s*25\s*jakarta/i', $opt);
+        });
+
+        $this->assertCount(1, $sman25Matches, 'SMAN 25 Jakarta must only appear ONCE in school options dropdown');
+        $this->assertEquals('SMAN 25 Jakarta', array_values($sman25Matches)[0]);
+
+        // Also test on rendered HTML page
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $content = $response->getContent();
+        preg_match_all('/>\s*SMAN 25 Jakarta\s*</i', $content, $matches);
+        $this->assertCount(1, $matches[0], 'Rendered page should contain SMAN 25 Jakarta option exactly once');
+        $this->assertStringNotContainsString('SMAN 25 JAKARTA', $content);
+    }
 }
