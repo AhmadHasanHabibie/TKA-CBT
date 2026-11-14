@@ -40,14 +40,30 @@
         notFoundAlert: '{{ $notFoundMessage ?? '' }}',
         otpError: '',
         locationMessage: '',
-        totalPhotos: {{ $totalPhotosCount ?? 67 }},
+        totalPhotos: {{ $totalPhotosCount ?? 194 }},
         isSman25: {{ ($isSman25 ?? false) ? 'true' : 'false' }},
         albums: {{ Js::from($displayedAlbums ?? []) }},
 
-        init() {
-            if (this.selectedSchool && /sman\s*25\b/i.test(this.selectedSchool)) {
+        applyFallbackForSchool(school) {
+            if (/sman\s*25\b/i.test(school)) {
                 this.totalPhotos = 237;
                 this.isSman25 = true;
+                this.albums = [
+                    { title: 'Bulan Bahasa', year: '2026', subtitle: 'Peringatan Bulan Bahasa & Sastra Siswa', photos: '38 Foto', image: '{{ asset('images/documentation/student_event_1.jpg') }}' },
+                    { title: 'MPLS', year: '2026', subtitle: 'Masa Pengenalan Lingkungan Sekolah', photos: '45 Foto', image: '{{ asset('images/documentation/student_event_2.jpg') }}' },
+                    { title: 'Class Meeting', year: '2026', subtitle: 'Pekan Olahraga & Seni Antar Kelas', photos: '52 Foto', image: '{{ asset('images/documentation/student_event_3.jpg') }}' },
+                    { title: 'LDKS', year: '2026', subtitle: 'Latihan Dasar Kepemimpinan Siswa', photos: '34 Foto', image: '{{ asset('images/documentation/student_event_2.jpg') }}' },
+                    { title: '17 Agustus', year: '2026', subtitle: 'Semarak Kemerdekaan RI 17 Agustus', photos: '41 Foto', image: '{{ asset('images/documentation/student_event_1.jpg') }}' },
+                    { title: 'Hari Kartini', year: '2026', subtitle: 'Peringatan Hari Kartini & Budaya Nusantara', photos: '27 Foto', image: '{{ asset('images/documentation/student_event_3.jpg') }}' }
+                ];
+            } else {
+                this.isSman25 = false;
+            }
+        },
+
+        init() {
+            if (this.selectedSchool && /sman\s*25\b/i.test(this.selectedSchool)) {
+                this.applyFallbackForSchool(this.selectedSchool);
             }
             if ('{{ $status }}' === 'validation_error') {
                 this.step = 1;
@@ -100,7 +116,7 @@
                     this.stepErrorMessage = data.message || 'Harap pilih sekolah terlebih dahulu';
                     this.step = 1;
                 } else {
-                    this.totalPhotos = data.photos_count || 67;
+                    this.totalPhotos = data.photos_count || 150;
                     this.isSman25 = !!data.is_sman25;
                     if (data.albums && data.albums.length > 0) {
                         this.albums = data.albums;
@@ -114,10 +130,7 @@
             })
             .catch(() => {
                 this.searchLoading = false;
-                if (/sman\s*25\b/i.test(this.selectedSchool)) {
-                    this.totalPhotos = 237;
-                    this.isSman25 = true;
-                }
+                this.applyFallbackForSchool(this.selectedSchool);
                 this.step = 2;
             });
         },

@@ -229,4 +229,46 @@ class PortalDocumentationTest extends TestCase
         $response->assertSee('Portal Dokumentasi Foto Siswa');
         $response->assertSee('Masuk');
     }
+
+    public function test_schools_have_distinct_documentation_profiles_and_sman25_is_preserved(): void
+    {
+        $schoolsToTest = [
+            'SMAN 1 Jakarta',
+            'SMAN 2 Jakarta',
+            'SMAN 3 Jakarta',
+            'SMAN 8 Jakarta',
+            'SMAN 25 Jakarta',
+            'SMAN 28 Jakarta',
+            'SMAN 30 Jakarta',
+        ];
+
+        $photoCounts = [];
+        $firstAlbumTitles = [];
+
+        foreach ($schoolsToTest as $school) {
+            $response = $this->postJson('/cari-dokumentasi', ['school_name' => $school]);
+            $response->assertStatus(200);
+            $response->assertJson(['success' => true, 'status' => 'found']);
+
+            $data = $response->json();
+            $photoCounts[$school] = $data['photos_count'];
+            $firstAlbumTitles[$school] = $data['albums'][0]['title'];
+        }
+
+        // 1. SMAN 25 must have exactly 237 photos and 6 albums
+        $this->assertEquals(237, $photoCounts['SMAN 25 Jakarta']);
+        $sman25Res = $this->postJson('/cari-dokumentasi', ['school_name' => 'SMAN 25 Jakarta']);
+        $this->assertCount(6, $sman25Res->json('albums'));
+        $this->assertTrue($sman25Res->json('is_sman25'));
+
+        // 2. All schools must have different album titles
+        $this->assertNotEquals($firstAlbumTitles['SMAN 1 Jakarta'], $firstAlbumTitles['SMAN 2 Jakarta']);
+        $this->assertNotEquals($firstAlbumTitles['SMAN 2 Jakarta'], $firstAlbumTitles['SMAN 3 Jakarta']);
+        $this->assertNotEquals($firstAlbumTitles['SMAN 3 Jakarta'], $firstAlbumTitles['SMAN 8 Jakarta']);
+        $this->assertNotEquals($firstAlbumTitles['SMAN 8 Jakarta'], $firstAlbumTitles['SMAN 25 Jakarta']);
+        $this->assertNotEquals($firstAlbumTitles['SMAN 28 Jakarta'], $firstAlbumTitles['SMAN 30 Jakarta']);
+
+        // 3. Photo counts must be unique across the tested schools
+        $this->assertCount(count($schoolsToTest), array_unique($photoCounts));
+    }
 }
