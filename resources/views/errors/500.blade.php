@@ -43,7 +43,23 @@
         </div>
         <div class="code">500</div>
         <h1>Terjadi Kesalahan Server</h1>
-        <p>Maaf, server kami mengalami kendala teknis saat memproses permintaan Anda. Tim kami telah mencatat masalah ini.</p>
+        <p>Maaf, server kami mengalami kendala teknis saat memproses permintaan Anda.</p>
+
+        @if(isset($exception) && $exception->getMessage())
+            <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(244, 63, 94, 0.4); border-radius: 14px; padding: 1rem; text-align: left; margin: 1.5rem 0; font-family: monospace; font-size: 0.82rem; color: #fecdd3; word-break: break-word; box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
+                <div style="font-weight: 800; color: #fda4af; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>⚠️</span>
+                    <span>Penyebab Eror (Diagnosis Sistem):</span>
+                </div>
+                <div style="color: #ffffff; background: rgba(0,0,0,0.4); padding: 0.6rem; border-radius: 8px; font-weight: 600;">
+                    {{ $exception->getMessage() }}
+                </div>
+                <div style="color: #94a3b8; font-size: 0.72rem; margin-top: 0.5rem;">
+                    Lokasi File: {{ $exception->getFile() }}:{{ $exception->getLine() }}
+                </div>
+            </div>
+        @endif
+
         <div class="divider"></div>
         <div class="actions">
             <button onclick="window.location.reload()" class="btn btn-secondary">

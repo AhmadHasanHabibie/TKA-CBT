@@ -27,9 +27,9 @@ class CbtEndToEndTest extends TestCase
      */
     public function test_login_flow_and_role_redirects(): void
     {
-        // Unauthenticated access redirects to /login
+        // Unauthenticated access redirects to admin secret login
         $response = $this->get('/admin/dashboard');
-        $response->assertRedirect('/login');
+        $response->assertRedirect('/dokumentasi-siswa/login/admin');
 
         $response = $this->get('/user/dashboard');
         $response->assertRedirect('/login');

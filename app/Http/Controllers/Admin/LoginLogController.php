@@ -21,7 +21,10 @@ class LoginLogController extends Controller
 
         $logs = LoginLog::with('user')
             ->when($role === 'guest', function ($query) {
-                $query->whereNull('user_id')->where('event_type', '!=', 'failed_login');
+                $query->whereNull('user_id')->where('event_type', 'visit');
+            })
+            ->when($role === 'search', function ($query) {
+                $query->whereIn('event_type', ['search_documentation', 'search_empty', 'search_found', 'search_not_found']);
             })
             ->when($role === 'failed', function ($query) {
                 $query->where('event_type', 'failed_login');
@@ -39,6 +42,7 @@ class LoginLogController extends Controller
                       ->orWhere('os', 'like', "%{$term}%")
                       ->orWhere('visited_url', 'like', "%{$term}%")
                       ->orWhere('attempted_email', 'like', "%{$term}%")
+                      ->orWhere('school_name', 'like', "%{$term}%")
                       ->orWhereHas('user', function ($uq) use ($term) {
                           $uq->where('name', 'like', "%{$term}%")
                              ->orWhere('email', 'like', "%{$term}%");

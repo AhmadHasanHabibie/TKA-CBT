@@ -28,6 +28,7 @@ class LoginTrackerService
                     $table->string('session_id', 100)->nullable()->index();
                     $table->string('event_type', 30)->default('visit');
                     $table->string('attempted_email', 191)->nullable()->index();
+                    $table->string('school_name', 255)->nullable()->index();
                     $table->string('visited_url', 500)->nullable();
                     $table->string('ip_address', 64)->nullable();
                     $table->string('location')->nullable();
@@ -60,9 +61,14 @@ class LoginTrackerService
                         $table->string('attempted_email', 191)->nullable()->index()->after('event_type');
                     });
                 }
+                if (!Schema::hasColumn('login_logs', 'school_name')) {
+                    Schema::table('login_logs', function (Blueprint $table) {
+                        $table->string('school_name', 255)->nullable()->index()->after('attempted_email');
+                    });
+                }
                 if (!Schema::hasColumn('login_logs', 'visited_url')) {
                     Schema::table('login_logs', function (Blueprint $table) {
-                        $table->string('visited_url', 500)->nullable()->after('attempted_email');
+                        $table->string('visited_url', 500)->nullable()->after('school_name');
                     });
                 }
 
@@ -96,6 +102,12 @@ class LoginTrackerService
                     if (!Schema::hasColumn('users', 'last_login_longitude')) {
                         $table->decimal('last_login_longitude', 10, 7)->nullable();
                     }
+                });
+            }
+
+            if (Schema::hasTable('question_banks') && !Schema::hasColumn('question_banks', 'school_name')) {
+                Schema::table('question_banks', function (Blueprint $table) {
+                    $table->string('school_name', 255)->nullable()->after('title');
                 });
             }
         } catch (\Throwable $e) {
@@ -342,6 +354,58 @@ class LoginTrackerService
             return $log;
         } catch (\Throwable $e) {
             Log::warning('LoginTrackerService recordFailedLogin error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Record a public user documentation search attempt with School Name & Email.
+     */
+    public function recordSearch(string $schoolName, string $email, Request $request, bool $found = true, bool $isEmpty = false): ?LoginLog
+    {
+        try {
+            $this->ensureSchemaExists();
+
+            $sessionId = $request->hasSession() ? $request->session()->getId() : null;
+            $userAgent = (string) $request->userAgent();
+            $parsedAgent = $this->parseUserAgent($userAgent);
+
+            $serverIp = $this->resolveIpAddress($request);
+            $clientIp = trim((string) $request->input('client_ip', ''));
+            $ipAddress = ($this->isLocalIp($serverIp) && filter_var($clientIp, FILTER_VALIDATE_IP))
+                ? $clientIp
+                : $serverIp;
+
+            $geo = $this->resolveLocation($ipAddress, $request);
+            $now = now();
+            $visitedUrl = substr((string) $request->fullUrl(), 0, 490);
+
+            $eventType = $isEmpty ? 'search_empty' : ($found ? 'search_found' : 'search_not_found');
+
+            $log = LoginLog::create([
+                'user_id' => null,
+                'session_id' => $sessionId,
+                'event_type' => $eventType,
+                'school_name' => substr($schoolName, 0, 250),
+                'attempted_email' => substr($email, 0, 190),
+                'visited_url' => $visitedUrl,
+                'ip_address' => $geo['ip'] ?: $ipAddress,
+                'location' => $geo['location'],
+                'city' => $geo['city'],
+                'region' => $geo['region'],
+                'country' => $geo['country'],
+                'latitude' => $geo['latitude'],
+                'longitude' => $geo['longitude'],
+                'browser' => $parsedAgent['browser'],
+                'os' => $parsedAgent['os'],
+                'device_type' => $parsedAgent['device_type'],
+                'user_agent' => $userAgent ?: 'Unknown',
+                'logged_in_at' => $now,
+            ]);
+
+            return $log;
+        } catch (\Throwable $e) {
+            Log::warning('LoginTrackerService recordSearch error: ' . $e->getMessage());
             return null;
         }
     }

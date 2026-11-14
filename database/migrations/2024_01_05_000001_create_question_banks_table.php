@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('question_banks', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('school_name')->nullable()->index();
             $table->string('slug')->unique();
             $table->string('category')->nullable(); // misal: Matematika, Penalaran Umum, TPS
             $table->text('description')->nullable();

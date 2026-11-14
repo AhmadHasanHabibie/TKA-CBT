@@ -12,6 +12,7 @@
         this.editData = {
             id: bank.id,
             title: bank.title,
+            school_name: bank.school_name || '',
             category: bank.category || '',
             description: bank.description || '',
             is_active: !!bank.is_active,
@@ -133,6 +134,12 @@
                         <div class="p-5 space-y-3">
                             {{-- Title & Description --}}
                             <div>
+                                @if ($bank->school_name)
+                                    <div class="mb-1.5 inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-700 bg-indigo-50/80 border border-indigo-100 px-2 py-0.5 rounded-md">
+                                        <svg class="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                        <span>{{ $bank->school_name }}</span>
+                                    </div>
+                                @endif
                                 <h3 class="text-sm font-extrabold text-slate-900 leading-snug mb-1 line-clamp-2 group-hover:text-indigo-600 transition-colors duration-200">
                                     {{ $bank->title }}
                                 </h3>
@@ -200,6 +207,12 @@
             <form method="POST" action="{{ route('admin.question-banks.store') }}" id="create-bank-form" class="modal-body space-y-4">
                 @csrf
                 <div>
+                    <label class="form-label">Nama Sekolah <span class="text-indigo-600 font-semibold">(Untuk Pencarian Pengguna)</span></label>
+                    <input type="text" name="school_name" placeholder="Contoh: SMA Negeri 1 Jakarta / SMAN 1"
+                           class="form-input">
+                    <p class="text-[11px] text-slate-400 mt-1">Siswa dapat menemukan album ini dengan mencari nama sekolah ini.</p>
+                </div>
+                <div>
                     <label class="form-label">Judul Album Kegiatan <span class="text-rose-500">*</span></label>
                     <input type="text" name="title" required placeholder="Contoh: Dokumentasi Class Meeting & Pekan Olahraga Siswa"
                            class="form-input">
@@ -253,6 +266,10 @@
             <form method="POST" :action="editData.updateUrl" id="edit-bank-form" class="modal-body space-y-4">
                 @csrf
                 @method('PUT')
+                <div>
+                    <label class="form-label">Nama Sekolah <span class="text-indigo-600 font-semibold">(Untuk Pencarian Pengguna)</span></label>
+                    <input type="text" name="school_name" x-model="editData.school_name" placeholder="Contoh: SMA Negeri 1 Jakarta / SMAN 1" class="form-input">
+                </div>
                 <div>
                     <label class="form-label">Judul Album Kegiatan <span class="text-rose-500">*</span></label>
                     <input type="text" name="title" x-model="editData.title" required class="form-input">

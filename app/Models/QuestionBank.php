@@ -14,6 +14,7 @@ class QuestionBank extends Model
 
     protected $fillable = [
         'title',
+        'school_name',
         'slug',
         'category',
         'description',

@@ -149,39 +149,56 @@ class DatabaseSeeder extends Seeder
         $subtest->updateQuestionCount();
 
         // 4. Sample Photo Documentation Albums
-        if (QuestionBank::count() === 0) {
-            $sampleAlbums = [
-                [
-                    'title' => 'Dokumentasi MPLS & Pengenalan Lingkungan Sekolah',
-                    'slug' => 'dokumentasi-mpls-pengenalan-lingkungan-sekolah',
-                    'category' => 'Kegiatan Sekolah',
-                    'description' => 'Koleksi foto kegiatan Masa Pengenalan Lingkungan Sekolah (MPLS), apel pagi, dan perkenalan ekstrakurikuler siswa baru.',
-                    'is_active' => true,
-                    'created_by' => $admin->id,
-                ],
-                [
-                    'title' => 'Album Kenangan Kelas XII & Buku Tahunan Angkatan',
-                    'slug' => 'album-kenangan-kelas-xii-buku-tahunan-angkatan',
-                    'category' => 'Wisuda & Angkatan',
-                    'description' => 'Dokumentasi sesi pemotretan bersama wali kelas, foto buku tahunan siswa, dan pelepasan kelulusan angkatan.',
-                    'is_active' => true,
-                    'created_by' => $admin->id,
-                ],
-                [
-                    'title' => 'Pekan Olahraga & Pentas Seni Siswa (Classmeeting)',
-                    'slug' => 'pekan-olahraga-pentas-seni-siswa-classmeeting',
-                    'category' => 'Ekstrakurikuler',
-                    'description' => 'Momen keseruan pertandingan olahraga antar kelas, pertunjukan musik siswa, dan pembagian piala juara umum.',
-                    'is_active' => true,
-                    'created_by' => $admin->id,
-                ],
-            ];
+        $sampleAlbums = [
+            [
+                'title' => 'Dokumentasi MPLS & Pengenalan Lingkungan Sekolah',
+                'school_name' => 'SMA Negeri 1 Jakarta',
+                'slug' => 'dokumentasi-mpls-pengenalan-lingkungan-sekolah',
+                'category' => 'Kegiatan Sekolah',
+                'description' => 'Koleksi foto kegiatan Masa Pengenalan Lingkungan Sekolah (MPLS), apel pagi, dan perkenalan ekstrakurikuler siswa baru.',
+                'is_active' => true,
+                'created_by' => $admin->id,
+            ],
+            [
+                'title' => 'Album Kenangan Kelas XII & Wisuda Angkatan 2026',
+                'school_name' => 'SMA Negeri 1 Jakarta',
+                'slug' => 'album-kenangan-kelas-xii-wisuda-angkatan-2026',
+                'category' => 'Wisuda & Angkatan',
+                'description' => 'Dokumentasi sesi pemotretan bersama wali kelas, wisuda siswa angkatan, dan pelepasan kelulusan.',
+                'is_active' => true,
+                'created_by' => $admin->id,
+            ],
+            [
+                'title' => 'Pekan Olahraga & Pentas Seni Siswa (Classmeeting)',
+                'school_name' => 'SMA Taruna Nusantara',
+                'slug' => 'pekan-olahraga-pentas-seni-siswa-classmeeting',
+                'category' => 'Ekstrakurikuler',
+                'description' => 'Momen keseruan pertandingan olahraga antar kelas, pertunjukan musik siswa, dan pembagian piala juara umum.',
+                'is_active' => true,
+                'created_by' => $admin->id,
+            ],
+        ];
 
-            foreach ($sampleAlbums as $albumData) {
-                QuestionBank::updateOrCreate(
-                    ['slug' => $albumData['slug']],
-                    $albumData
-                );
+        foreach ($sampleAlbums as $i => $albumData) {
+            $album = QuestionBank::updateOrCreate(
+                ['slug' => $albumData['slug']],
+                $albumData
+            );
+
+            if ($album->items()->count() === 0) {
+                $images = [
+                    'images/documentation/student_event_1.jpg',
+                    'images/documentation/student_event_2.jpg',
+                    'images/documentation/student_event_3.jpg',
+                ];
+                $img = $images[$i % count($images)];
+                \App\Models\QuestionBankItem::create([
+                    'question_bank_id' => $album->id,
+                    'image' => $img,
+                    'title' => 'Foto Dokumentasi Kegiatan ' . ($i + 1),
+                    'notes' => 'Momen kebersamaan siswa di ' . $albumData['school_name'],
+                    'order' => 1,
+                ]);
             }
         }
     }

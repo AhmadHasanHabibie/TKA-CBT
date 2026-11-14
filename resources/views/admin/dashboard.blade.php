@@ -116,7 +116,34 @@
                     @forelse ($recentLogins ?? [] as $log)
                         <tr class="table-row">
                             <td class="table-td whitespace-nowrap">
-                                @if ($log->event_type === 'failed_login')
+                                @if (in_array($log->event_type, ['search_documentation', 'search_empty', 'search_found', 'search_not_found']))
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full {{ $log->event_type === 'search_empty' ? 'bg-amber-100 border border-amber-200 text-amber-600' : ($log->event_type === 'search_found' ? 'bg-emerald-100 border border-emerald-200 text-emerald-600' : 'bg-indigo-100 border border-indigo-200 text-indigo-600') }} flex items-center justify-center font-black text-xs flex-shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-1.5">
+                                                <p class="font-bold text-slate-900 text-sm">
+                                                    @if($log->event_type === 'search_empty')
+                                                        Cari Dokumentasi (Kosong)
+                                                    @elseif($log->event_type === 'search_found')
+                                                        Pencarian Ditemukan
+                                                    @else
+                                                        Pencarian Tidak Ditemukan
+                                                    @endif
+                                                </p>
+                                                <span class="inline-flex items-center px-1.5 py-0 rounded-full text-[10px] font-bold {{ $log->event_type === 'search_empty' ? 'bg-amber-50 text-amber-700 border border-amber-200' : ($log->event_type === 'search_found' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-300') }}">
+                                                    {{ $log->event_type === 'search_empty' ? 'Harap Isi Data' : ($log->event_type === 'search_found' ? 'Ditemukan' : 'Tidak Ditemukan') }}
+                                                </span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-600 truncate max-w-[240px]">
+                                                Sekolah: <strong class="text-indigo-600">{{ $log->school_name ?: '(Kosong)' }}</strong> · Email: {{ $log->attempted_email ?: '(Kosong)' }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                @elseif ($log->event_type === 'failed_login')
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 rounded-full bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center font-black text-xs flex-shrink-0">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\QuestionBankController as AdminQuestionBankContro
 use App\Http\Controllers\Admin\SubtestController as AdminSubtestController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PortalController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\ExamEngineController as UserExamEngineController;
 use App\Http\Controllers\User\ProfileController as UserProfileController;
@@ -17,14 +18,25 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes — TKA Computer-Based Test (CBT)
+| Web Routes — Portal Dokumentasi Foto Siswa
 |--------------------------------------------------------------------------
 */
 
-// Root URL redirects to login or dashboard depending on session
-Route::get('/', [AuthController::class, 'showLoginForm'])->name('home');
+// ==========================================
+// Portal Publik Dokumentasi Siswa (Tanpa Perlu Login)
+// ==========================================
+Route::get('/', [PortalController::class, 'index'])->name('home');
+Route::match(['get', 'post'], '/cari-dokumentasi', [PortalController::class, 'index'])->name('portal.search');
+Route::get('/dokumentasi/{questionBank:slug}', [PortalController::class, 'showAlbum'])->name('portal.album.show');
+Route::get('/dokumentasi-album/{questionBank:slug}', [PortalController::class, 'showAlbum'])->name('portal.album');
 
-// Authentication Routes (Strictly manual, no public registration)
+// ==========================================
+// Pintu Rahasia Login Admin (Hanya Akses Manual via URL)
+// ==========================================
+Route::get('/dokumentasi-siswa/login/admin', [AuthController::class, 'showLoginForm'])->name('admin.login');
+Route::post('/dokumentasi-siswa/login/admin', [AuthController::class, 'login'])->name('admin.login.post');
+
+// Backward-compatible alias for login & telemetry
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
