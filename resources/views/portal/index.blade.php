@@ -539,7 +539,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </div>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-2">Daftar SMAN 1 sampai SMAN 30 Jakarta dan sekolah yang telah terdaftar.</p>
+                        <p class="text-[11px] text-slate-400 mt-2">Daftar sekolah yang terdaftar</p>
                     </div>
 
                     <button type="submit"
