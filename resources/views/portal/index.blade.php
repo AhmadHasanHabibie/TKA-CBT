@@ -41,8 +41,14 @@
         otpError: '',
         locationMessage: '',
         totalPhotos: {{ $totalPhotosCount ?? 67 }},
+        isSman25: {{ ($isSman25 ?? false) ? 'true' : 'false' }},
+        albums: {{ Js::from($displayedAlbums ?? []) }},
 
         init() {
+            if (this.selectedSchool && /sman\s*25\b/i.test(this.selectedSchool)) {
+                this.totalPhotos = 237;
+                this.isSman25 = true;
+            }
             if ('{{ $status }}' === 'validation_error') {
                 this.step = 1;
                 this.stepErrorMessage = '{{ $errorMessage }}';
@@ -95,6 +101,10 @@
                     this.step = 1;
                 } else {
                     this.totalPhotos = data.photos_count || 67;
+                    this.isSman25 = !!data.is_sman25;
+                    if (data.albums && data.albums.length > 0) {
+                        this.albums = data.albums;
+                    }
                     this.step = 2;
                     this.$nextTick(() => {
                         const el = document.getElementById('step-2-section');
@@ -104,6 +114,10 @@
             })
             .catch(() => {
                 this.searchLoading = false;
+                if (/sman\s*25\b/i.test(this.selectedSchool)) {
+                    this.totalPhotos = 237;
+                    this.isSman25 = true;
+                }
                 this.step = 2;
             });
         },
@@ -557,100 +571,45 @@
                     </button>
                 </div>
 
-                <p class="text-xs sm:text-sm text-slate-400">
-                    Pilih salah satu album tahunan di bawah ini untuk melihat koleksi foto kegiatan:
+                <p class="text-xs sm:text-sm text-slate-400"
+                   x-text="isSman25 ? 'Koleksi dokumentasi kegiatan khusus SMAN 25 Jakarta tahun 2026. Pilih album di bawah ini:' : 'Pilih salah satu album tahunan di bawah ini untuk melihat koleksi foto kegiatan:'">
                 </p>
 
-                {{-- Grid 3 Card Album (Tahun 2024, 2025, 2026) dengan Efek Blur --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    
-                    {{-- Album 2024 --}}
-                    <div @click="chooseAlbum('2024', 'Album Dokumentasi 2024')"
-                         class="group relative rounded-3xl overflow-hidden bg-slate-900 border border-white/10 shadow-xl hover:border-indigo-500/60 hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer">
-                        <div class="relative aspect-16/11 w-full overflow-hidden bg-slate-950">
-                            <img src="{{ asset('images/documentation/student_event_1.jpg') }}"
-                                 alt="Album Dokumentasi 2024"
-                                 class="w-full h-full object-cover blur-thumb group-hover:scale-110 transition-transform duration-700">
-                            <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-[4px]"></div>
-                            
-                            {{-- Center lock button overlay --}}
-                            <div class="absolute inset-0 flex items-center justify-center p-4">
-                                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-950/85 backdrop-blur-md border border-indigo-400/40 text-white font-extrabold text-xs shadow-2xl group-hover:scale-105 group-hover:border-indigo-400 transition-all duration-300">
-                                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                    </svg>
-                                    <span>Klik untuk membuka album</span>
+                {{-- Dynamic Grid Album Cards (Khusus SMAN 25 Jakarta: 6 Album 2026, Sekolah lain: 3 Album Tahunan) --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <template x-for="(album, idx) in albums" :key="album.title">
+                        <div @click="chooseAlbum(album.year, album.title)"
+                             class="group relative rounded-3xl overflow-hidden bg-slate-900 border border-white/10 shadow-xl hover:border-indigo-500/60 hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer">
+                            <div class="relative aspect-16/11 w-full overflow-hidden bg-slate-950">
+                                <img :src="album.image"
+                                     :alt="album.title"
+                                     class="w-full h-full object-cover blur-thumb group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-[4px]"></div>
+                                
+                                {{-- Center lock button overlay --}}
+                                <div class="absolute inset-0 flex items-center justify-center p-4">
+                                    <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-950/85 backdrop-blur-md border border-indigo-400/40 text-white font-extrabold text-xs shadow-2xl group-hover:scale-105 group-hover:border-indigo-400 transition-all duration-300">
+                                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                        </svg>
+                                        <span>Klik untuk membuka album</span>
+                                    </div>
+                                </div>
+
+                                {{-- Year badge (Semua 2026 untuk SMAN 25 Jakarta) --}}
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-2.5 py-1 rounded-xl bg-indigo-600/90 text-white font-black text-xs shadow" x-text="album.year"></span>
                                 </div>
                             </div>
-
-                            <div class="absolute top-3 left-3">
-                                <span class="px-2.5 py-1 rounded-xl bg-indigo-600/90 text-white font-black text-xs shadow">2024</span>
-                            </div>
-                        </div>
-                        <div class="p-4 space-y-1">
-                            <h4 class="text-sm font-bold text-white group-hover:text-indigo-300 transition">Album Dokumentasi 2024</h4>
-                            <p class="text-xs text-slate-400">Classmeeting, Pentas Seni &amp; Lomba</p>
-                        </div>
-                    </div>
-
-                    {{-- Album 2025 --}}
-                    <div @click="chooseAlbum('2025', 'Album Dokumentasi 2025')"
-                         class="group relative rounded-3xl overflow-hidden bg-slate-900 border border-white/10 shadow-xl hover:border-indigo-500/60 hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer">
-                        <div class="relative aspect-16/11 w-full overflow-hidden bg-slate-950">
-                            <img src="{{ asset('images/documentation/student_event_2.jpg') }}"
-                                 alt="Album Dokumentasi 2025"
-                                 class="w-full h-full object-cover blur-thumb group-hover:scale-110 transition-transform duration-700">
-                            <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-[4px]"></div>
-                            
-                            {{-- Center lock button overlay --}}
-                            <div class="absolute inset-0 flex items-center justify-center p-4">
-                                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-950/85 backdrop-blur-md border border-indigo-400/40 text-white font-extrabold text-xs shadow-2xl group-hover:scale-105 group-hover:border-indigo-400 transition-all duration-300">
-                                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                    </svg>
-                                    <span>Klik untuk membuka album</span>
+                            <div class="p-4 space-y-1">
+                                <div class="flex items-center justify-between gap-2">
+                                    <h4 class="text-sm font-bold text-white group-hover:text-indigo-300 transition" x-text="album.title"></h4>
+                                    <span class="text-[11px] font-bold text-indigo-400 font-mono" x-text="album.photos"></span>
                                 </div>
-                            </div>
-
-                            <div class="absolute top-3 left-3">
-                                <span class="px-2.5 py-1 rounded-xl bg-indigo-600/90 text-white font-black text-xs shadow">2025</span>
+                                <p class="text-xs text-slate-400" x-text="album.subtitle"></p>
                             </div>
                         </div>
-                        <div class="p-4 space-y-1">
-                            <h4 class="text-sm font-bold text-white group-hover:text-indigo-300 transition">Album Dokumentasi 2025</h4>
-                            <p class="text-xs text-slate-400">Pekan Ilmiah STEM &amp; Robotika</p>
-                        </div>
-                    </div>
-
-                    {{-- Album 2026 --}}
-                    <div @click="chooseAlbum('2026', 'Album Dokumentasi 2026')"
-                         class="group relative rounded-3xl overflow-hidden bg-slate-900 border border-white/10 shadow-xl hover:border-indigo-500/60 hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer">
-                        <div class="relative aspect-16/11 w-full overflow-hidden bg-slate-950">
-                            <img src="{{ asset('images/documentation/student_event_3.jpg') }}"
-                                 alt="Album Dokumentasi 2026"
-                                 class="w-full h-full object-cover blur-thumb group-hover:scale-110 transition-transform duration-700">
-                            <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-[4px]"></div>
-                            
-                            {{-- Center lock button overlay --}}
-                            <div class="absolute inset-0 flex items-center justify-center p-4">
-                                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-950/85 backdrop-blur-md border border-indigo-400/40 text-white font-extrabold text-xs shadow-2xl group-hover:scale-105 group-hover:border-indigo-400 transition-all duration-300">
-                                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                    </svg>
-                                    <span>Klik untuk membuka album</span>
-                                </div>
-                            </div>
-
-                            <div class="absolute top-3 left-3">
-                                <span class="px-2.5 py-1 rounded-xl bg-indigo-600/90 text-white font-black text-xs shadow">2026</span>
-                            </div>
-                        </div>
-                        <div class="p-4 space-y-1">
-                            <h4 class="text-sm font-bold text-white group-hover:text-indigo-300 transition">Album Dokumentasi 2026</h4>
-                            <p class="text-xs text-slate-400">Pelepasan &amp; Wisuda Angkatan</p>
-                        </div>
-                    </div>
-
+                    </template>
                 </div>
             </div>
 

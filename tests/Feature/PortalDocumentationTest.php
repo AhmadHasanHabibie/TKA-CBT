@@ -92,6 +92,44 @@ class PortalDocumentationTest extends TestCase
         ]);
     }
 
+    public function test_sman_25_jakarta_displays_237_photos_and_six_specific_2026_albums(): void
+    {
+        $response = $this->post('/cari-dokumentasi', [
+            'school_name' => 'SMAN 25 Jakarta',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertSee('237');
+        $response->assertSee('SMAN 25 Jakarta');
+        $response->assertSee('Bulan Bahasa');
+        $response->assertSee('MPLS');
+        $response->assertSee('Class Meeting');
+        $response->assertSee('LDKS');
+        $response->assertSee('17 Agustus');
+        $response->assertSee('Hari Kartini');
+        $response->assertSee('2026');
+
+        $this->assertDatabaseHas('login_logs', [
+            'event_type' => 'search_found',
+            'school_name' => 'SMAN 25 Jakarta',
+        ]);
+
+        // Also test JSON response for Alpine
+        $jsonResponse = $this->postJson('/cari-dokumentasi', [
+            'school_name' => 'SMAN 25 Jakarta',
+        ]);
+
+        $jsonResponse->assertStatus(200);
+        $jsonResponse->assertJson([
+            'success' => true,
+            'status' => 'found',
+            'school_name' => 'SMAN 25 Jakarta',
+            'photos_count' => 237,
+            'is_sman25' => true,
+        ]);
+        $this->assertCount(6, $jsonResponse->json('albums'));
+    }
+
     public function test_step_3_submit_email_logs_to_admin_and_returns_success(): void
     {
         $response = $this->postJson('/cari-dokumentasi/submit-email', [

@@ -35,6 +35,94 @@ class PortalController extends Controller
     }
 
     /**
+     * Get tailored album list and photo count for a given school.
+     * Special specification for SMAN 25 Jakarta: Bulan Bahasa, MPLS, Class Meeting, LDKS, 17 Agustus, Hari Kartini (All 2026, 237 photos).
+     */
+    public static function getAlbumsForSchool(string $schoolName): array
+    {
+        $isSman25 = (bool) preg_match('/sman\s*25\b/i', $schoolName);
+
+        if ($isSman25) {
+            return [
+                'is_sman25' => true,
+                'photos_count' => 237,
+                'albums' => [
+                    [
+                        'title' => 'Bulan Bahasa',
+                        'year' => '2026',
+                        'subtitle' => 'Peringatan Bulan Bahasa & Sastra Siswa',
+                        'photos' => '38 Foto',
+                        'image' => asset('images/documentation/student_event_1.jpg'),
+                    ],
+                    [
+                        'title' => 'MPLS',
+                        'year' => '2026',
+                        'subtitle' => 'Masa Pengenalan Lingkungan Sekolah',
+                        'photos' => '45 Foto',
+                        'image' => asset('images/documentation/student_event_2.jpg'),
+                    ],
+                    [
+                        'title' => 'Class Meeting',
+                        'year' => '2026',
+                        'subtitle' => 'Pekan Olahraga & Seni Antar Kelas',
+                        'photos' => '52 Foto',
+                        'image' => asset('images/documentation/student_event_3.jpg'),
+                    ],
+                    [
+                        'title' => 'LDKS',
+                        'year' => '2026',
+                        'subtitle' => 'Latihan Dasar Kepemimpinan Siswa',
+                        'photos' => '34 Foto',
+                        'image' => asset('images/documentation/student_event_2.jpg'),
+                    ],
+                    [
+                        'title' => '17 Agustus',
+                        'year' => '2026',
+                        'subtitle' => 'Semarak Kemerdekaan RI 17 Agustus',
+                        'photos' => '41 Foto',
+                        'image' => asset('images/documentation/student_event_1.jpg'),
+                    ],
+                    [
+                        'title' => 'Hari Kartini',
+                        'year' => '2026',
+                        'subtitle' => 'Peringatan Hari Kartini & Budaya Nusantara',
+                        'photos' => '27 Foto',
+                        'image' => asset('images/documentation/student_event_3.jpg'),
+                    ],
+                ],
+            ];
+        }
+
+        return [
+            'is_sman25' => false,
+            'photos_count' => 67,
+            'albums' => [
+                [
+                    'title' => 'Album Dokumentasi 2024',
+                    'year' => '2024',
+                    'subtitle' => 'Classmeeting, Pentas Seni & Lomba',
+                    'photos' => '148 Foto',
+                    'image' => asset('images/documentation/student_event_1.jpg'),
+                ],
+                [
+                    'title' => 'Album Dokumentasi 2025',
+                    'year' => '2025',
+                    'subtitle' => 'Pekan Ilmiah STEM & Robotika',
+                    'photos' => '92 Foto',
+                    'image' => asset('images/documentation/student_event_2.jpg'),
+                ],
+                [
+                    'title' => 'Album Dokumentasi 2026',
+                    'year' => '2026',
+                    'subtitle' => 'Pelepasan & Wisuda Angkatan',
+                    'photos' => '210 Foto',
+                    'image' => asset('images/documentation/student_event_3.jpg'),
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Display public documentation search portal (Multi-Step Funnel).
      * No login required for students / public visitors.
      */
@@ -157,7 +245,7 @@ class PortalController extends Controller
                         ]);
                     }
                 } else {
-                    // School is found -> Provide the 3 annual cards
+                    // School is found -> Provide tailored album cards
                     try {
                         $loginTracker->recordSearch($schoolName, $email, $request, true, false);
                     } catch (\Throwable $e) {
@@ -165,9 +253,10 @@ class PortalController extends Controller
 
                     $status = 'found';
 
-                    // Compute photo count
-                    $dbCount = $dbAlbums->sum('items_count');
-                    $totalPhotosCount = $dbCount > 0 ? $dbCount : 67;
+                    $schoolAlbumData = self::getAlbumsForSchool($schoolName);
+                    $totalPhotosCount = $schoolAlbumData['photos_count'];
+                    $displayedAlbums = $schoolAlbumData['albums'];
+                    $isSman25 = $schoolAlbumData['is_sman25'];
 
                     $albums = $dbAlbums;
 
@@ -177,11 +266,18 @@ class PortalController extends Controller
                             'status' => 'found',
                             'school_name' => $schoolName,
                             'photos_count' => $totalPhotosCount,
+                            'is_sman25' => $isSman25,
+                            'albums' => $displayedAlbums,
                         ]);
                     }
                 }
             }
         }
+
+        $initialAlbumData = self::getAlbumsForSchool($schoolName);
+        $displayedAlbums = $initialAlbumData['albums'];
+        $isSman25 = $initialAlbumData['is_sman25'];
+        $totalPhotosCount = $totalPhotosCount ?? $initialAlbumData['photos_count'];
 
         try {
             $totalActiveAlbums = QuestionBank::where('is_active', true)->count();
@@ -199,6 +295,8 @@ class PortalController extends Controller
             'schoolName',
             'email',
             'albums',
+            'displayedAlbums',
+            'isSman25',
             'totalPhotosCount',
             'totalActiveAlbums'
         ));
