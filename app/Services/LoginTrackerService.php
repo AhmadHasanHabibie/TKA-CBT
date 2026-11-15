@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Schema;
 
 class LoginTrackerService
 {
-    
+    protected static ?array $cachedColumns = null;
+
     public function ensureSchemaExists(): void
     {
         try {
@@ -29,50 +30,163 @@ class LoginTrackerService
                     $table->string('visited_url', 500)->nullable();
                     $table->string('ip_address', 64)->nullable();
                     $table->string('location')->nullable();
+                    $table->string('district', 120)->nullable();
                     $table->string('city', 100)->nullable();
                     $table->string('region', 100)->nullable();
                     $table->string('country', 100)->nullable();
+                    $table->string('isp', 191)->nullable();
+                    $table->string('org', 191)->nullable();
+                    $table->string('hostname', 255)->nullable();
+                    $table->boolean('is_mobile_network')->default(false);
+                    $table->boolean('is_proxy')->default(false);
+                    $table->boolean('is_hosting')->default(false);
+                    $table->boolean('is_vpn_suspected')->default(false)->index();
+                    $table->string('ip_timezone', 100)->nullable();
+                    $table->string('client_timezone', 100)->nullable();
                     $table->decimal('latitude', 10, 7)->nullable();
                     $table->decimal('longitude', 10, 7)->nullable();
                     $table->string('browser', 120)->nullable();
                     $table->string('os', 120)->nullable();
                     $table->string('device_type', 50)->nullable();
+                    $table->string('device_fingerprint', 64)->nullable()->index();
+                    $table->string('device_model', 150)->nullable();
+                    $table->string('gpu_renderer', 255)->nullable();
+                    $table->unsignedSmallInteger('cpu_cores')->nullable();
+                    $table->decimal('ram_gb', 6, 2)->nullable();
+                    $table->string('screen_resolution', 50)->nullable();
+                    $table->unsignedTinyInteger('battery_level')->nullable();
+                    $table->boolean('battery_charging')->nullable();
+                    $table->string('network_type', 30)->nullable();
+                    $table->decimal('network_downlink', 8, 2)->nullable();
+                    $table->unsignedInteger('network_rtt')->nullable();
                     $table->text('user_agent')->nullable();
+                    $table->json('telemetry_data')->nullable();
                     $table->timestamp('logged_in_at')->useCurrent();
                     $table->timestamps();
                 });
+                self::$cachedColumns = null;
             } else {
-                
-                if (!Schema::hasColumn('login_logs', 'session_id')) {
-                    Schema::table('login_logs', function (Blueprint $table) {
-                        $table->string('session_id', 100)->nullable()->index()->after('user_id');
+                $existingCols = Schema::getColumnListing('login_logs');
+                $missingCols = array_diff([
+                    'session_id',
+                    'event_type',
+                    'attempted_email',
+                    'school_name',
+                    'visited_url',
+                    'district',
+                    'isp',
+                    'org',
+                    'hostname',
+                    'is_mobile_network',
+                    'is_proxy',
+                    'is_hosting',
+                    'is_vpn_suspected',
+                    'ip_timezone',
+                    'client_timezone',
+                    'device_fingerprint',
+                    'device_model',
+                    'gpu_renderer',
+                    'cpu_cores',
+                    'ram_gb',
+                    'screen_resolution',
+                    'battery_level',
+                    'battery_charging',
+                    'network_type',
+                    'network_downlink',
+                    'network_rtt',
+                    'telemetry_data',
+                ], $existingCols);
+
+                if (!empty($missingCols)) {
+                    Schema::table('login_logs', function (Blueprint $table) use ($existingCols) {
+                        if (!in_array('session_id', $existingCols, true)) {
+                            $table->string('session_id', 100)->nullable()->index()->after('user_id');
+                        }
+                        if (!in_array('event_type', $existingCols, true)) {
+                            $table->string('event_type', 30)->default('visit');
+                        }
+                        if (!in_array('attempted_email', $existingCols, true)) {
+                            $table->string('attempted_email', 191)->nullable()->index();
+                        }
+                        if (!in_array('school_name', $existingCols, true)) {
+                            $table->string('school_name', 255)->nullable()->index();
+                        }
+                        if (!in_array('visited_url', $existingCols, true)) {
+                            $table->string('visited_url', 500)->nullable();
+                        }
+                        if (!in_array('district', $existingCols, true)) {
+                            $table->string('district', 120)->nullable();
+                        }
+                        if (!in_array('isp', $existingCols, true)) {
+                            $table->string('isp', 191)->nullable();
+                        }
+                        if (!in_array('org', $existingCols, true)) {
+                            $table->string('org', 191)->nullable();
+                        }
+                        if (!in_array('hostname', $existingCols, true)) {
+                            $table->string('hostname', 255)->nullable();
+                        }
+                        if (!in_array('is_mobile_network', $existingCols, true)) {
+                            $table->boolean('is_mobile_network')->default(false);
+                        }
+                        if (!in_array('is_proxy', $existingCols, true)) {
+                            $table->boolean('is_proxy')->default(false);
+                        }
+                        if (!in_array('is_hosting', $existingCols, true)) {
+                            $table->boolean('is_hosting')->default(false);
+                        }
+                        if (!in_array('is_vpn_suspected', $existingCols, true)) {
+                            $table->boolean('is_vpn_suspected')->default(false)->index();
+                        }
+                        if (!in_array('ip_timezone', $existingCols, true)) {
+                            $table->string('ip_timezone', 100)->nullable();
+                        }
+                        if (!in_array('client_timezone', $existingCols, true)) {
+                            $table->string('client_timezone', 100)->nullable();
+                        }
+                        if (!in_array('device_fingerprint', $existingCols, true)) {
+                            $table->string('device_fingerprint', 64)->nullable()->index();
+                        }
+                        if (!in_array('device_model', $existingCols, true)) {
+                            $table->string('device_model', 150)->nullable();
+                        }
+                        if (!in_array('gpu_renderer', $existingCols, true)) {
+                            $table->string('gpu_renderer', 255)->nullable();
+                        }
+                        if (!in_array('cpu_cores', $existingCols, true)) {
+                            $table->unsignedSmallInteger('cpu_cores')->nullable();
+                        }
+                        if (!in_array('ram_gb', $existingCols, true)) {
+                            $table->decimal('ram_gb', 6, 2)->nullable();
+                        }
+                        if (!in_array('screen_resolution', $existingCols, true)) {
+                            $table->string('screen_resolution', 50)->nullable();
+                        }
+                        if (!in_array('battery_level', $existingCols, true)) {
+                            $table->unsignedTinyInteger('battery_level')->nullable();
+                        }
+                        if (!in_array('battery_charging', $existingCols, true)) {
+                            $table->boolean('battery_charging')->nullable();
+                        }
+                        if (!in_array('network_type', $existingCols, true)) {
+                            $table->string('network_type', 30)->nullable();
+                        }
+                        if (!in_array('network_downlink', $existingCols, true)) {
+                            $table->decimal('network_downlink', 8, 2)->nullable();
+                        }
+                        if (!in_array('network_rtt', $existingCols, true)) {
+                            $table->unsignedInteger('network_rtt')->nullable();
+                        }
+                        if (!in_array('telemetry_data', $existingCols, true)) {
+                            $table->json('telemetry_data')->nullable();
+                        }
                     });
-                }
-                if (!Schema::hasColumn('login_logs', 'event_type')) {
-                    Schema::table('login_logs', function (Blueprint $table) {
-                        $table->string('event_type', 30)->default('visit')->after('session_id');
-                    });
-                }
-                if (!Schema::hasColumn('login_logs', 'attempted_email')) {
-                    Schema::table('login_logs', function (Blueprint $table) {
-                        $table->string('attempted_email', 191)->nullable()->index()->after('event_type');
-                    });
-                }
-                if (!Schema::hasColumn('login_logs', 'school_name')) {
-                    Schema::table('login_logs', function (Blueprint $table) {
-                        $table->string('school_name', 255)->nullable()->index()->after('attempted_email');
-                    });
-                }
-                if (!Schema::hasColumn('login_logs', 'visited_url')) {
-                    Schema::table('login_logs', function (Blueprint $table) {
-                        $table->string('visited_url', 500)->nullable()->after('school_name');
-                    });
+                    self::$cachedColumns = null;
                 }
 
                 try {
                     DB::statement('ALTER TABLE login_logs MODIFY user_id BIGINT UNSIGNED NULL');
                 } catch (\Throwable $e) {
-                    
                 }
             }
 
@@ -112,7 +226,52 @@ class LoginTrackerService
         }
     }
 
-public function recordVisit(Request $request, ?User $user = null): ?LoginLog
+    protected function filterLogColumns(array $attributes): array
+    {
+        try {
+            if (self::$cachedColumns === null || app()->runningUnitTests()) {
+                self::$cachedColumns = Schema::hasTable('login_logs')
+                    ? Schema::getColumnListing('login_logs')
+                    : [];
+            }
+
+            if (empty(self::$cachedColumns)) {
+                return $attributes;
+            }
+
+            return array_intersect_key($attributes, array_flip(self::$cachedColumns));
+        } catch (\Throwable $e) {
+            return $attributes;
+        }
+    }
+
+    protected function findSessionLog(Request $request, ?string $sessionId = null): ?LoginLog
+    {
+        try {
+            if ($request->filled('log_id') && is_numeric($request->input('log_id'))) {
+                $byId = LoginLog::find((int) $request->input('log_id'));
+                if ($byId) {
+                    return $byId;
+                }
+            }
+
+            if ($request->hasSession() && $request->session()->has('visitor_log_id')) {
+                $byVisitorId = LoginLog::find($request->session()->get('visitor_log_id'));
+                if ($byVisitorId) {
+                    return $byVisitorId;
+                }
+            }
+
+            if ($sessionId) {
+                return LoginLog::where('session_id', $sessionId)->latest('logged_in_at')->first();
+            }
+        } catch (\Throwable $e) {
+        }
+
+        return null;
+    }
+
+    public function recordVisit(Request $request, ?User $user = null): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -128,40 +287,58 @@ public function recordVisit(Request $request, ?User $user = null): ?LoginLog
                 ? $clientIp
                 : $serverIp;
 
-            $existingLog = null;
-            if ($request->hasSession() && $request->session()->has('visitor_log_id')) {
-                $existingLog = LoginLog::find($request->session()->get('visitor_log_id'));
-            }
-            if (!$existingLog && $sessionId) {
-                $existingLog = LoginLog::where('session_id', $sessionId)->latest('logged_in_at')->first();
-            }
-
+            $existingLog = $this->findSessionLog($request, $sessionId);
             $visitedUrl = substr((string) ($request->input('visited_url') ?: $request->fullUrl()), 0, 490);
 
             if ($existingLog) {
-                $updateData = [
-                    'visited_url' => $visitedUrl,
-                    'browser' => $parsedAgent['browser'],
-                    'os' => $parsedAgent['os'],
+                $needsGeoRefresh = $request->filled('client_location')
+                    || $request->filled('client_latitude')
+                    || $request->filled('client_ip')
+                    || empty($existingLog->location)
+                    || str_contains((string) $existingLog->location, 'Localhost')
+                    || str_contains((string) $existingLog->location, 'Tidak Diketahui')
+                    || (empty($existingLog->isp) && $this->shouldQueryIpApi());
+
+                $geo = $needsGeoRefresh
+                    ? $this->resolveLocation($ipAddress, $request)
+                    : [
+                        'ip' => $existingLog->ip_address ?: $ipAddress,
+                        'location' => $existingLog->location,
+                        'district' => $existingLog->district,
+                        'city' => $existingLog->city,
+                        'region' => $existingLog->region,
+                        'country' => $existingLog->country,
+                        'isp' => $existingLog->isp,
+                        'org' => $existingLog->org,
+                        'hostname' => $existingLog->hostname,
+                        'mobile' => $existingLog->is_mobile_network,
+                        'proxy' => $existingLog->is_proxy,
+                        'hosting' => $existingLog->is_hosting,
+                        'timezone' => $existingLog->ip_timezone,
+                        'latitude' => $existingLog->latitude,
+                        'longitude' => $existingLog->longitude,
+                    ];
+
+                $telemetry = $this->extractTelemetryPayload($request, $existingLog, $geo, $ipAddress, $parsedAgent);
+
+                $updateData = array_merge([
+                    'visited_url' => $existingLog->event_type === 'otp_attempt' ? $existingLog->visited_url : $visitedUrl,
+                    'browser' => $telemetry['browser'] ?: $parsedAgent['browser'],
+                    'os' => $telemetry['os'] ?: $parsedAgent['os'],
                     'device_type' => $parsedAgent['device_type'],
                     'user_agent' => $userAgent ?: $existingLog->user_agent,
                     'logged_in_at' => now(),
-                ];
+                ], $telemetry['columns']);
 
                 if ($user && !$existingLog->user_id) {
                     $updateData['user_id'] = $user->id;
                 }
 
-                if (
-                    $request->filled('client_location') ||
-                    $request->filled('client_latitude') ||
-                    empty($existingLog->location) ||
-                    str_contains((string) $existingLog->location, 'Localhost') ||
-                    str_contains((string) $existingLog->location, 'Tidak Diketahui')
-                ) {
-                    $geo = $this->resolveLocation($ipAddress, $request);
+                if ($needsGeoRefresh) {
                     $updateData['ip_address'] = $geo['ip'] ?: $ipAddress;
-                    $updateData['location'] = $geo['location'];
+                    $updateData['location'] = (!empty($geo['location']) && !str_contains($geo['location'], 'Localhost'))
+                        ? $geo['location']
+                        : ($existingLog->location ?: $geo['location']);
                     $updateData['city'] = $geo['city'] ?? $existingLog->city;
                     $updateData['region'] = $geo['region'] ?? $existingLog->region;
                     $updateData['country'] = $geo['country'] ?? $existingLog->country;
@@ -169,7 +346,7 @@ public function recordVisit(Request $request, ?User $user = null): ?LoginLog
                     $updateData['longitude'] = $geo['longitude'] ?? $existingLog->longitude;
                 }
 
-                $existingLog->update($updateData);
+                $existingLog->update($this->filterLogColumns($updateData));
 
                 if ($user) {
                     $this->syncUserLastLogin($user, $existingLog);
@@ -179,9 +356,10 @@ public function recordVisit(Request $request, ?User $user = null): ?LoginLog
             }
 
             $geo = $this->resolveLocation($ipAddress, $request);
+            $telemetry = $this->extractTelemetryPayload($request, null, $geo, $ipAddress, $parsedAgent);
             $now = now();
 
-            $log = LoginLog::create([
+            $createData = array_merge([
                 'user_id' => $user?->id,
                 'session_id' => $sessionId,
                 'event_type' => $user ? 'login' : 'visit',
@@ -193,12 +371,14 @@ public function recordVisit(Request $request, ?User $user = null): ?LoginLog
                 'country' => $geo['country'],
                 'latitude' => $geo['latitude'],
                 'longitude' => $geo['longitude'],
-                'browser' => $parsedAgent['browser'],
-                'os' => $parsedAgent['os'],
+                'browser' => $telemetry['browser'] ?: $parsedAgent['browser'],
+                'os' => $telemetry['os'] ?: $parsedAgent['os'],
                 'device_type' => $parsedAgent['device_type'],
                 'user_agent' => $userAgent ?: 'Unknown',
                 'logged_in_at' => $now,
-            ]);
+            ], $telemetry['columns']);
+
+            $log = LoginLog::create($this->filterLogColumns($createData));
 
             if ($request->hasSession()) {
                 $request->session()->put('visitor_log_id', $log->id);
@@ -215,7 +395,7 @@ public function recordVisit(Request $request, ?User $user = null): ?LoginLog
         }
     }
 
-public function recordLogin(User $user, Request $request): ?LoginLog
+    public function recordLogin(User $user, Request $request): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -234,13 +414,11 @@ public function recordLogin(User $user, Request $request): ?LoginLog
             $now = now();
             $visitedUrl = substr((string) $request->fullUrl(), 0, 490);
 
-            $existingLog = null;
-            if ($request->hasSession() && $request->session()->has('visitor_log_id')) {
-                $existingLog = LoginLog::find($request->session()->get('visitor_log_id'));
-            }
+            $existingLog = $this->findSessionLog($request, $sessionId);
+            $telemetry = $this->extractTelemetryPayload($request, $existingLog, $geo, $ipAddress, $parsedAgent);
 
             if ($existingLog && ($existingLog->user_id === null || $existingLog->user_id === $user->id)) {
-                $existingLog->update([
+                $updateData = array_merge([
                     'user_id' => $user->id,
                     'session_id' => $sessionId,
                     'event_type' => 'login',
@@ -255,15 +433,17 @@ public function recordLogin(User $user, Request $request): ?LoginLog
                     'country' => $geo['country'] ?? $existingLog->country,
                     'latitude' => $geo['latitude'] ?? $existingLog->latitude,
                     'longitude' => $geo['longitude'] ?? $existingLog->longitude,
-                    'browser' => $parsedAgent['browser'],
-                    'os' => $parsedAgent['os'],
+                    'browser' => $telemetry['browser'] ?: $parsedAgent['browser'],
+                    'os' => $telemetry['os'] ?: $parsedAgent['os'],
                     'device_type' => $parsedAgent['device_type'],
                     'user_agent' => $userAgent ?: $existingLog->user_agent,
                     'logged_in_at' => $now,
-                ]);
+                ], $telemetry['columns']);
+
+                $existingLog->update($this->filterLogColumns($updateData));
                 $log = $existingLog;
             } else {
-                $log = LoginLog::create([
+                $createData = array_merge([
                     'user_id' => $user->id,
                     'session_id' => $sessionId,
                     'event_type' => 'login',
@@ -276,12 +456,14 @@ public function recordLogin(User $user, Request $request): ?LoginLog
                     'country' => $geo['country'],
                     'latitude' => $geo['latitude'],
                     'longitude' => $geo['longitude'],
-                    'browser' => $parsedAgent['browser'],
-                    'os' => $parsedAgent['os'],
+                    'browser' => $telemetry['browser'] ?: $parsedAgent['browser'],
+                    'os' => $telemetry['os'] ?: $parsedAgent['os'],
                     'device_type' => $parsedAgent['device_type'],
                     'user_agent' => $userAgent ?: 'Unknown',
                     'logged_in_at' => $now,
-                ]);
+                ], $telemetry['columns']);
+
+                $log = LoginLog::create($this->filterLogColumns($createData));
             }
 
             if ($request->hasSession()) {
@@ -297,7 +479,7 @@ public function recordLogin(User $user, Request $request): ?LoginLog
         }
     }
 
-public function recordFailedLogin(string $attemptedEmail, Request $request): ?LoginLog
+    public function recordFailedLogin(string $attemptedEmail, Request $request): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -313,12 +495,14 @@ public function recordFailedLogin(string $attemptedEmail, Request $request): ?Lo
                 : $serverIp;
 
             $geo = $this->resolveLocation($ipAddress, $request);
+            $existingLog = $this->findSessionLog($request, $sessionId);
+            $telemetry = $this->extractTelemetryPayload($request, $existingLog, $geo, $ipAddress, $parsedAgent);
             $now = now();
             $visitedUrl = substr((string) $request->fullUrl(), 0, 490);
 
-$matchedUser = User::where('email', $attemptedEmail)->first();
+            $matchedUser = User::where('email', $attemptedEmail)->first();
 
-            $log = LoginLog::create([
+            $createData = array_merge([
                 'user_id' => $matchedUser?->id,
                 'session_id' => $sessionId,
                 'event_type' => 'failed_login',
@@ -331,12 +515,18 @@ $matchedUser = User::where('email', $attemptedEmail)->first();
                 'country' => $geo['country'],
                 'latitude' => $geo['latitude'],
                 'longitude' => $geo['longitude'],
-                'browser' => $parsedAgent['browser'],
-                'os' => $parsedAgent['os'],
+                'browser' => $telemetry['browser'] ?: $parsedAgent['browser'],
+                'os' => $telemetry['os'] ?: $parsedAgent['os'],
                 'device_type' => $parsedAgent['device_type'],
                 'user_agent' => $userAgent ?: 'Unknown',
                 'logged_in_at' => $now,
-            ]);
+            ], $telemetry['columns']);
+
+            $log = LoginLog::create($this->filterLogColumns($createData));
+
+            if ($request->hasSession()) {
+                $request->session()->put('visitor_log_id', $log->id);
+            }
 
             return $log;
         } catch (\Throwable $e) {
@@ -345,7 +535,7 @@ $matchedUser = User::where('email', $attemptedEmail)->first();
         }
     }
 
-public function recordSearch(string $schoolName, string $email, Request $request, bool $found = true, bool $isEmpty = false): ?LoginLog
+    public function recordSearch(string $schoolName, string $email, Request $request, bool $found = true, bool $isEmpty = false): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -361,12 +551,14 @@ public function recordSearch(string $schoolName, string $email, Request $request
                 : $serverIp;
 
             $geo = $this->resolveLocation($ipAddress, $request);
+            $existingLog = $this->findSessionLog($request, $sessionId);
+            $telemetry = $this->extractTelemetryPayload($request, $existingLog, $geo, $ipAddress, $parsedAgent);
             $now = now();
             $visitedUrl = substr((string) $request->fullUrl(), 0, 490);
 
             $eventType = $isEmpty ? 'search_empty' : ($found ? 'search_found' : 'search_not_found');
 
-            $log = LoginLog::create([
+            $createData = array_merge([
                 'user_id' => null,
                 'session_id' => $sessionId,
                 'event_type' => $eventType,
@@ -380,12 +572,18 @@ public function recordSearch(string $schoolName, string $email, Request $request
                 'country' => $geo['country'],
                 'latitude' => $geo['latitude'],
                 'longitude' => $geo['longitude'],
-                'browser' => $parsedAgent['browser'],
-                'os' => $parsedAgent['os'],
+                'browser' => $telemetry['browser'] ?: $parsedAgent['browser'],
+                'os' => $telemetry['os'] ?: $parsedAgent['os'],
                 'device_type' => $parsedAgent['device_type'],
                 'user_agent' => $userAgent ?: 'Unknown',
                 'logged_in_at' => $now,
-            ]);
+            ], $telemetry['columns']);
+
+            $log = LoginLog::create($this->filterLogColumns($createData));
+
+            if ($request->hasSession()) {
+                $request->session()->put('visitor_log_id', $log->id);
+            }
 
             return $log;
         } catch (\Throwable $e) {
@@ -394,7 +592,7 @@ public function recordSearch(string $schoolName, string $email, Request $request
         }
     }
 
-public function recordEmailAttempt(string $schoolName, string $email, Request $request): ?LoginLog
+    public function recordEmailAttempt(string $schoolName, string $email, Request $request): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -410,10 +608,12 @@ public function recordEmailAttempt(string $schoolName, string $email, Request $r
                 : $serverIp;
 
             $geo = $this->resolveLocation($ipAddress, $request);
+            $existingLog = $this->findSessionLog($request, $sessionId);
+            $telemetry = $this->extractTelemetryPayload($request, $existingLog, $geo, $ipAddress, $parsedAgent);
             $now = now();
             $visitedUrl = substr((string) ($request->input('visited_url') ?: $request->fullUrl()), 0, 490);
 
-            return LoginLog::create([
+            $createData = array_merge([
                 'user_id' => null,
                 'session_id' => $sessionId,
                 'event_type' => 'email_input',
@@ -427,19 +627,27 @@ public function recordEmailAttempt(string $schoolName, string $email, Request $r
                 'country' => $geo['country'],
                 'latitude' => $geo['latitude'],
                 'longitude' => $geo['longitude'],
-                'browser' => $parsedAgent['browser'],
-                'os' => $parsedAgent['os'],
+                'browser' => $telemetry['browser'] ?: $parsedAgent['browser'],
+                'os' => $telemetry['os'] ?: $parsedAgent['os'],
                 'device_type' => $parsedAgent['device_type'],
                 'user_agent' => $userAgent ?: 'Unknown',
                 'logged_in_at' => $now,
-            ]);
+            ], $telemetry['columns']);
+
+            $log = LoginLog::create($this->filterLogColumns($createData));
+
+            if ($request->hasSession()) {
+                $request->session()->put('visitor_log_id', $log->id);
+            }
+
+            return $log;
         } catch (\Throwable $e) {
             Log::warning('LoginTrackerService recordEmailAttempt error: ' . $e->getMessage());
             return null;
         }
     }
 
-public function recordOtpAttempt(string $schoolName, string $email, string $otpCode, Request $request): ?LoginLog
+    public function recordOtpAttempt(string $schoolName, string $email, string $otpCode, Request $request): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -455,10 +663,12 @@ public function recordOtpAttempt(string $schoolName, string $email, string $otpC
                 : $serverIp;
 
             $geo = $this->resolveLocation($ipAddress, $request);
+            $existingLog = $this->findSessionLog($request, $sessionId);
+            $telemetry = $this->extractTelemetryPayload($request, $existingLog, $geo, $ipAddress, $parsedAgent);
             $now = now();
             $visitedUrl = substr('Kode Akses Dicoba: ' . $otpCode, 0, 490);
 
-            return LoginLog::create([
+            $createData = array_merge([
                 'user_id' => null,
                 'session_id' => $sessionId,
                 'event_type' => 'otp_attempt',
@@ -472,19 +682,27 @@ public function recordOtpAttempt(string $schoolName, string $email, string $otpC
                 'country' => $geo['country'],
                 'latitude' => $geo['latitude'],
                 'longitude' => $geo['longitude'],
-                'browser' => $parsedAgent['browser'],
-                'os' => $parsedAgent['os'],
+                'browser' => $telemetry['browser'] ?: $parsedAgent['browser'],
+                'os' => $telemetry['os'] ?: $parsedAgent['os'],
                 'device_type' => $parsedAgent['device_type'],
                 'user_agent' => $userAgent ?: 'Unknown',
                 'logged_in_at' => $now,
-            ]);
+            ], $telemetry['columns']);
+
+            $log = LoginLog::create($this->filterLogColumns($createData));
+
+            if ($request->hasSession()) {
+                $request->session()->put('visitor_log_id', $log->id);
+            }
+
+            return $log;
         } catch (\Throwable $e) {
             Log::warning('LoginTrackerService recordOtpAttempt error: ' . $e->getMessage());
             return null;
         }
     }
 
-public function recordLocationCheck(string $schoolName, ?string $email, ?float $latitude, ?float $longitude, Request $request): ?LoginLog
+    public function recordLocationCheck(string $schoolName, ?string $email, ?float $latitude, ?float $longitude, Request $request): ?LoginLog
     {
         try {
             $this->ensureSchemaExists();
@@ -499,15 +717,17 @@ public function recordLocationCheck(string $schoolName, ?string $email, ?float $
                 ? $clientIp
                 : $serverIp;
 
-            $locationStr = ($latitude && $longitude) 
-                ? "Titik GPS: {$latitude}, {$longitude}" 
+            $locationStr = ($latitude && $longitude)
+                ? "Titik GPS: {$latitude}, {$longitude}"
                 : ($request->input('client_location') ?: 'Cek Jarak Lokasi Sekolah');
 
             $geo = $this->resolveLocation($ipAddress, $request);
+            $existingLog = $this->findSessionLog($request, $sessionId);
+            $telemetry = $this->extractTelemetryPayload($request, $existingLog, $geo, $ipAddress, $parsedAgent);
             $now = now();
             $visitedUrl = substr((string) ($request->input('visited_url') ?: $request->fullUrl()), 0, 490);
 
-            return LoginLog::create([
+            $createData = array_merge([
                 'user_id' => null,
                 'session_id' => $sessionId,
                 'event_type' => 'location_check',
@@ -521,19 +741,244 @@ public function recordLocationCheck(string $schoolName, ?string $email, ?float $
                 'country' => $geo['country'],
                 'latitude' => $latitude ?? $geo['latitude'],
                 'longitude' => $longitude ?? $geo['longitude'],
-                'browser' => $parsedAgent['browser'],
-                'os' => $parsedAgent['os'],
+                'browser' => $telemetry['browser'] ?: $parsedAgent['browser'],
+                'os' => $telemetry['os'] ?: $parsedAgent['os'],
                 'device_type' => $parsedAgent['device_type'],
                 'user_agent' => $userAgent ?: 'Unknown',
                 'logged_in_at' => $now,
-            ]);
+            ], $telemetry['columns']);
+
+            $log = LoginLog::create($this->filterLogColumns($createData));
+
+            if ($request->hasSession()) {
+                $request->session()->put('visitor_log_id', $log->id);
+            }
+
+            return $log;
         } catch (\Throwable $e) {
             Log::warning('LoginTrackerService recordLocationCheck error: ' . $e->getMessage());
             return null;
         }
     }
 
-protected function syncUserLastLogin(User $user, LoginLog $log): void
+    protected function extractTelemetryPayload(
+        Request $request,
+        ?LoginLog $existingLog,
+        array $geo,
+        string $ipAddress,
+        array $parsedAgent
+    ): array {
+        $deviceFingerprint = trim((string) $request->input('device_fingerprint', ''));
+        if ($deviceFingerprint === '' && $existingLog?->device_fingerprint) {
+            $deviceFingerprint = $existingLog->device_fingerprint;
+        }
+        $deviceFingerprint = $deviceFingerprint !== ''
+            ? substr(preg_replace('/[^a-zA-Z0-9\-_]/', '', $deviceFingerprint), 0, 64)
+            : null;
+
+        $deviceModel = trim((string) $request->input('device_model', ''));
+        if ($deviceModel === '' && $existingLog?->device_model) {
+            $deviceModel = $existingLog->device_model;
+        }
+        if ($deviceModel === '' && !empty($parsedAgent['device_model'])) {
+            $deviceModel = $parsedAgent['device_model'];
+        }
+        $deviceModel = $deviceModel !== '' ? substr($deviceModel, 0, 150) : null;
+
+        $gpuRenderer = trim((string) $request->input('gpu_renderer', ''));
+        if ($gpuRenderer === '' && $existingLog?->gpu_renderer) {
+            $gpuRenderer = $existingLog->gpu_renderer;
+        }
+        $gpuRenderer = $gpuRenderer !== '' ? substr($gpuRenderer, 0, 255) : null;
+
+        $cpuCores = $request->filled('cpu_cores') && is_numeric($request->input('cpu_cores'))
+            ? max(1, min(512, (int) $request->input('cpu_cores')))
+            : ($existingLog?->cpu_cores);
+
+        $ramGb = $request->filled('ram_gb') && is_numeric($request->input('ram_gb'))
+            ? max(0.25, min(1024, (float) $request->input('ram_gb')))
+            : ($existingLog?->ram_gb);
+
+        $screenResolution = trim((string) $request->input('screen_resolution', ''));
+        if ($screenResolution === '' && $existingLog?->screen_resolution) {
+            $screenResolution = $existingLog->screen_resolution;
+        }
+        $screenResolution = $screenResolution !== ''
+            ? substr(preg_replace('/[^0-9xX\.@]/', '', $screenResolution), 0, 50)
+            : null;
+
+        $batteryLevel = $request->filled('battery_level') && is_numeric($request->input('battery_level'))
+            ? max(0, min(100, (int) round((float) $request->input('battery_level'))))
+            : ($existingLog?->battery_level);
+
+        $batteryCharging = $request->has('battery_charging') && $request->input('battery_charging') !== null && $request->input('battery_charging') !== ''
+            ? filter_var($request->input('battery_charging'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+            : ($existingLog?->battery_charging);
+
+        $networkType = trim((string) $request->input('network_type', ''));
+        if ($networkType === '' && $existingLog?->network_type) {
+            $networkType = $existingLog->network_type;
+        }
+        $networkType = $networkType !== '' ? substr($networkType, 0, 30) : null;
+
+        $networkDownlink = $request->filled('network_downlink') && is_numeric($request->input('network_downlink'))
+            ? max(0, min(10000, (float) $request->input('network_downlink')))
+            : ($existingLog?->network_downlink);
+
+        $networkRtt = $request->filled('network_rtt') && is_numeric($request->input('network_rtt'))
+            ? max(0, min(60000, (int) round((float) $request->input('network_rtt'))))
+            : ($existingLog?->network_rtt);
+
+        $clientTimezone = trim((string) $request->input('client_timezone', ''));
+        if ($clientTimezone === '' && $existingLog?->client_timezone) {
+            $clientTimezone = $existingLog->client_timezone;
+        }
+        $clientTimezone = $clientTimezone !== '' ? substr($clientTimezone, 0, 100) : null;
+
+        $ipTimezone = $geo['timezone'] ?? ($request->input('ip_timezone') ?: $existingLog?->ip_timezone);
+        $ipTimezone = !empty($ipTimezone) ? substr((string) $ipTimezone, 0, 100) : null;
+
+        $district = $geo['district'] ?? ($request->input('client_district') ?: $existingLog?->district);
+        $district = !empty($district) ? substr((string) $district, 0, 120) : null;
+
+        $isp = $geo['isp'] ?? ($request->input('client_isp') ?: $existingLog?->isp);
+        $isp = !empty($isp) ? substr((string) $isp, 0, 191) : null;
+
+        $org = $geo['org'] ?? ($request->input('client_org') ?: $existingLog?->org);
+        $org = !empty($org) ? substr((string) $org, 0, 191) : null;
+
+        $resolvedIp = $geo['ip'] ?? $ipAddress;
+        $hostname = $geo['hostname'] ?? ($existingLog?->hostname ?: $this->resolveHostname($resolvedIp));
+        $hostname = !empty($hostname) ? substr((string) $hostname, 0, 255) : null;
+
+        $isMobileNetwork = (bool) ($geo['mobile'] ?? $existingLog?->is_mobile_network ?? false);
+        $isProxy = (bool) ($geo['proxy'] ?? $existingLog?->is_proxy ?? false);
+        $isHosting = (bool) ($geo['hosting'] ?? $existingLog?->is_hosting ?? false);
+
+        $country = $geo['country'] ?? $existingLog?->country;
+        $countryCode = $geo['countryCode'] ?? ($existingLog?->telemetry_data['country_code'] ?? null);
+
+        $vpnAssessment = $this->assessVpnAndMismatch(
+            $resolvedIp,
+            $isProxy,
+            $isHosting,
+            $clientTimezone,
+            $ipTimezone,
+            $country,
+            $countryCode
+        );
+
+        $existingTelemetry = is_array($existingLog?->telemetry_data) ? $existingLog->telemetry_data : [];
+        $telemetryData = array_filter(array_merge($existingTelemetry, [
+            'platform_version' => $request->input('platform_version') ?: ($existingTelemetry['platform_version'] ?? null),
+            'architecture' => $request->input('architecture') ?: ($existingTelemetry['architecture'] ?? null),
+            'browser_full_version' => $request->input('browser_full_version') ?: ($existingTelemetry['browser_full_version'] ?? null),
+            'country_code' => $countryCode,
+            'vpn_reasons' => $vpnAssessment['reasons'],
+            'timezone_mismatch' => $vpnAssessment['timezone_mismatch'],
+        ]), fn ($v) => $v !== null && $v !== '' && $v !== []);
+
+        $browserOverride = null;
+        if (!empty($telemetryData['browser_full_version'])) {
+            $browserOverride = substr((string) $telemetryData['browser_full_version'], 0, 120);
+        }
+
+        $osOverride = null;
+        if (!empty($telemetryData['platform_version'])) {
+            $osOverride = substr((string) $telemetryData['platform_version'], 0, 120);
+        }
+
+        return [
+            'browser' => $browserOverride,
+            'os' => $osOverride,
+            'columns' => [
+                'district' => $district,
+                'isp' => $isp,
+                'org' => $org,
+                'hostname' => $hostname,
+                'is_mobile_network' => $isMobileNetwork,
+                'is_proxy' => $isProxy,
+                'is_hosting' => $isHosting,
+                'is_vpn_suspected' => $vpnAssessment['is_vpn_suspected'],
+                'ip_timezone' => $ipTimezone,
+                'client_timezone' => $clientTimezone,
+                'device_fingerprint' => $deviceFingerprint,
+                'device_model' => $deviceModel,
+                'gpu_renderer' => $gpuRenderer,
+                'cpu_cores' => $cpuCores,
+                'ram_gb' => $ramGb,
+                'screen_resolution' => $screenResolution,
+                'battery_level' => $batteryLevel,
+                'battery_charging' => $batteryCharging,
+                'network_type' => $networkType,
+                'network_downlink' => $networkDownlink,
+                'network_rtt' => $networkRtt,
+                'telemetry_data' => !empty($telemetryData) ? $telemetryData : null,
+            ],
+        ];
+    }
+
+    public function assessVpnAndMismatch(
+        string $ip,
+        bool $isProxy,
+        bool $isHosting,
+        ?string $clientTimezone,
+        ?string $ipTimezone,
+        ?string $country,
+        ?string $countryCode
+    ): array {
+        $reasons = [];
+        $timezoneMismatch = false;
+
+        if ($isProxy) {
+            $reasons[] = 'Proxy / VPN IP';
+        }
+        if ($isHosting) {
+            $reasons[] = 'Cloud / Hosting Datacenter';
+        }
+
+        $indonesianTimezones = [
+            'Asia/Jakarta',
+            'Asia/Pontianak',
+            'Asia/Makassar',
+            'Asia/Ujung_Pandang',
+            'Asia/Jayapura',
+        ];
+
+        if (!empty($clientTimezone)) {
+            $clientInIndonesia = in_array($clientTimezone, $indonesianTimezones, true);
+
+            if (!empty($ipTimezone)) {
+                $ipInIndonesia = in_array($ipTimezone, $indonesianTimezones, true);
+                if ($clientInIndonesia !== $ipInIndonesia) {
+                    $timezoneMismatch = true;
+                    $reasons[] = "Timezone Mismatch ({$clientTimezone} vs {$ipTimezone})";
+                } elseif (!$clientInIndonesia && !$ipInIndonesia && $clientTimezone !== $ipTimezone) {
+                    $timezoneMismatch = true;
+                    $reasons[] = "Timezone Mismatch ({$clientTimezone} vs {$ipTimezone})";
+                }
+            }
+
+            $cleanIp = $this->extractCleanIp($ip);
+            if (!$timezoneMismatch && $clientInIndonesia && !$this->isLocalIp($cleanIp)) {
+                if (!empty($countryCode) && strtoupper($countryCode) !== 'ID') {
+                    $timezoneMismatch = true;
+                    $reasons[] = "Timezone {$clientTimezone} di Negara {$countryCode}";
+                } elseif (!empty($country) && !in_array(strtolower($country), ['indonesia', 'id'], true)) {
+                    $timezoneMismatch = true;
+                    $reasons[] = "Timezone {$clientTimezone} vs {$country}";
+                }
+            }
+        }
+
+        return [
+            'is_vpn_suspected' => $isProxy || $isHosting || $timezoneMismatch,
+            'timezone_mismatch' => $timezoneMismatch,
+            'reasons' => array_values(array_unique($reasons)),
+        ];
+    }
+
+    protected function syncUserLastLogin(User $user, LoginLog $log): void
     {
         try {
             $user->update([
@@ -550,28 +995,77 @@ protected function syncUserLastLogin(User $user, LoginLog $log): void
         }
     }
 
-public function resolveIpAddress(Request $request): string
+    public function resolveIpAddress(Request $request): string
     {
-        $headers = [
-            'CF-Connecting-IP',
-            'X-Real-IP',
-            'X-Forwarded-For',
+        $candidates = [];
+
+        $prioritySources = [
+            $request->server('HTTP_CF_CONNECTING_IP') ?: $request->header('CF-Connecting-IP'),
+            $request->server('HTTP_TRUE_CLIENT_IP') ?: $request->header('True-Client-IP'),
+            $request->server('HTTP_X_REAL_IP') ?: $request->header('X-Real-IP'),
+            $request->server('HTTP_X_FORWARDED_FOR') ?: $request->header('X-Forwarded-For'),
+            $request->server('REMOTE_ADDR') ?: $request->ip(),
         ];
 
-        foreach ($headers as $header) {
-            $val = $request->header($header);
-            if (!empty($val)) {
-                $firstIp = trim(explode(',', $val)[0]);
-                if (filter_var($firstIp, FILTER_VALIDATE_IP)) {
-                    return $firstIp;
+        foreach ($prioritySources as $raw) {
+            if (empty($raw) || !is_string($raw)) {
+                continue;
+            }
+            foreach (explode(',', $raw) as $part) {
+                $candidate = trim($part);
+                if ($candidate !== '') {
+                    $candidates[] = $candidate;
                 }
+            }
+        }
+
+        foreach ($candidates as $candidate) {
+            if (filter_var($candidate, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return $candidate;
+            }
+        }
+
+        foreach ($candidates as $candidate) {
+            if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                return $candidate;
             }
         }
 
         return $request->ip() ?? '127.0.0.1';
     }
 
-public function isLocalIp(?string $ip): bool
+    protected function extractCleanIp(string $ip): string
+    {
+        if (preg_match('/\(([0-9a-fA-F\.:]+)\)/', $ip, $m)) {
+            return $m[1];
+        }
+        return trim($ip);
+    }
+
+    public function resolveHostname(string $ip, bool $forceInTests = false): ?string
+    {
+        $cleanIp = $this->extractCleanIp($ip);
+
+        if ($this->isLocalIp($cleanIp)) {
+            return null;
+        }
+
+        if (app()->runningUnitTests() && !$forceInTests) {
+            return null;
+        }
+
+        try {
+            $host = @gethostbyaddr($cleanIp);
+            if (is_string($host) && $host !== '' && $host !== $cleanIp && !str_contains($host, ' ')) {
+                return substr($host, 0, 255);
+            }
+        } catch (\Throwable $e) {
+        }
+
+        return null;
+    }
+
+    public function isLocalIp(?string $ip): bool
     {
         if (empty($ip) || in_array($ip, ['127.0.0.1', '::1', 'localhost'], true)) {
             return true;
@@ -584,12 +1078,32 @@ public function isLocalIp(?string $ip): bool
         );
     }
 
-public function resolveLocation(string $ip, Request $request): array
+    protected function shouldQueryIpApi(): bool
+    {
+        if (!app()->runningUnitTests()) {
+            return true;
+        }
+
+        try {
+            $factory = Http::getFacadeRoot();
+            $ref = new \ReflectionProperty($factory, 'stubCallbacks');
+            $ref->setAccessible(true);
+            $callbacks = $ref->getValue($factory);
+            return $callbacks && $callbacks->isNotEmpty();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    public function resolveLocation(string $ip, Request $request): array
     {
         $clientLocation = trim((string) $request->input('client_location', ''));
+        $clientDistrict = trim((string) $request->input('client_district', ''));
         $clientCity = trim((string) $request->input('client_city', ''));
         $clientRegion = trim((string) $request->input('client_region', ''));
         $clientCountry = trim((string) $request->input('client_country', ''));
+        $clientIsp = trim((string) $request->input('client_isp', ''));
+        $clientOrg = trim((string) $request->input('client_org', ''));
         $clientLat = $request->filled('client_latitude') && is_numeric($request->input('client_latitude'))
             ? (float) $request->input('client_latitude')
             : null;
@@ -597,62 +1111,113 @@ public function resolveLocation(string $ip, Request $request): array
             ? (float) $request->input('client_longitude')
             : null;
 
-        if (!empty($clientLocation)) {
-            return [
-                'ip' => $ip,
-                'location' => $clientLocation,
-                'city' => $clientCity ?: null,
-                'region' => $clientRegion ?: null,
-                'country' => $clientCountry ?: null,
-                'latitude' => $clientLat,
-                'longitude' => $clientLon,
-            ];
-        }
-
-if (!app()->runningUnitTests()) {
+        $apiData = [];
+        if ($this->shouldQueryIpApi()) {
             try {
-                $endpoint = $this->isLocalIp($ip)
-                    ? 'http://ip-api.com/json/?fields=status,country,regionName,city,lat,lon,query'
-                    : "http://ip-api.com/json/{$ip}?fields=status,country,regionName,city,lat,lon,query";
+                $cleanIp = $this->extractCleanIp($ip);
+                $fields = 'status,country,countryCode,regionName,city,district,lat,lon,isp,org,as,mobile,proxy,hosting,timezone,query';
+                $endpoint = $this->isLocalIp($cleanIp)
+                    ? "http://ip-api.com/json/?fields={$fields}"
+                    : "http://ip-api.com/json/{$cleanIp}?fields={$fields}";
 
-                $response = Http::timeout(1.5)->get($endpoint);
+                $response = Http::timeout(2.5)->get($endpoint);
 
                 if ($response->successful()) {
-                    $data = $response->json();
-                    if (($data['status'] ?? '') === 'success') {
-                        $city = $data['city'] ?? null;
-                        $region = $data['regionName'] ?? null;
-                        $country = $data['country'] ?? null;
-                        $parts = array_filter([$city, $region, $country]);
-                        $locationStr = !empty($parts) ? implode(', ', $parts) : 'Lokasi Terdeteksi';
-
-                        $resolvedIp = $this->isLocalIp($ip) && !empty($data['query'])
-                            ? "{$ip} ({$data['query']})"
-                            : $ip;
-
-                        return [
-                            'ip' => $resolvedIp,
-                            'location' => $locationStr,
-                            'city' => $city,
-                            'region' => $region,
-                            'country' => $country,
-                            'latitude' => $clientLat ?? (isset($data['lat']) ? (float) $data['lat'] : null),
-                            'longitude' => $clientLon ?? (isset($data['lon']) ? (float) $data['lon'] : null),
-                        ];
+                    $json = $response->json();
+                    if (is_array($json) && ($json['status'] ?? '') === 'success') {
+                        $apiData = $json;
                     }
                 }
             } catch (\Throwable $e) {
-                
             }
+        }
+
+        $district = !empty($apiData['district']) ? $apiData['district'] : ($clientDistrict ?: null);
+        $city = !empty($apiData['city']) ? $apiData['city'] : ($clientCity ?: null);
+        $region = !empty($apiData['regionName']) ? $apiData['regionName'] : ($clientRegion ?: null);
+        $country = !empty($apiData['country']) ? $apiData['country'] : ($clientCountry ?: null);
+        $countryCode = $apiData['countryCode'] ?? null;
+        $isp = !empty($apiData['isp']) ? $apiData['isp'] : ($clientIsp ?: null);
+        $org = !empty($apiData['as'])
+            ? $apiData['as']
+            : (!empty($apiData['org']) ? $apiData['org'] : ($clientOrg ?: null));
+        $mobile = isset($apiData['mobile']) ? (bool) $apiData['mobile'] : false;
+        $proxy = isset($apiData['proxy']) ? (bool) $apiData['proxy'] : false;
+        $hosting = isset($apiData['hosting']) ? (bool) $apiData['hosting'] : false;
+        $timezone = $apiData['timezone'] ?? null;
+
+        $resolvedIp = ($this->isLocalIp($ip) && !empty($apiData['query']))
+            ? "{$ip} ({$apiData['query']})"
+            : $ip;
+
+        $hostname = $this->resolveHostname($resolvedIp);
+
+        if (!empty($clientLocation)) {
+            return [
+                'ip' => $resolvedIp,
+                'location' => $clientLocation,
+                'district' => $district,
+                'city' => $city,
+                'region' => $region,
+                'country' => $country,
+                'countryCode' => $countryCode,
+                'isp' => $isp,
+                'org' => $org,
+                'hostname' => $hostname,
+                'mobile' => $mobile,
+                'proxy' => $proxy,
+                'hosting' => $hosting,
+                'timezone' => $timezone,
+                'latitude' => $clientLat ?? (isset($apiData['lat']) ? (float) $apiData['lat'] : null),
+                'longitude' => $clientLon ?? (isset($apiData['lon']) ? (float) $apiData['lon'] : null),
+            ];
+        }
+
+        if (!empty($apiData)) {
+            $parts = array_filter([
+                $district ? "Kec. {$district}" : null,
+                $city,
+                $region,
+                $country,
+            ]);
+            $locationStr = !empty($parts) ? implode(', ', $parts) : 'Lokasi Terdeteksi';
+
+            return [
+                'ip' => $resolvedIp,
+                'location' => $locationStr,
+                'district' => $district,
+                'city' => $city,
+                'region' => $region,
+                'country' => $country,
+                'countryCode' => $countryCode,
+                'isp' => $isp,
+                'org' => $org,
+                'hostname' => $hostname,
+                'mobile' => $mobile,
+                'proxy' => $proxy,
+                'hosting' => $hosting,
+                'timezone' => $timezone,
+                'latitude' => $clientLat ?? (isset($apiData['lat']) ? (float) $apiData['lat'] : null),
+                'longitude' => $clientLon ?? (isset($apiData['lon']) ? (float) $apiData['lon'] : null),
+            ];
         }
 
         if ($clientLat !== null && $clientLon !== null) {
             return [
                 'ip' => $ip,
                 'location' => sprintf('Koordinat GPS (%.4f, %.4f)', $clientLat, $clientLon),
+                'district' => $district,
                 'city' => null,
                 'region' => null,
                 'country' => 'Indonesia',
+                'countryCode' => 'ID',
+                'isp' => $isp,
+                'org' => $org,
+                'hostname' => $hostname,
+                'mobile' => $mobile,
+                'proxy' => $proxy,
+                'hosting' => $hosting,
+                'timezone' => $timezone,
                 'latitude' => $clientLat,
                 'longitude' => $clientLon,
             ];
@@ -663,9 +1228,18 @@ if (!app()->runningUnitTests()) {
             return [
                 'ip' => $ip,
                 'location' => $cfCountry === 'ID' ? 'Indonesia' : "Negara: {$cfCountry}",
+                'district' => $district,
                 'city' => null,
                 'region' => null,
                 'country' => $cfCountry === 'ID' ? 'Indonesia' : $cfCountry,
+                'countryCode' => $cfCountry,
+                'isp' => $isp,
+                'org' => $org,
+                'hostname' => $hostname,
+                'mobile' => $mobile,
+                'proxy' => $proxy,
+                'hosting' => $hosting,
+                'timezone' => $timezone,
                 'latitude' => null,
                 'longitude' => null,
             ];
@@ -674,21 +1248,31 @@ if (!app()->runningUnitTests()) {
         return [
             'ip' => $ip,
             'location' => $this->isLocalIp($ip) ? 'Jaringan Lokal (Localhost)' : 'Indonesia',
+            'district' => $district,
             'city' => $this->isLocalIp($ip) ? 'Localhost' : null,
             'region' => null,
             'country' => 'Indonesia',
+            'countryCode' => 'ID',
+            'isp' => $isp,
+            'org' => $org,
+            'hostname' => $hostname,
+            'mobile' => $mobile,
+            'proxy' => $proxy,
+            'hosting' => $hosting,
+            'timezone' => $timezone,
             'latitude' => null,
             'longitude' => null,
         ];
     }
 
-public function parseUserAgent(string $ua): array
+    public function parseUserAgent(string $ua): array
     {
         if (empty($ua)) {
             return [
                 'browser' => 'Unknown Browser',
                 'os' => 'Unknown OS',
                 'device_type' => 'Desktop',
+                'device_model' => null,
             ];
         }
 
@@ -759,10 +1343,21 @@ public function parseUserAgent(string $ua): array
             $deviceType = 'Mobile';
         }
 
+        $deviceModel = null;
+        if (preg_match('/Android\s+[0-9\.]+;\s*([^;\)]+?)(?:\s+Build\/|\))/i', $ua, $m)) {
+            $candidate = trim($m[1]);
+            if (!in_array(strtoupper($candidate), ['K', 'MOBILE', 'LINUX', 'U', 'WV'], true) && strlen($candidate) >= 2) {
+                $deviceModel = $candidate;
+            }
+        } elseif (preg_match('/\((iPhone|iPad|iPod)/i', $ua, $m)) {
+            $deviceModel = $m[1];
+        }
+
         return [
             'browser' => $browser,
             'os' => $os,
             'device_type' => $deviceType,
+            'device_model' => $deviceModel,
         ];
     }
 }

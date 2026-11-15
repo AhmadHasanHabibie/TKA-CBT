@@ -629,10 +629,15 @@ public function checkLocation(Request $request, LoginTrackerService $loginTracke
         ]);
     }
 
-public function showAlbum(QuestionBank $questionBank)
+    public function showAlbum(Request $request, QuestionBank $questionBank, LoginTrackerService $loginTracker)
     {
         if (!$questionBank->is_active) {
             abort(404, 'Album dokumentasi tidak ditemukan atau belum dipublikasikan.');
+        }
+
+        try {
+            $loginTracker->recordVisit($request);
+        } catch (\Throwable $e) {
         }
 
         $questionBank->load(['items' => function ($query) {

@@ -162,4 +162,125 @@ $this->assertDatabaseHas('login_logs', [
         $this->assertGuest();
         $response->assertRedirect(route('login'));
     }
+
+    public function test_cloudflare_true_ip_priority_skips_private_proxy_ips(): void
+    {
+        $response = $this->withHeaders([
+            'CF-Connecting-IP' => '36.72.210.45',
+            'True-Client-IP' => '103.20.30.40',
+            'X-Real-IP' => '10.0.0.1',
+            'X-Forwarded-For' => '192.168.1.1, 36.72.210.45',
+        ])->get('/login');
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('login_logs', [
+            'ip_address' => '36.72.210.45',
+        ]);
+    }
+
+    public function test_passive_diagnostic_telemetry_and_device_correlation_and_vpn_detection(): void
+    {
+        \Illuminate\Support\Facades\Http::fake([
+            'ip-api.com/*' => \Illuminate\Support\Facades\Http::response([
+                'status' => 'success',
+                'country' => 'Singapore',
+                'countryCode' => 'SG',
+                'regionName' => 'Central Singapore',
+                'city' => 'Singapore',
+                'district' => 'Downtown Core',
+                'lat' => 1.2897,
+                'lon' => 103.8501,
+                'isp' => 'DigitalOcean LLC',
+                'org' => 'DigitalOcean Cloud',
+                'as' => 'AS14061 DigitalOcean, LLC',
+                'mobile' => true,
+                'proxy' => true,
+                'hosting' => true,
+                'timezone' => 'Asia/Singapore',
+                'query' => '128.199.100.25',
+            ], 200),
+        ]);
+
+        $student = User::factory()->create([
+            'name' => 'Student One',
+            'email' => 'student1@example.com',
+            'role' => 'user',
+        ]);
+
+        LoginLog::create([
+            'user_id' => $student->id,
+            'event_type' => 'login',
+            'ip_address' => '114.122.10.55',
+            'location' => 'Jakarta, Indonesia',
+            'device_fingerprint' => '8f4e2a91c0b3d7e5',
+            'logged_in_at' => now()->subHour(),
+        ]);
+
+        $telemetryResp = $this->withHeaders([
+            'CF-Connecting-IP' => '128.199.100.25',
+            'User-Agent' => 'Mozilla/5.0 (Linux; Android 14; SM-A546E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
+        ])->postJson(route('telemetry.track'), [
+            'device_fingerprint' => '8f4e2a91c0b3d7e5',
+            'device_model' => 'SM-A546E',
+            'gpu_renderer' => 'Mali-G68 MP5',
+            'cpu_cores' => 8,
+            'ram_gb' => 8,
+            'screen_resolution' => '1080x2340',
+            'battery_level' => 84,
+            'battery_charging' => true,
+            'network_type' => '4g',
+            'network_downlink' => 24.5,
+            'network_rtt' => 45,
+            'client_timezone' => 'Asia/Jakarta',
+        ]);
+
+        $telemetryResp->assertStatus(200)->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('login_logs', [
+            'user_id' => null,
+            'ip_address' => '128.199.100.25',
+            'district' => 'Downtown Core',
+            'isp' => 'DigitalOcean LLC',
+            'is_mobile_network' => 1,
+            'is_proxy' => 1,
+            'is_hosting' => 1,
+            'is_vpn_suspected' => 1,
+            'ip_timezone' => 'Asia/Singapore',
+            'client_timezone' => 'Asia/Jakarta',
+            'device_fingerprint' => '8f4e2a91c0b3d7e5',
+            'device_model' => 'SM-A546E',
+            'gpu_renderer' => 'Mali-G68 MP5',
+            'cpu_cores' => 8,
+            'screen_resolution' => '1080x2340',
+            'battery_level' => 84,
+            'battery_charging' => 1,
+            'network_type' => '4g',
+            'network_rtt' => 45,
+        ]);
+
+        $admin = User::factory()->create([
+            'name' => 'Admin Test',
+            'email' => 'admin@example.com',
+            'role' => 'admin',
+        ]);
+
+        $adminPage = $this->actingAs($admin)->get(route('admin.login-logs.index'));
+        $adminPage->assertStatus(200);
+        $adminPage->assertSee('Perangkat terasosiasi:');
+        $adminPage->assertSee('Student One');
+        $adminPage->assertSee('Kec. Downtown Core');
+        $adminPage->assertSee('DigitalOcean LLC');
+        $adminPage->assertSee('VPN / Proxy Terdeteksi');
+        $adminPage->assertSee('Seluler / Hotspot');
+        $adminPage->assertSee('TZ Mismatch: Asia/Jakarta');
+        $adminPage->assertSee('SM-A546E');
+        $adminPage->assertSee('GPU: Mali-G68 MP5');
+        $adminPage->assertSee('8 Core');
+        $adminPage->assertSee('8GB RAM');
+        $adminPage->assertSee('1080x2340');
+        $adminPage->assertSee('ID: 8F4E2A91C0');
+        $adminPage->assertSee('84%');
+        $adminPage->assertSee('⚡ Dicas');
+        $adminPage->assertSee('4G • 24.5 Mbps • 45 ms');
+    }
 }

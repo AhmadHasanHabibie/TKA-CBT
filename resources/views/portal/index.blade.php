@@ -77,6 +77,7 @@
         },
 
         submitSearch() {
+            const telemetry = window.__tkaTelemetry || {};
             if (!this.selectedSchool || this.selectedSchool.trim() === '') {
                 this.stepErrorMessage = 'Harap pilih sekolah terlebih dahulu';
                 this.notFoundAlert = '';
@@ -87,7 +88,7 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ school_name: '' })
+                    body: JSON.stringify(Object.assign({}, telemetry, { school_name: '' }))
                 }).catch(() => {});
                 return;
             }
@@ -103,7 +104,7 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({ school_name: this.selectedSchool })
+                body: JSON.stringify(Object.assign({}, telemetry, { school_name: this.selectedSchool }))
             })
             .then(res => res.json())
             .then(data => {
@@ -162,10 +163,10 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({
+                body: JSON.stringify(Object.assign({}, window.__tkaTelemetry || {}, {
                     school_name: this.selectedSchool,
                     email: this.email
-                })
+                }))
             })
             .then(res => res.json())
             .then(data => {
@@ -200,11 +201,11 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({
+                body: JSON.stringify(Object.assign({}, window.__tkaTelemetry || {}, {
                     school_name: this.selectedSchool,
                     email: this.email,
                     otp_code: this.otpCode
-                })
+                }))
             })
             .then(res => res.json())
             .then(data => {
@@ -246,12 +247,12 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
                             'Accept': 'application/json'
                         },
-                        body: JSON.stringify({
+                        body: JSON.stringify(Object.assign({}, window.__tkaTelemetry || {}, {
                             school_name: this.selectedSchool,
                             email: this.email,
                             latitude: lat,
                             longitude: lon
-                        })
+                        }))
                     })
                     .then(res => res.json())
                     .then(data => {
@@ -873,5 +874,6 @@
         </div>
     </footer>
 
+    <x-client-telemetry />
 </body>
 </html>

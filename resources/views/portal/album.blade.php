@@ -248,6 +248,7 @@
 
 </div>
 
+<x-client-telemetry />
 </body>
 </html>
 

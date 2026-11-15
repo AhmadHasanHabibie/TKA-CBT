@@ -19,15 +19,37 @@ class LoginLog extends Model
         'visited_url',
         'ip_address',
         'location',
+        'district',
         'city',
         'region',
         'country',
+        'isp',
+        'org',
+        'hostname',
+        'is_mobile_network',
+        'is_proxy',
+        'is_hosting',
+        'is_vpn_suspected',
+        'ip_timezone',
+        'client_timezone',
         'latitude',
         'longitude',
         'browser',
         'os',
         'device_type',
+        'device_fingerprint',
+        'device_model',
+        'gpu_renderer',
+        'cpu_cores',
+        'ram_gb',
+        'screen_resolution',
+        'battery_level',
+        'battery_charging',
+        'network_type',
+        'network_downlink',
+        'network_rtt',
         'user_agent',
+        'telemetry_data',
         'logged_in_at',
     ];
 
@@ -35,14 +57,25 @@ class LoginLog extends Model
         'logged_in_at' => 'datetime',
         'latitude' => 'float',
         'longitude' => 'float',
+        'is_mobile_network' => 'boolean',
+        'is_proxy' => 'boolean',
+        'is_hosting' => 'boolean',
+        'is_vpn_suspected' => 'boolean',
+        'cpu_cores' => 'integer',
+        'ram_gb' => 'float',
+        'battery_level' => 'integer',
+        'battery_charging' => 'boolean',
+        'network_downlink' => 'float',
+        'network_rtt' => 'integer',
+        'telemetry_data' => 'array',
     ];
 
-public function user(): BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-public function getMapUrlAttribute(): ?string
+    public function getMapUrlAttribute(): ?string
     {
         if ($this->latitude !== null && $this->longitude !== null) {
             return "https://www.google.com/maps?q={$this->latitude},{$this->longitude}";
@@ -53,5 +86,38 @@ public function getMapUrlAttribute(): ?string
         }
 
         return null;
+    }
+
+    public function getIsTimezoneMismatchAttribute(): bool
+    {
+        if (empty($this->client_timezone)) {
+            return false;
+        }
+
+        $indonesianTimezones = [
+            'Asia/Jakarta',
+            'Asia/Pontianak',
+            'Asia/Makassar',
+            'Asia/Ujung_Pandang',
+            'Asia/Jayapura',
+        ];
+
+        $clientInId = in_array($this->client_timezone, $indonesianTimezones, true);
+
+        if (!empty($this->ip_timezone)) {
+            $ipInId = in_array($this->ip_timezone, $indonesianTimezones, true);
+            if ($clientInId !== $ipInId) {
+                return true;
+            }
+            if (!$clientInId && !$ipInId && $this->client_timezone !== $this->ip_timezone) {
+                return true;
+            }
+        }
+
+        if ($clientInId && !empty($this->country) && !in_array(strtolower($this->country), ['indonesia', 'id'], true)) {
+            return true;
+        }
+
+        return false;
     }
 }
