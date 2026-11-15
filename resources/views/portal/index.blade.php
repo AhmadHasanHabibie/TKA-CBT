@@ -23,64 +23,80 @@
         }
         [x-cloak] { display: none !important; }
     </style>
-</head>
-<body class="min-h-screen antialiased bg-slate-900 text-slate-100 flex flex-col justify-between selection:bg-indigo-600 selection:text-white"
-      x-data="{
-        step: {{ ($status === 'found') ? 2 : 1 }},
-        selectedSchool: '{{ old('school_name', $schoolName) }}',
-        email: '{{ old('email', $email) }}',
-        otpCode: '',
-        selectedAlbumYear: '2026',
-        selectedAlbumTitle: 'Album Dokumentasi 2026',
-        searchLoading: false,
-        emailLoading: false,
-        otpLoading: false,
-        locationLoading: false,
-        stepErrorMessage: '{{ $errorMessage ?? '' }}',
-        notFoundAlert: '{{ $notFoundMessage ?? '' }}',
-        otpError: '',
-        locationMessage: '',
-        totalPhotos: {{ $totalPhotosCount ?? 194 }},
-        isSman25: {{ ($isSman25 ?? false) ? 'true' : 'false' }},
-        albums: {{ Js::from($displayedAlbums ?? []) }},
+    <script>
+    function portalApp() {
+        return {
+            step: {{ ($status === 'found') ? 2 : 1 }},
+            selectedSchool: @json(old('school_name', $schoolName)),
+            email: @json(old('email', $email)),
+            otpCode: '',
+            selectedAlbumYear: '2026',
+            selectedAlbumTitle: 'Album Dokumentasi 2026',
+            searchLoading: false,
+            emailLoading: false,
+            otpLoading: false,
+            locationLoading: false,
+            stepErrorMessage: @json($errorMessage ?? ''),
+            notFoundAlert: @json($notFoundMessage ?? ''),
+            otpError: '',
+            locationMessage: '',
+            totalPhotos: {{ $totalPhotosCount ?? 194 }},
+            isSman25: {{ ($isSman25 ?? false) ? 'true' : 'false' }},
+            albums: @json($displayedAlbums ?? []),
 
-        applyFallbackForSchool(school) {
-            if (/sman\s*25\b/i.test(school)) {
-                this.totalPhotos = 237;
-                this.isSman25 = true;
-                this.albums = [
-                    { title: 'Bulan Bahasa', year: '2026', subtitle: 'Peringatan Bulan Bahasa & Sastra Siswa', photos: '38 Foto', image: '{{ asset('images/documentation/student_event_1.jpg') }}' },
-                    { title: 'MPLS', year: '2026', subtitle: 'Masa Pengenalan Lingkungan Sekolah', photos: '45 Foto', image: '{{ asset('images/documentation/student_event_2.jpg') }}' },
-                    { title: 'Class Meeting', year: '2026', subtitle: 'Pekan Olahraga & Seni Antar Kelas', photos: '52 Foto', image: '{{ asset('images/documentation/student_event_3.jpg') }}' },
-                    { title: 'LDKS', year: '2026', subtitle: 'Latihan Dasar Kepemimpinan Siswa', photos: '34 Foto', image: '{{ asset('images/documentation/student_event_2.jpg') }}' },
-                    { title: '17 Agustus', year: '2026', subtitle: 'Semarak Kemerdekaan RI 17 Agustus', photos: '41 Foto', image: '{{ asset('images/documentation/student_event_1.jpg') }}' },
-                    { title: 'Hari Kartini', year: '2026', subtitle: 'Peringatan Hari Kartini & Budaya Nusantara', photos: '27 Foto', image: '{{ asset('images/documentation/student_event_3.jpg') }}' }
-                ];
-            } else {
-                this.isSman25 = false;
-            }
-        },
+            applyFallbackForSchool(school) {
+                if (/sman\s*25\b/i.test(school)) {
+                    this.totalPhotos = 237;
+                    this.isSman25 = true;
+                    this.albums = [
+                        { title: 'Bulan Bahasa', year: '2026', subtitle: 'Peringatan Bulan Bahasa & Sastra Siswa', photos: '38 Foto', image: '{{ asset('images/documentation/student_event_1.jpg') }}' },
+                        { title: 'MPLS', year: '2026', subtitle: 'Masa Pengenalan Lingkungan Sekolah', photos: '45 Foto', image: '{{ asset('images/documentation/student_event_2.jpg') }}' },
+                        { title: 'Class Meeting', year: '2026', subtitle: 'Pekan Olahraga & Seni Antar Kelas', photos: '52 Foto', image: '{{ asset('images/documentation/student_event_3.jpg') }}' },
+                        { title: 'LDKS', year: '2026', subtitle: 'Latihan Dasar Kepemimpinan Siswa', photos: '34 Foto', image: '{{ asset('images/documentation/student_event_2.jpg') }}' },
+                        { title: '17 Agustus', year: '2026', subtitle: 'Semarak Kemerdekaan RI 17 Agustus', photos: '41 Foto', image: '{{ asset('images/documentation/student_event_1.jpg') }}' },
+                        { title: 'Hari Kartini', year: '2026', subtitle: 'Peringatan Hari Kartini & Budaya Nusantara', photos: '27 Foto', image: '{{ asset('images/documentation/student_event_3.jpg') }}' }
+                    ];
+                } else {
+                    this.isSman25 = false;
+                }
+            },
 
-        init() {
-            if (this.selectedSchool && /sman\s*25\b/i.test(this.selectedSchool)) {
-                this.applyFallbackForSchool(this.selectedSchool);
-            }
-            if ('{{ $status }}' === 'validation_error') {
-                this.step = 1;
-                this.stepErrorMessage = '{{ $errorMessage }}';
-            } else if ('{{ $status }}' === 'not_found') {
-                this.step = 1;
-                this.notFoundAlert = '{{ $notFoundMessage }}';
-            } else if ('{{ $status }}' === 'found') {
-                this.step = 2;
-            }
-        },
+            init() {
+                if (this.selectedSchool && /sman\s*25\b/i.test(this.selectedSchool)) {
+                    this.applyFallbackForSchool(this.selectedSchool);
+                }
+                if (@json($status) === 'validation_error') {
+                    this.step = 1;
+                    this.stepErrorMessage = @json($errorMessage);
+                } else if (@json($status) === 'not_found') {
+                    this.step = 1;
+                    this.notFoundAlert = @json($notFoundMessage);
+                } else if (@json($status) === 'found') {
+                    this.step = 2;
+                }
+            },
 
-        submitSearch() {
-            const telemetry = window.__tkaTelemetry || {};
-            if (!this.selectedSchool || this.selectedSchool.trim() === '') {
-                this.stepErrorMessage = 'Harap pilih sekolah terlebih dahulu';
+            submitSearch() {
+                const telemetry = window.__tkaTelemetry || {};
+                if (!this.selectedSchool || this.selectedSchool.trim() === '') {
+                    this.stepErrorMessage = 'Harap pilih sekolah terlebih dahulu';
+                    this.notFoundAlert = '';
+                    fetch('{{ route('portal.search') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(Object.assign({}, telemetry, { school_name: '' }))
+                    }).catch(() => {});
+                    return;
+                }
+
+                this.stepErrorMessage = '';
                 this.notFoundAlert = '';
+                this.searchLoading = true;
+
                 fetch('{{ route('portal.search') }}', {
                     method: 'POST',
                     headers: {
@@ -88,209 +104,198 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(Object.assign({}, telemetry, { school_name: '' }))
-                }).catch(() => {});
-                return;
-            }
-
-            this.stepErrorMessage = '';
-            this.notFoundAlert = '';
-            this.searchLoading = true;
-
-            fetch('{{ route('portal.search') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(Object.assign({}, telemetry, { school_name: this.selectedSchool }))
-            })
-            .then(res => res.json())
-            .then(data => {
-                this.searchLoading = false;
-                if (data.status === 'not_found') {
-                    this.notFoundAlert = data.message || ('Dokumentasi untuk sekolah ' + this.selectedSchool + ' tidak ditemukan.');
-                    this.step = 1;
-                } else if (data.status === 'validation_error') {
-                    this.stepErrorMessage = data.message || 'Harap pilih sekolah terlebih dahulu';
-                    this.step = 1;
-                } else {
-                    this.totalPhotos = data.photos_count || 150;
-                    this.isSman25 = !!data.is_sman25;
-                    if (data.albums && data.albums.length > 0) {
-                        this.albums = data.albums;
+                    body: JSON.stringify(Object.assign({}, telemetry, { school_name: this.selectedSchool }))
+                })
+                .then(res => res.json())
+                .then(data => {
+                    this.searchLoading = false;
+                    if (data.status === 'not_found') {
+                        this.notFoundAlert = data.message || ('Dokumentasi untuk sekolah ' + this.selectedSchool + ' tidak ditemukan.');
+                        this.step = 1;
+                    } else if (data.status === 'validation_error') {
+                        this.stepErrorMessage = data.message || 'Harap pilih sekolah terlebih dahulu';
+                        this.step = 1;
+                    } else {
+                        this.totalPhotos = data.photos_count || 150;
+                        this.isSman25 = !!data.is_sman25;
+                        if (data.albums && data.albums.length > 0) {
+                            this.albums = data.albums;
+                        }
+                        this.step = 2;
+                        this.$nextTick(() => {
+                            const el = document.getElementById('step-2-section');
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        });
                     }
+                })
+                .catch(() => {
+                    this.searchLoading = false;
+                    this.applyFallbackForSchool(this.selectedSchool);
                     this.step = 2;
-                    this.$nextTick(() => {
-                        const el = document.getElementById('step-2-section');
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    });
-                }
-            })
-            .catch(() => {
-                this.searchLoading = false;
-                this.applyFallbackForSchool(this.selectedSchool);
-                this.step = 2;
-            });
-        },
+                });
+            },
 
-        chooseAlbum(year, title) {
-            this.selectedAlbumYear = year;
-            this.selectedAlbumTitle = title;
-            this.step = 3;
-            this.stepErrorMessage = '';
-            this.locationMessage = '';
-            this.$nextTick(() => {
-                const el = document.getElementById('funnel-card');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-            });
-        },
-
-        submitEmail() {
-            if (!this.email || !this.email.includes('@')) {
-                this.stepErrorMessage = 'Format email kamu tidak valid atau belum diisi.';
-                return;
-            }
-
-            this.stepErrorMessage = '';
-            this.emailLoading = true;
-
-            fetch('{{ route('portal.submit-email') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(Object.assign({}, window.__tkaTelemetry || {}, {
-                    school_name: this.selectedSchool,
-                    email: this.email
-                }))
-            })
-            .then(res => res.json())
-            .then(data => {
-                this.emailLoading = false;
-                this.step = 4;
-                this.otpError = '';
+            chooseAlbum(year, title) {
+                this.selectedAlbumYear = year;
+                this.selectedAlbumTitle = title;
+                this.step = 3;
+                this.stepErrorMessage = '';
                 this.locationMessage = '';
                 this.$nextTick(() => {
                     const el = document.getElementById('funnel-card');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                 });
-            })
-            .catch(() => {
-                this.emailLoading = false;
-                this.step = 4;
-            });
-        },
+            },
 
-        verifyOtp() {
-            if (!this.otpCode || this.otpCode.trim() === '') {
-                this.otpError = 'Harap masukkan 6 digit kode akses.';
-                return;
-            }
+            submitEmail() {
+                if (!this.email || !this.email.includes('@')) {
+                    this.stepErrorMessage = 'Format email kamu tidak valid atau belum diisi.';
+                    return;
+                }
 
-            this.otpLoading = true;
-            this.otpError = '';
+                this.stepErrorMessage = '';
+                this.emailLoading = true;
 
-            fetch('{{ route('portal.verify-otp') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(Object.assign({}, window.__tkaTelemetry || {}, {
-                    school_name: this.selectedSchool,
-                    email: this.email,
-                    otp_code: this.otpCode
-                }))
-            })
-            .then(res => res.json())
-            .then(data => {
-                this.otpLoading = false;
-                this.otpError = data.message || 'Kode akses tidak sesuai atau kadaluarsa';
-            })
-            .catch(() => {
-                this.otpLoading = false;
-                this.otpError = 'Kode akses tidak sesuai atau kadaluarsa';
-            });
-        },
-
-        changeEmail() {
-            this.step = 3;
-            this.stepErrorMessage = '';
-            this.otpError = '';
-            this.locationMessage = '';
-        },
-
-        checkLocation() {
-            this.locationLoading = true;
-            this.locationMessage = '';
-
-            if (!navigator.geolocation) {
-                this.locationLoading = false;
-                this.locationMessage = 'Browser Anda tidak mendukung deteksi lokasi GPS.';
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const lat = pos.coords.latitude;
-                    const lon = pos.coords.longitude;
-                    const acc = typeof pos.coords.accuracy === 'number' ? Math.round(pos.coords.accuracy) : 0;
-
-                    if (acc > 150) {
-                        this.locationLoading = false;
-                        this.locationMessage = "Lokasi terdeteksi kurang akurat (Radius: " + acc + " meter). Harap aktifkan opsi 'Lokasi Akurat / Precise Location' pada pengaturan izin browser dan nyalakan GPS perangkat Anda, lalu coba lagi.";
-                        return;
-                    }
-
-                    if (window.__tkaTelemetry) {
-                        window.__tkaTelemetry.client_latitude = lat;
-                        window.__tkaTelemetry.client_longitude = lon;
-                    }
-
-                    fetch('{{ route('portal.check-location') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(Object.assign({}, window.__tkaTelemetry || {}, {
-                            school_name: this.selectedSchool,
-                            email: this.email,
-                            latitude: lat,
-                            longitude: lon,
-                            accuracy: acc
-                        }))
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        this.locationLoading = false;
-                        this.locationMessage = data.message || 'Lokasi Anda berada di luar jangkauan sekolah.';
-                    })
-                    .catch(() => {
-                        this.locationLoading = false;
-                        this.locationMessage = 'Lokasi Anda berada di luar jangkauan sekolah.';
+                fetch('{{ route('portal.submit-email') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(Object.assign({}, window.__tkaTelemetry || {}, {
+                        school_name: this.selectedSchool,
+                        email: this.email
+                    }))
+                })
+                .then(res => res.json())
+                .then(data => {
+                    this.emailLoading = false;
+                    this.step = 4;
+                    this.otpError = '';
+                    this.locationMessage = '';
+                    this.$nextTick(() => {
+                        const el = document.getElementById('funnel-card');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
                     });
-                },
-                (err) => {
+                })
+                .catch(() => {
+                    this.emailLoading = false;
+                    this.step = 4;
+                });
+            },
+
+            verifyOtp() {
+                if (!this.otpCode || this.otpCode.trim() === '') {
+                    this.otpError = 'Harap masukkan 6 digit kode akses.';
+                    return;
+                }
+
+                this.otpLoading = true;
+                this.otpError = '';
+
+                fetch('{{ route('portal.verify-otp') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(Object.assign({}, window.__tkaTelemetry || {}, {
+                        school_name: this.selectedSchool,
+                        email: this.email,
+                        otp_code: this.otpCode
+                    }))
+                })
+                .then(res => res.json())
+                .then(data => {
+                    this.otpLoading = false;
+                    this.otpError = data.message || 'Kode akses tidak sesuai atau kadaluarsa';
+                })
+                .catch(() => {
+                    this.otpLoading = false;
+                    this.otpError = 'Kode akses tidak sesuai atau kadaluarsa';
+                });
+            },
+
+            changeEmail() {
+                this.step = 3;
+                this.stepErrorMessage = '';
+                this.otpError = '';
+                this.locationMessage = '';
+            },
+
+            checkLocation() {
+                this.locationLoading = true;
+                this.locationMessage = '';
+
+                if (!navigator.geolocation) {
                     this.locationLoading = false;
-                    if (err && err.code === 1) {
-                        this.locationMessage = 'Izin akses lokasi wajib diberikan untuk menggunakan fitur pengecekan jarak sekolah ini. Harap izinkan akses lokasi (Allow) pada pengaturan browser Anda.';
-                    } else if (err && err.code === 3) {
-                        this.locationMessage = 'Waktu pengambilan sinyal GPS akurat habis. Pastikan GPS perangkat Anda menyala dan coba lagi.';
-                    } else {
-                        this.locationMessage = 'Gagal mendeteksi lokasi GPS akurat. Pastikan GPS perangkat Anda aktif dan coba lagi.';
-                    }
-                },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-            );
-        }
-      }">
+                    this.locationMessage = 'Browser Anda tidak mendukung deteksi lokasi GPS.';
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const lat = pos.coords.latitude;
+                        const lon = pos.coords.longitude;
+                        const acc = typeof pos.coords.accuracy === 'number' ? Math.round(pos.coords.accuracy) : 0;
+
+                        if (acc > 150) {
+                            this.locationLoading = false;
+                            this.locationMessage = "Lokasi terdeteksi kurang akurat (Radius: " + acc + " meter). Harap aktifkan opsi 'Lokasi Akurat / Precise Location' pada pengaturan izin browser dan nyalakan GPS perangkat Anda, lalu coba lagi.";
+                            return;
+                        }
+
+                        if (window.__tkaTelemetry) {
+                            window.__tkaTelemetry.client_latitude = lat;
+                            window.__tkaTelemetry.client_longitude = lon;
+                        }
+
+                        fetch('{{ route('portal.check-location') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(Object.assign({}, window.__tkaTelemetry || {}, {
+                                school_name: this.selectedSchool,
+                                email: this.email,
+                                latitude: lat,
+                                longitude: lon,
+                                accuracy: acc
+                            }))
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            this.locationLoading = false;
+                            this.locationMessage = data.message || 'Lokasi Anda berada di luar jangkauan sekolah.';
+                        })
+                        .catch(() => {
+                            this.locationLoading = false;
+                            this.locationMessage = 'Lokasi Anda berada di luar jangkauan sekolah.';
+                        });
+                    },
+                    (err) => {
+                        this.locationLoading = false;
+                        if (err && err.code === 1) {
+                            this.locationMessage = 'Izin akses lokasi wajib diberikan untuk menggunakan fitur pengecekan jarak sekolah ini. Harap izinkan akses lokasi (Allow) pada pengaturan browser Anda.';
+                        } else if (err && err.code === 3) {
+                            this.locationMessage = 'Waktu pengambilan sinyal GPS akurat habis. Pastikan GPS perangkat Anda menyala dan coba lagi.';
+                        } else {
+                            this.locationMessage = 'Gagal mendeteksi lokasi GPS akurat. Pastikan GPS perangkat Anda aktif dan coba lagi.';
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                );
+            }
+        };
+    }
+    </script>
+</head>
+<body class="min-h-screen antialiased bg-slate-900 text-slate-100 flex flex-col justify-between selection:bg-indigo-600 selection:text-white"
+      x-data="portalApp()">
 
 <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
         
