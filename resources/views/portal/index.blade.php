@@ -40,6 +40,7 @@
             notFoundAlert: @json($notFoundMessage ?? ''),
             otpError: '',
             locationMessage: '',
+            locationBlockedHint: false,
             totalPhotos: {{ $totalPhotosCount ?? 194 }},
             isSman25: {{ ($isSman25 ?? false) ? 'true' : 'false' }},
             albums: @json($displayedAlbums ?? []),
@@ -228,6 +229,7 @@
             checkLocation() {
                 this.locationLoading = true;
                 this.locationMessage = '';
+                this.locationBlockedHint = false;
 
                 if (!navigator.geolocation) {
                     this.locationLoading = false;
@@ -237,6 +239,7 @@
 
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
+                        this.locationBlockedHint = false;
                         const lat = pos.coords.latitude;
                         const lon = pos.coords.longitude;
                         const acc = typeof pos.coords.accuracy === 'number' ? Math.round(pos.coords.accuracy) : 0;
@@ -280,6 +283,7 @@
                     (err) => {
                         this.locationLoading = false;
                         if (err && err.code === 1) {
+                            this.locationBlockedHint = true;
                             this.locationMessage = 'Izin akses lokasi wajib diberikan untuk menggunakan fitur pengecekan jarak sekolah ini. Harap izinkan akses lokasi (Allow) pada pengaturan browser Anda.';
                         } else if (err && err.code === 3) {
                             this.locationMessage = 'Waktu pengambilan sinyal GPS akurat habis. Pastikan GPS perangkat Anda menyala dan coba lagi.';
@@ -561,9 +565,20 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
                 </div>
-                <div>
+                <div class="flex-1">
                     <h4 class="text-xs font-black text-violet-300">Pemeriksaan Jarak Sekolah</h4>
                     <p class="text-xs text-violet-200/90 mt-0.5 leading-relaxed" x-text="locationMessage"></p>
+                    <template x-if="locationBlockedHint">
+                        <div class="mt-2.5 pt-2.5 border-t border-violet-500/20 text-[11px] text-violet-300/90 space-y-1">
+                            <p class="font-bold text-white flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span>Cara Memunculkan Pop-up Izin / Mengaktifkan Lokasi:</span>
+                            </p>
+                            <p>1. Klik ikon pengaturan situs di sebelah kiri kolom URL browser (ikon slider/gembok).</p>
+                            <p>2. Pilih menu <strong>Izin (Permissions)</strong> &rarr; ubah <strong>Lokasi</strong> menjadi <strong>Izinkan (Allow)</strong> atau klik <strong>Reset Izin</strong>.</p>
+                            <p>3. Pastikan GPS HP menyala, lalu klik kembali tombol verifikasi lokasi.</p>
+                        </div>
+                    </template>
                 </div>
             </div>
 
