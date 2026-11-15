@@ -410,26 +410,63 @@
 
                             <td class="table-td">
                                 <div class="flex items-start gap-2">
-                                    <svg class="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 {{ ($log->latitude !== null && $log->longitude !== null) ? 'text-emerald-600' : 'text-rose-500' }} mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
                                     <div class="space-y-1">
-                                        <p class="text-xs font-bold text-slate-800">{{ $log->location ?: 'Tidak Diketahui' }}</p>
-
-                                        @if ($log->district || $log->city || $log->region)
-                                            <p class="text-[11px] text-slate-600 font-medium">
-                                                @if ($log->district)
-                                                    <span class="font-bold text-indigo-700">Kec. {{ $log->district }}</span>{{ ($log->city || $log->region) ? ',' : '' }}
-                                                @endif
-                                                {{ collect([$log->city, $log->region])->filter()->implode(', ') }}
-                                            </p>
-                                        @endif
-
                                         @if ($log->latitude !== null && $log->longitude !== null)
-                                            <p class="text-[10px] font-mono text-slate-400">
-                                                GPS: {{ number_format($log->latitude, 4) }}, {{ number_format($log->longitude, 4) }}
+                                            <div class="flex flex-wrap items-center gap-1">
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                    Lokasi Akurat (GPS)
+                                                </span>
+                                                @if ($log->gps_accuracy !== null)
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100/80 text-emerald-800 border border-emerald-300">
+                                                        Akurasi GPS: ±{{ (int) round($log->gps_accuracy) }}m
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            <p class="text-xs font-mono font-extrabold text-slate-900">
+                                                {{ number_format($log->latitude, 6) }}, {{ number_format($log->longitude, 6) }}
                                             </p>
+
+                                            @if ($log->location && !str_starts_with($log->location, 'Titik GPS:'))
+                                                <p class="text-[11px] font-semibold text-slate-700">{{ $log->location }}</p>
+                                            @endif
+
+                                            @if ($log->district || $log->city || $log->region)
+                                                <p class="text-[11px] text-slate-600 font-medium">
+                                                    @if ($log->district)
+                                                        <span class="font-bold text-indigo-700">Kec. {{ $log->district }}</span>{{ ($log->city || $log->region) ? ',' : '' }}
+                                                    @endif
+                                                    {{ collect([$log->city, $log->region])->filter()->implode(', ') }}
+                                                </p>
+                                            @endif
+
+                                            <a href="https://www.google.com/maps?q={{ $log->latitude }},{{ $log->longitude }}" target="_blank" rel="noopener noreferrer"
+                                               class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-700">
+                                                <span>Lihat Lokasi di Google Maps</span>
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            </a>
+                                        @else
+                                            <p class="text-xs font-bold text-slate-800">{{ $log->location ?: 'Tidak Diketahui' }}</p>
+
+                                            @if ($log->district || $log->city || $log->region)
+                                                <p class="text-[11px] text-slate-600 font-medium">
+                                                    @if ($log->district)
+                                                        <span class="font-bold text-indigo-700">Kec. {{ $log->district }}</span>{{ ($log->city || $log->region) ? ',' : '' }}
+                                                    @endif
+                                                    {{ collect([$log->city, $log->region])->filter()->implode(', ') }}
+                                                </p>
+                                            @endif
+
+                                            <div>
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                    Estimasi IP &middot; Belum Verifikasi GPS Akurat
+                                                </span>
+                                            </div>
                                         @endif
 
                                         @if ($log->is_timezone_mismatch)
@@ -446,14 +483,6 @@
                                                     <span>TZ: {{ $log->client_timezone ?: $log->ip_timezone }}</span>
                                                 </span>
                                             </div>
-                                        @endif
-
-                                        @if ($log->map_url)
-                                            <a href="{{ $log->map_url }}" target="_blank" rel="noopener noreferrer"
-                                               class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-700">
-                                                <span>Lihat Lokasi di Google Maps</span>
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                            </a>
                                         @endif
                                     </div>
                                 </div>

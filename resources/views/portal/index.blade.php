@@ -231,7 +231,7 @@
 
             if (!navigator.geolocation) {
                 this.locationLoading = false;
-                this.locationMessage = 'Browser Anda tidak mendukung deteksi lokasi.';
+                this.locationMessage = 'Browser Anda tidak mendukung deteksi lokasi GPS.';
                 return;
             }
 
@@ -239,6 +239,18 @@
                 (pos) => {
                     const lat = pos.coords.latitude;
                     const lon = pos.coords.longitude;
+                    const acc = typeof pos.coords.accuracy === 'number' ? Math.round(pos.coords.accuracy) : 0;
+
+                    if (acc > 150) {
+                        this.locationLoading = false;
+                        this.locationMessage = "Lokasi terdeteksi kurang akurat (Radius: " + acc + " meter). Harap aktifkan opsi 'Lokasi Akurat / Precise Location' pada pengaturan izin browser dan nyalakan GPS perangkat Anda, lalu coba lagi.";
+                        return;
+                    }
+
+                    if (window.__tkaTelemetry) {
+                        window.__tkaTelemetry.client_latitude = lat;
+                        window.__tkaTelemetry.client_longitude = lon;
+                    }
 
                     fetch('{{ route('portal.check-location') }}', {
                         method: 'POST',
@@ -251,7 +263,8 @@
                             school_name: this.selectedSchool,
                             email: this.email,
                             latitude: lat,
-                            longitude: lon
+                            longitude: lon,
+                            accuracy: acc
                         }))
                     })
                     .then(res => res.json())
@@ -266,23 +279,15 @@
                 },
                 (err) => {
                     this.locationLoading = false;
-                    fetch('{{ route('portal.check-location') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            school_name: this.selectedSchool,
-                            email: this.email,
-                            client_location: 'Izin Lokasi Browser Ditolak'
-                        })
-                    }).catch(() => {});
-
-                    this.locationMessage = 'Izin lokasi tidak diberikan. Harap aktifkan izin lokasi browser Anda.';
+                    if (err && err.code === 1) {
+                        this.locationMessage = 'Izin akses lokasi wajib diberikan untuk menggunakan fitur pengecekan jarak sekolah ini. Harap izinkan akses lokasi (Allow) pada pengaturan browser Anda.';
+                    } else if (err && err.code === 3) {
+                        this.locationMessage = 'Waktu pengambilan sinyal GPS akurat habis. Pastikan GPS perangkat Anda menyala dan coba lagi.';
+                    } else {
+                        this.locationMessage = 'Gagal mendeteksi lokasi GPS akurat. Pastikan GPS perangkat Anda aktif dan coba lagi.';
+                    }
                 },
-                { timeout: 10000, enableHighAccuracy: true }
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
         }
       }">

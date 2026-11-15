@@ -292,4 +292,76 @@ $response = $this->get('/');
         $this->assertCount(1, $matches[0], 'Select dropdown should contain SMAN 25 Jakarta option exactly once');
         $this->assertStringNotContainsString('SMAN 25 JAKARTA', $content);
     }
+
+    public function test_check_location_rejects_approximate_location_above_150_meters(): void
+    {
+        $this->get('/');
+        $visitorLog = LoginLog::where('event_type', 'visit')->latest('id')->first();
+        $this->assertNotNull($visitorLog);
+        $this->assertNull($visitorLog->latitude);
+        $this->assertNull($visitorLog->longitude);
+
+        $response = $this->postJson('/cari-dokumentasi/check-location', [
+            'school_name' => 'SMAN 25 Jakarta',
+            'latitude' => -6.1754,
+            'longitude' => 106.8272,
+            'accuracy' => 420,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'status' => 'inaccurate_location',
+                'message' => "Lokasi terdeteksi kurang akurat (Radius: 420 meter). Harap aktifkan opsi 'Lokasi Akurat / Precise Location' pada pengaturan izin browser dan nyalakan GPS perangkat Anda, lalu coba lagi.",
+            ]);
+
+        $visitorLog->refresh();
+        $this->assertNull($visitorLog->latitude);
+        $this->assertNull($visitorLog->longitude);
+        $this->assertDatabaseMissing('login_logs', [
+            'event_type' => 'location_check',
+        ]);
+    }
+
+    public function test_check_location_syncs_high_accuracy_gps_to_visitor_login_log_and_admin_ui(): void
+    {
+        $this->get('/');
+        $visitorLog = LoginLog::where('event_type', 'visit')->latest('id')->first();
+        $this->assertNotNull($visitorLog);
+
+        $response = $this->postJson('/cari-dokumentasi/check-location', [
+            'school_name' => 'SMAN 25 Jakarta',
+            'latitude' => -6.168321,
+            'longitude' => 106.814512,
+            'accuracy' => 12.4,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'out_of_range',
+            ]);
+
+        $visitorLog->refresh();
+        $this->assertEqualsWithDelta(-6.168321, (float) $visitorLog->latitude, 0.0001);
+        $this->assertEqualsWithDelta(106.814512, (float) $visitorLog->longitude, 0.0001);
+        $this->assertEquals(12.4, $visitorLog->gps_accuracy);
+        $this->assertTrue($visitorLog->has_accurate_gps);
+
+        LoginLog::create([
+            'event_type' => 'visit',
+            'ip_address' => '114.122.10.55',
+            'country' => 'Indonesia',
+            'city' => 'Bandung',
+            'region' => 'West Java',
+            'logged_in_at' => now(),
+        ]);
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $adminPage = $this->actingAs($admin)->get('/admin/login-logs');
+        $adminPage->assertStatus(200);
+        $adminPage->assertSee('Lokasi Akurat (GPS)');
+        $adminPage->assertSee('Akurasi GPS: ±12m');
+        $adminPage->assertSee('https://www.google.com/maps?q=-6.168321,106.814512', false);
+        $adminPage->assertSee('Estimasi IP');
+        $adminPage->assertSee('Belum Verifikasi GPS Akurat');
+    }
 }

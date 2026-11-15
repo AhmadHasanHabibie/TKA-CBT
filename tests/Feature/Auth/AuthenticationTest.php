@@ -151,6 +151,7 @@ $this->assertDatabaseHas('login_logs', [
 
         $response->assertStatus(200);
         $this->assertTrue(\Illuminate\Support\Facades\Schema::hasTable('login_logs'));
+        LoginLog::query()->delete();
     }
 
     public function test_users_can_logout(): void

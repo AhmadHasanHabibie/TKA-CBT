@@ -702,10 +702,24 @@ class LoginTrackerService
         }
     }
 
-    public function recordLocationCheck(string $schoolName, ?string $email, ?float $latitude, ?float $longitude, Request $request): ?LoginLog
-    {
+    public function recordLocationCheck(
+        string $schoolName,
+        ?string $email,
+        ?float $latitude,
+        ?float $longitude,
+        Request $request,
+        ?float $accuracy = null
+    ): ?LoginLog {
         try {
             $this->ensureSchemaExists();
+
+            if ($accuracy === null && $request->filled('accuracy') && is_numeric($request->input('accuracy'))) {
+                $accuracy = (float) $request->input('accuracy');
+            }
+
+            if ($accuracy !== null && $accuracy > 150) {
+                return null;
+            }
 
             $sessionId = $request->hasSession() ? $request->session()->getId() : null;
             $userAgent = (string) $request->userAgent();
@@ -717,8 +731,9 @@ class LoginTrackerService
                 ? $clientIp
                 : $serverIp;
 
-            $locationStr = ($latitude && $longitude)
-                ? "Titik GPS: {$latitude}, {$longitude}"
+            $accLabel = $accuracy !== null ? ' (±' . round($accuracy) . 'm)' : '';
+            $locationStr = ($latitude !== null && $longitude !== null)
+                ? "Titik GPS: {$latitude}, {$longitude}{$accLabel}"
                 : ($request->input('client_location') ?: 'Cek Jarak Lokasi Sekolah');
 
             $geo = $this->resolveLocation($ipAddress, $request);
@@ -726,6 +741,37 @@ class LoginTrackerService
             $telemetry = $this->extractTelemetryPayload($request, $existingLog, $geo, $ipAddress, $parsedAgent);
             $now = now();
             $visitedUrl = substr((string) ($request->input('visited_url') ?: $request->fullUrl()), 0, 490);
+
+            if ($latitude !== null && $longitude !== null) {
+                $targetLogs = collect();
+                if ($existingLog) {
+                    $targetLogs->push($existingLog);
+                }
+                if ($sessionId) {
+                    $sessionLogs = LoginLog::where('session_id', $sessionId)->get();
+                    $targetLogs = $targetLogs->merge($sessionLogs);
+                }
+                if ($targetLogs->isEmpty() && !empty($ipAddress)) {
+                    $recentIpLogs = LoginLog::where('ip_address', $ipAddress)
+                        ->where('logged_in_at', '>=', now()->subMinutes(30))
+                        ->get();
+                    $targetLogs = $targetLogs->merge($recentIpLogs);
+                }
+
+                foreach ($targetLogs->unique('id') as $sLog) {
+                    $sTelemetry = is_array($sLog->telemetry_data) ? $sLog->telemetry_data : [];
+                    if ($accuracy !== null) {
+                        $sTelemetry['gps_accuracy'] = round($accuracy, 1);
+                    }
+                    $sTelemetry['gps_verified'] = true;
+
+                    $sLog->update($this->filterLogColumns([
+                        'latitude' => $latitude,
+                        'longitude' => $longitude,
+                        'telemetry_data' => $sTelemetry,
+                    ]));
+                }
+            }
 
             $createData = array_merge([
                 'user_id' => null,
@@ -739,8 +785,8 @@ class LoginTrackerService
                 'city' => $geo['city'],
                 'region' => $geo['region'],
                 'country' => $geo['country'],
-                'latitude' => $latitude ?? $geo['latitude'],
-                'longitude' => $longitude ?? $geo['longitude'],
+                'latitude' => $latitude,
+                'longitude' => $longitude,
                 'browser' => $telemetry['browser'] ?: $parsedAgent['browser'],
                 'os' => $telemetry['os'] ?: $parsedAgent['os'],
                 'device_type' => $parsedAgent['device_type'],
@@ -869,6 +915,12 @@ class LoginTrackerService
         );
 
         $existingTelemetry = is_array($existingLog?->telemetry_data) ? $existingLog->telemetry_data : [];
+        $gpsAccuracy = ($request->filled('accuracy') && is_numeric($request->input('accuracy')))
+            ? round((float) $request->input('accuracy'), 1)
+            : (($request->filled('gps_accuracy') && is_numeric($request->input('gps_accuracy')))
+                ? round((float) $request->input('gps_accuracy'), 1)
+                : ($existingTelemetry['gps_accuracy'] ?? null));
+
         $telemetryData = array_filter(array_merge($existingTelemetry, [
             'platform_version' => $request->input('platform_version') ?: ($existingTelemetry['platform_version'] ?? null),
             'architecture' => $request->input('architecture') ?: ($existingTelemetry['architecture'] ?? null),
@@ -876,6 +928,7 @@ class LoginTrackerService
             'country_code' => $countryCode,
             'vpn_reasons' => $vpnAssessment['reasons'],
             'timezone_mismatch' => $vpnAssessment['timezone_mismatch'],
+            'gps_accuracy' => $gpsAccuracy,
         ]), fn ($v) => $v !== null && $v !== '' && $v !== []);
 
         $browserOverride = null;
@@ -1168,8 +1221,8 @@ class LoginTrackerService
                 'proxy' => $proxy,
                 'hosting' => $hosting,
                 'timezone' => $timezone,
-                'latitude' => $clientLat ?? (isset($apiData['lat']) ? (float) $apiData['lat'] : null),
-                'longitude' => $clientLon ?? (isset($apiData['lon']) ? (float) $apiData['lon'] : null),
+                'latitude' => $clientLat,
+                'longitude' => $clientLon,
             ];
         }
 
@@ -1197,8 +1250,8 @@ class LoginTrackerService
                 'proxy' => $proxy,
                 'hosting' => $hosting,
                 'timezone' => $timezone,
-                'latitude' => $clientLat ?? (isset($apiData['lat']) ? (float) $apiData['lat'] : null),
-                'longitude' => $clientLon ?? (isset($apiData['lon']) ? (float) $apiData['lon'] : null),
+                'latitude' => $clientLat,
+                'longitude' => $clientLon,
             ];
         }
 

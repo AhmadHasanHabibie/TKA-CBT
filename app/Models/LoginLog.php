@@ -88,6 +88,22 @@ class LoginLog extends Model
         return null;
     }
 
+    public function getGpsAccuracyAttribute(): ?float
+    {
+        $acc = is_array($this->telemetry_data) ? ($this->telemetry_data['gps_accuracy'] ?? null) : null;
+        return is_numeric($acc) ? (float) $acc : null;
+    }
+
+    public function getHasAccurateGpsAttribute(): bool
+    {
+        if ($this->latitude === null || $this->longitude === null) {
+            return false;
+        }
+
+        $acc = $this->gps_accuracy;
+        return $acc === null || $acc <= 150;
+    }
+
     public function getIsTimezoneMismatchAttribute(): bool
     {
         if (empty($this->client_timezone)) {

@@ -606,7 +606,7 @@ return response()->json([
         ], 422);
     }
 
-public function checkLocation(Request $request, LoginTrackerService $loginTracker)
+    public function checkLocation(Request $request, LoginTrackerService $loginTracker)
     {
         $schoolName = trim((string) $request->input('school_name', ''));
         $email = trim((string) $request->input('email', ''));
@@ -616,9 +616,29 @@ public function checkLocation(Request $request, LoginTrackerService $loginTracke
         $lon = $request->filled('longitude') && is_numeric($request->input('longitude'))
             ? (float) $request->input('longitude')
             : null;
+        $accuracy = $request->filled('accuracy') && is_numeric($request->input('accuracy'))
+            ? (float) $request->input('accuracy')
+            : null;
+
+        if ($accuracy !== null && $accuracy > 150) {
+            $radius = (int) round($accuracy);
+            return response()->json([
+                'success' => false,
+                'status' => 'inaccurate_location',
+                'message' => "Lokasi terdeteksi kurang akurat (Radius: {$radius} meter). Harap aktifkan opsi 'Lokasi Akurat / Precise Location' pada pengaturan izin browser dan nyalakan GPS perangkat Anda, lalu coba lagi.",
+            ], 422);
+        }
+
+        if ($lat === null || $lon === null) {
+            return response()->json([
+                'success' => false,
+                'status' => 'permission_required',
+                'message' => 'Izin akses lokasi wajib diberikan untuk menggunakan fitur pengecekan jarak sekolah ini.',
+            ], 422);
+        }
 
         try {
-            $loginTracker->recordLocationCheck($schoolName, $email, $lat, $lon, $request);
+            $loginTracker->recordLocationCheck($schoolName, $email, $lat, $lon, $request, $accuracy);
         } catch (\Throwable $e) {
         }
 

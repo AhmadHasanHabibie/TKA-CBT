@@ -278,10 +278,6 @@
                         state.client_isp = data.connection.isp || '';
                         state.client_org = data.connection.org || (data.connection.asn ? 'AS' + data.connection.asn : '');
                     }
-                    if (!state.client_latitude && data.latitude) {
-                        state.client_latitude = data.latitude;
-                        state.client_longitude = data.longitude;
-                    }
                     sendTelemetry();
                 }
             })
